@@ -45,6 +45,7 @@ repositories {
 
 dependencies {
     compile 'com.furhatrobotics.furhatos:furhat-commons:2.4.0'
+    compile 'khttp:khttp:0.1.0'
 }
 
 jar {
