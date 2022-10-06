@@ -4,6 +4,9 @@ import furhatos.app.agent.flow.Parent
 import furhatos.nlu.common.*
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 val BASE_URL = "https://api.spoonacular.com/recipes/search" // Endpoint for Wolfram Alpha's API with answers tailored for spoken interactions
 val API_KEY = "e9eeb0d76f024efcaf7cd32ae444c899" // Test account, feel free to use it for testing.
@@ -52,8 +55,9 @@ fun query(question: String) = state {
          to allow our timeout below to stop the call if it takes to long. Note that you explicitly has to cast the result to a String.
           */
         val response = call {
-            khttp.get(query).text
+            khttp.get(query).jsonObject.getJSONArray("results").getJSONObject(0).getString("title") //jsonObject.getString('Title')
         } as String
+
 
 //        // Reply to user depending on the returned response
 //        val reply = when {
