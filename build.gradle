@@ -44,8 +44,12 @@ repositories {
 
 
 dependencies {
+    implementation 'org.postgresql:postgresql:42.5.0'
+    implementation 'org.xerial:sqlite-jdbc:3.39.3.0'
+    implementation 'com.github.gotson:sqlite-jdbc:3.32.3.8'
     compile 'com.furhatrobotics.furhatos:furhat-commons:2.4.0'
     compile 'khttp:khttp:0.1.0'
+
 }
 
 jar {
