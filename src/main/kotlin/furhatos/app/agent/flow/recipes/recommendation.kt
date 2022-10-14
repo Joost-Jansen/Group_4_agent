@@ -63,7 +63,7 @@ val RandomRecommendation : State = state(Parent) {
 fun RandomRecipes(input : String) = state(Parent) {
     onEntry {
         // Get responses
-        val results = call(query(input, "random")) as List<String>
+        val results = call(query(input, "random", "recipes")) as List<String>
 
         if (results.isEmpty()) {
             furhat.say("I could connect to my brain or did not find anything")
@@ -107,7 +107,7 @@ val SearchBasedRecommendation : State = state(Parent) {
 fun SearchRecipes(input : String) : State = state(Parent) {
     onEntry {
         // Get responses
-        val results = call(query(input, "search")) as List<String>
+        val results = call(query(input, "search", "recipes")) as List<String>
 
         if (results.isEmpty()) {
             furhat.say("I could connect to my brain or did not find anything")

@@ -30,10 +30,3 @@ val AcceptFromList: State = state(Parent) {
         terminate(it.text)
     }
 }
-
-val FoodJoke : State = state(Parent) {
-    onEntry {
-        furhat.ask("Would you like to hear a joke?")
-    }
-    // TODO foodjoke connect to API
-}
