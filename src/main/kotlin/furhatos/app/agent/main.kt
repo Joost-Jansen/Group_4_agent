@@ -1,9 +1,8 @@
 package furhatos.app.agent
 
-import furhatos.app.agent.flow.*
+import furhatos.app.agent.flow.Init
+import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
-import furhatos.flow.kotlin.*
-
 class AgentSkill : Skill() {
     override fun start() {
         Flow().run(Init)
@@ -12,4 +11,5 @@ class AgentSkill : Skill() {
 
 fun main(args: Array<String>) {
     Skill.main(args)
+
 }
