@@ -28,4 +28,16 @@
   "favourite_meals": [""],
   "favourite_ingredients": [""],
   "least_favourite_ingredients": ["", "milk"]
+}, {
+  "user_id": 5,
+  "previous_recommendations": [],
+  "favourite_meals": [],
+  "favourite_ingredients": [],
+  "least_favourite_ingredients": []
+}, {
+  "user_id": 6,
+  "previous_recommendations": [],
+  "favourite_meals": [],
+  "favourite_ingredients": [],
+  "least_favourite_ingredients": []
 }]

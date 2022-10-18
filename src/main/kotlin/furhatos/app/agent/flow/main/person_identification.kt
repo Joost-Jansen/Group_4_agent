@@ -1,6 +1,7 @@
 package furhatos.app.agent.flow.main
 
 import furhatos.app.agent.current_user
+import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.Parent
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
@@ -19,12 +20,16 @@ val personal_identification : State = state(Parent) {
 
     onResponse<No> {
             furhat.say("That's alright. We'll do that another time.")
+            dataManager.writeUser(current_user)
+            goto(Idle)
         }
 
 
     onResponse<Yes> {
         furhat.say("Great. Let's start")
-        // goto
+        // Should ask personal information but not yet implemented therefore this:
+        dataManager.writeUser(current_user)
+        furhat.say("I completely forgot. I have to go to the bakery right now. Let's talk another time. I won't forget you ${current_user.name}, Bye")
         goto(Idle)
     }
 }

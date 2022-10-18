@@ -21,9 +21,9 @@ data class User(
  *  Can read and write data
  */
 class DataManager () {
-        val oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
-        val longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
-        val dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
+        var oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
+        var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
+        var dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
 
     /**
      * Creates new user with newID.
@@ -53,6 +53,7 @@ class DataManager () {
      *  return: User or null
      */
     fun getUserByName(username: String): User? {
+
         val dfUser = dfUsers.firstOrNull { it["name"] == username }
         if (dfUser != null){
             return User(
@@ -96,6 +97,8 @@ class DataManager () {
         val oneShotUser = dataFrameOf(oneShotNames, oneShotValues)
         val oneShotDropped = oneShot.drop{ it["user_id"] == user.id}
         val newOneShot = oneShotDropped.concat(oneShotUser).sortBy("user_id")
+        this.oneShot = newOneShot
+
         print(newOneShot.head())
         newOneShot.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json", prettyPrint = true)
 
@@ -105,8 +108,11 @@ class DataManager () {
         val longTermUser = dataFrameOf(longTermNames, longTermValues)
         val longTermDropped = longTerm.drop{ it["user_id"] == user.id}
         val newLongTerm = longTermDropped.concat(longTermUser).sortBy("user_id")
+        this.longTerm = newLongTerm
+
         print(newLongTerm.head())
         newLongTerm.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json", prettyPrint = true)
+        dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
     }
 }
 

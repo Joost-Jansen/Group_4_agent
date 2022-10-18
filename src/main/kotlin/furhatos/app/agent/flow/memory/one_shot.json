@@ -23,4 +23,14 @@
   "name": "James",
   "diet": [""],
   "allergies": ["peanuts"]
+}, {
+  "user_id": 5,
+  "name": "Jeff",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 6,
+  "name": "Eric",
+  "diet": [],
+  "allergies": []
 }]
