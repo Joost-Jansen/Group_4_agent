@@ -18,4 +18,9 @@
   "name": "jochem",
   "diet": [""],
   "allergies": ["peanuts"]
+}, {
+  "user_id": 4,
+  "name": "James",
+  "diet": [""],
+  "allergies": ["peanuts"]
 }]

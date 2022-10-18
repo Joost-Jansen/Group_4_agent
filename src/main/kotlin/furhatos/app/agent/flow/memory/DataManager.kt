@@ -9,10 +9,10 @@ import java.time.LocalDateTime
  *  User class with all data known from user. Contains short-term, long-term and one-shot memory of the user
  */
 data class User(
-    val id: Int, val name: String, val diet: MutableList<String>, val allergies: MutableList<String>,
-    val previous_recommendations: MutableList<String>, val favourite_meals: MutableList<String>,
-    val favourite_ingredients: MutableList<String>, val least_favourite_ingredients: MutableList<String>,
-    val preferences: MutableList<String>, val prior_meal: String, val time: LocalDateTime, val left_overs: MutableList<String>)
+    val id: Int, var name: String, var diet: MutableList<String>, var allergies: MutableList<String>,
+    var previous_recommendations: MutableList<String>, var favourite_meals: MutableList<String>,
+    var favourite_ingredients: MutableList<String>, var least_favourite_ingredients: MutableList<String>,
+    var preferences: MutableList<String>, var prior_meal: String, var time: LocalDateTime, var left_overs: MutableList<String>)
 
 
 /**
@@ -31,10 +31,18 @@ class DataManager () {
      * input: all User variables except ID
      * return: returns new User
      */
-    fun newUser(name: String,diet: MutableList<String>, allergies: MutableList<String>,
-                previous_recommendations: MutableList<String>, favourite_meals: MutableList<String>,
-                favourite_ingredients: MutableList<String>, least_favourite_ingredients: MutableList<String>,
-                preferences: MutableList<String>, prior_meal: String, time: LocalDateTime, left_overs: MutableList<String>): User {
+    fun newUser(name: String = "",
+                diet: MutableList<String> = mutableListOf(),
+                allergies: MutableList<String> =  mutableListOf(),
+                previous_recommendations: MutableList<String> =  mutableListOf(),
+                favourite_meals: MutableList<String> =  mutableListOf(),
+                favourite_ingredients: MutableList<String> = mutableListOf(),
+                least_favourite_ingredients: MutableList<String> =  mutableListOf(),
+                preferences: MutableList<String> = mutableListOf(),
+                prior_meal: String = "",
+                time: LocalDateTime = LocalDateTime.now(),
+                left_overs: MutableList<String> = mutableListOf()
+    ): User {
         val id = dfUsers.maxBy("user_id")["user_id"].toString().toInt() + 1
         return User(id, name, diet, allergies, previous_recommendations, favourite_meals, favourite_ingredients, least_favourite_ingredients, preferences, prior_meal, time, left_overs)
     }
@@ -110,7 +118,7 @@ fun main(args: Array<String>) {
     val dm = DataManager()
 
     // example of user check
-    val inputName = "jochem"
+    val inputName = "james"
     // Example check if user joost already exists
     val user = dm.getUserByName(inputName)
     if (user != null) {
