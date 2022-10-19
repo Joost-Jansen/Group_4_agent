@@ -1,43 +1,11 @@
 [{
   "user_id": 0,
-  "previous_recommendations": ["pasta", "chili con carne"],
-  "favourite_meals": ["chili con carne", "pizza"],
-  "favourite_ingredients": ["tomato"],
-  "least_favourite_ingredients": ["peanuts", "milk"]
+  "meals": "     course     id last_selected likes                                     name\n 0 Japanese  73420          null     1                   Apple Or Peach Strudel\n 1 Japanese 716429          null     3 Pasta with Garlic, Scallions, Caulifl...\n",
+  "ingredients": "   likes   name\n 0     3 Tomato\n 1     1 Potato\n",
+  "cuisines": "   likes   name\n 0     3 Tomato\n 1     1 Potato\n"
 }, {
-  "user_id": 1,
-  "previous_recommendations": [],
-  "favourite_meals": ["dog food"],
-  "favourite_ingredients": ["broccoli"],
-  "least_favourite_ingredients": ["toothpaste"]
-}, {
-  "user_id": 2,
-  "previous_recommendations": ["burrito"],
-  "favourite_meals": ["pizza"],
-  "favourite_ingredients": ["jam"],
-  "least_favourite_ingredients": ["chocolate"]
-}, {
-  "user_id": 3,
-  "previous_recommendations": [""],
-  "favourite_meals": [""],
-  "favourite_ingredients": [""],
-  "least_favourite_ingredients": ["milk", "  milk", " milk", "milk"]
-}, {
-  "user_id": 4,
-  "previous_recommendations": [""],
-  "favourite_meals": [""],
-  "favourite_ingredients": [""],
-  "least_favourite_ingredients": ["", "milk"]
-}, {
-  "user_id": 5,
-  "previous_recommendations": [],
-  "favourite_meals": [],
-  "favourite_ingredients": [],
-  "least_favourite_ingredients": []
-}, {
-  "user_id": 6,
-  "previous_recommendations": [],
-  "favourite_meals": [],
-  "favourite_ingredients": [],
-  "least_favourite_ingredients": []
+  "user_id": 7,
+  "meals": "[]",
+  "ingredients": "[]",
+  "cuisines": "[]"
 }]

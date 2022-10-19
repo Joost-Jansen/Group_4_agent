@@ -1,20 +1,46 @@
 //package furhatos.app.agent.flow.memory
-
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
 import org.jetbrains.kotlinx.dataframe.io.writeJson
-import java.time.LocalDateTime
+import java.time.LocalDate
+
 /**
  *  User class with all data known from user. Contains short-term, long-term and one-shot memory of the user
  */
 data class User(
-    val id: Int, var name: String, var diet: MutableList<String>, var allergies: MutableList<String>,
-    var previous_recommendations: MutableList<String>, var favourite_meals: MutableList<String>,
-    var favourite_ingredients: MutableList<String>, var least_favourite_ingredients: MutableList<String>,
-    var preferences: MutableList<String>, var prior_meal: String, var time: LocalDateTime, var left_overs: MutableList<String>)
+    // one shot
+    val user_id: Int,
+    var name: String,
+    var diet: MutableList<String>,
+    var allergies: MutableList<String>,
+    // long term
+    var meals: MutableList<Meal>,
+    var ingredients: MutableList<Ingredient>,
+    var cuisines: MutableList<Cuisine>,
+    // short term
+    var time: LocalDate,
+    var preferences: MutableList<String>,
+    var left_overs: MutableList<Ingredient>)
 
 
+data class Meal(
+    val id: Int, // id in spoonacular can request by getID
+    val name: String, // name of meal
+    var likes: Int, // amount of likes or dislikes (when negative)
+    var last_selected: LocalDate, // last time this meal was selected
+    var course: String // type of meal eg. desert
+)
+
+data class Ingredient(
+    val name: String,
+    var likes: Int
+)
+
+data class Cuisine(
+    val name: String,
+    var likes: Int
+)
 /**
  *  Class Datamanger:
  *  Handles storage of long term and one_shot data.
@@ -34,17 +60,15 @@ class DataManager () {
     fun newUser(name: String = "",
                 diet: MutableList<String> = mutableListOf(),
                 allergies: MutableList<String> =  mutableListOf(),
-                previous_recommendations: MutableList<String> =  mutableListOf(),
-                favourite_meals: MutableList<String> =  mutableListOf(),
-                favourite_ingredients: MutableList<String> = mutableListOf(),
-                least_favourite_ingredients: MutableList<String> =  mutableListOf(),
+                meals: MutableList<Meal> =  mutableListOf(),
+                favourite_ingredients: MutableList<Ingredient> = mutableListOf(),
+                cuisines: MutableList<Cuisine> = mutableListOf(),
                 preferences: MutableList<String> = mutableListOf(),
-                prior_meal: String = "",
-                time: LocalDateTime = LocalDateTime.now(),
-                left_overs: MutableList<String> = mutableListOf()
+                time: LocalDate = LocalDate.now(),
+                left_overs: MutableList<Ingredient> = mutableListOf()
     ): User {
         val id = dfUsers.maxBy("user_id")["user_id"].toString().toInt() + 1
-        return User(id, name, diet, allergies, previous_recommendations, favourite_meals, favourite_ingredients, least_favourite_ingredients, preferences, prior_meal, time, left_overs)
+        return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
     }
 
     /**
@@ -56,26 +80,42 @@ class DataManager () {
 
         val dfUser = dfUsers.firstOrNull { it["name"] == username }
         if (dfUser != null){
+
+            val m = dfUser["meals"] as DataFrame<*>
+            val meals: MutableList<Meal> = mutableListOf()
+            m.forEach {
+                meals.add(Meal(it["id"].toString().toInt(), it["name"].toString(), it["likes"].toString().toInt(), LocalDate.parse(it["last_selected"].toString()), it["course"].toString()))
+            }
+
+            val i = dfUser["ingredients"] as DataFrame<*>
+            val ingredients: MutableList<Ingredient> = mutableListOf()
+            i.forEach {
+                ingredients.add(Ingredient(it["name"].toString(), it["likes"].toString().toInt()))
+            }
+
+            val c = dfUser["ingredients"] as DataFrame<*>
+            val cuisines: MutableList<Cuisine> = mutableListOf()
+            c.forEach {
+                cuisines.add(Cuisine(it["name"].toString(), it["likes"].toString().toInt()))
+            }
+
             return User(
                 dfUser["user_id"].toString().toInt(),
                 dfUser["name"].toString(),
                 stringToList(dfUser["diet"].toString()),
                 stringToList(dfUser["allergies"].toString()),
-                stringToList(dfUser["previous_recommendations"].toString()),
-                stringToList(dfUser["favourite_meals"].toString()),
-                stringToList(dfUser["favourite_ingredients"].toString()),
-                stringToList(dfUser["least_favourite_ingredients"].toString()),
+                meals,
+                ingredients,
+                cuisines,
+                LocalDate.now(),
                 mutableListOf(),
-                "",
-                LocalDateTime.now(),
-                mutableListOf()
+                mutableListOf<Ingredient>()
             )
         }
         else {
             return null
         }
     }
-
 
     /**
      * input: string of type "[x,y,z]"
@@ -93,9 +133,9 @@ class DataManager () {
     fun writeUser(user: User){
         print(oneShot.head())
         val oneShotNames = listOf("user_id", "name", "diet", "allergies")
-        val oneShotValues = listOf(user.id, user.name, user.diet, user.allergies)
+        val oneShotValues = listOf(user.user_id, user.name, user.diet, user.allergies)
         val oneShotUser = dataFrameOf(oneShotNames, oneShotValues)
-        val oneShotDropped = oneShot.drop{ it["user_id"] == user.id}
+        val oneShotDropped = oneShot.drop{ it["user_id"] == user.user_id}
         val newOneShot = oneShotDropped.concat(oneShotUser).sortBy("user_id")
         this.oneShot = newOneShot
 
@@ -103,10 +143,11 @@ class DataManager () {
         newOneShot.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json", prettyPrint = true)
 
         print(longTerm.head())
-        val longTermNames = listOf("user_id","previous_recommendations","favourite_meals","favourite_ingredients", "least_favourite_ingredients")
-        val longTermValues = listOf(user.id, user.previous_recommendations, user.favourite_meals, user.favourite_ingredients, user.least_favourite_ingredients)
+//        val meals = dataFrameOf(listOf("id", "name", "likes", "last_selected", "course"), )
+        val longTermNames = listOf("user_id","meals","ingredients","cuisines")
+        val longTermValues = listOf(user.user_id, user.meals, user.ingredients, user.cuisines)
         val longTermUser = dataFrameOf(longTermNames, longTermValues)
-        val longTermDropped = longTerm.drop{ it["user_id"] == user.id}
+        val longTermDropped = longTerm.drop{ it["user_id"] == user.user_id}
         val newLongTerm = longTermDropped.concat(longTermUser).sortBy("user_id")
         this.longTerm = newLongTerm
 
@@ -122,40 +163,52 @@ class DataManager () {
  */
 fun main(args: Array<String>) {
     val dm = DataManager()
-
-    // example of user check
-    val inputName = "james"
-    // Example check if user joost already exists
-    val user = dm.getUserByName(inputName)
+    print(dm.dfUsers.head())
+    val user = dm.getUserByName("joost")
     if (user != null) {
-        // if yes edit some things during sessions and continue
-        user.least_favourite_ingredients.add("milk")
-        user.favourite_meals.remove("sandwich ham cheese")
-        // at the end of the session write back to long term and one-shor
         dm.writeUser(user)
     }
-    // New user
-    else {
-        // Retrieve information
-        // first one-shot
-        val name = inputName
-        val diet = mutableListOf("")
-        val allergies = mutableListOf("peanuts")
-        // long term
-        val previous_recommendations = mutableListOf<String>()
-        val favourite_meals = mutableListOf<String>()
-        val favourite_ingredients = mutableListOf<String>()
-        val least_favourite_ingredients = mutableListOf<String>()
-        // one-shot
-        val preferences = mutableListOf<String>()
-        val prior_meal =  ""
-        val time = LocalDateTime.now()
-        val left_overs = mutableListOf<String>()
-        val newUser = dm.newUser(name, diet, allergies, previous_recommendations, favourite_meals, favourite_ingredients,
-            least_favourite_ingredients, preferences, prior_meal, time , left_overs )
+    print(user?.ingredients)
 
-        // Write new user to file but forget short term memory
-        dm.writeUser(newUser)
-    }
+
+//    var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term2.json")
+//    print(longTerm.forEach { print(it["prior_meals"]) })
+//    print(longTerm.head())
+//    val dm = DataManager()
+//
+//    // example of user check
+//    val inputName = "james"
+//    // Example check if user joost already exists
+//    val user = dm.getUserByName(inputName)
+//    if (user != null) {
+//        // if yes edit some things during sessions and continue
+//        user.least_favourite_ingredients.add("milk")
+//        user.favourite_meals.remove("sandwich ham cheese")
+//        // at the end of the session write back to long term and one-shor
+//        dm.writeUser(user)
+//    }
+//    // New user
+//    else {
+//        // Retrieve information
+//        // first one-shot
+//        val name = inputName
+//        val diet = mutableListOf("")
+//        val allergies = mutableListOf("peanuts")
+//        // long term
+//        val previous_recommendations = mutableListOf<String>()
+//        val favourite_meals = mutableListOf<String>()
+//        val favourite_ingredients = mutableListOf<String>()
+//        val least_favourite_ingredients = mutableListOf<String>()
+//        // one-shot
+//        val preferences = mutableListOf<String>()
+//        val prior_meal =  ""
+//        val time = LocalDateTime.now()
+//        val left_overs = mutableListOf<String>()
+//        val newUser = dm.newUser(name, diet, allergies, previous_recommendations, favourite_meals, favourite_ingredients,
+//            least_favourite_ingredients, preferences, prior_meal, time , left_overs )
+//
+//        // Write new user to file but forget short term memory
+//        dm.writeUser(newUser)
+//    }
 
 }

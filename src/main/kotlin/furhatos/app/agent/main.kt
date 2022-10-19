@@ -1,16 +1,18 @@
 package furhatos.app.agent
+import Cuisine
 import DataManager
+import Ingredient
+import Meal
 import User
 import furhatos.app.agent.flow.Init
 import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
-import java.time.LocalDateTime
+import java.time.LocalDate
 
 //global variable
 val dataManager = DataManager()
 var current_user: User = User(-1, "", mutableListOf<String>(), mutableListOf<String>(),
-    mutableListOf<String>(), mutableListOf<String>(), mutableListOf<String>(),mutableListOf<String>(),
-    mutableListOf<String>(), "", LocalDateTime.now(), mutableListOf<String>())
+    mutableListOf<Meal>(), mutableListOf<Ingredient>(), mutableListOf<Cuisine>(), LocalDate.now(), mutableListOf<String>(), mutableListOf<Ingredient>())
 
 class AgentSkill : Skill() {
     override fun start() {
