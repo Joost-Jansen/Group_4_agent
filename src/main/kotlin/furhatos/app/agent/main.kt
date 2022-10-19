@@ -1,8 +1,16 @@
 package furhatos.app.agent
-
-import furhatos.app.agent.flow.*
+import DataManager
+import User
+import furhatos.app.agent.flow.Init
+import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
-import furhatos.flow.kotlin.*
+import java.time.LocalDateTime
+
+//global variable
+val dataManager = DataManager()
+var current_user: User = User(-1, "", mutableListOf<String>(), mutableListOf<String>(),
+    mutableListOf<String>(), mutableListOf<String>(), mutableListOf<String>(),mutableListOf<String>(),
+    mutableListOf<String>(), "", LocalDateTime.now(), mutableListOf<String>())
 
 class AgentSkill : Skill() {
     override fun start() {
@@ -12,4 +20,5 @@ class AgentSkill : Skill() {
 
 fun main(args: Array<String>) {
     Skill.main(args)
+
 }
