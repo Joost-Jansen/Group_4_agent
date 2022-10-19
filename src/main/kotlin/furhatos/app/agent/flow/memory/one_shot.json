@@ -1,0 +1,36 @@
+[{
+  "user_id": 0,
+  "name": "joost",
+  "diet": ["vegan"],
+  "allergies": ["peanuts", "milk"]
+}, {
+  "user_id": 1,
+  "name": "zeger",
+  "diet": [],
+  "allergies": ["chocolate"]
+}, {
+  "user_id": 2,
+  "name": "jim",
+  "diet": ["vegatarian"],
+  "allergies": []
+}, {
+  "user_id": 3,
+  "name": "jochem",
+  "diet": [""],
+  "allergies": ["peanuts"]
+}, {
+  "user_id": 4,
+  "name": "James",
+  "diet": [""],
+  "allergies": ["peanuts"]
+}, {
+  "user_id": 5,
+  "name": "Jeff",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 6,
+  "name": "Eric",
+  "diet": [],
+  "allergies": []
+}]
