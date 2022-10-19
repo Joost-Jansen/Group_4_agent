@@ -50,7 +50,7 @@ class Preparation : EnumEntity() {
     }
 }
 
-class foodPreperation(
+class FoodPreperation(
     val prep : Preparation? = null,
     val ingredient: Ingredients? = null) : ComplexEnumEntity() {
 
