@@ -4,6 +4,9 @@ import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
 import org.jetbrains.kotlinx.dataframe.io.writeJson
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import java.util.*
 
 /**
  *  User class with all data known from user. Contains short-term, long-term and one-shot memory of the user
@@ -30,17 +33,58 @@ data class Meal(
     var likes: Int, // amount of likes or dislikes (when negative)
     var last_selected: LocalDate, // last time this meal was selected
     var course: String // type of meal eg. desert
-)
+) : Comparable<Meal> {
+    override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
+}
 
 data class Ingredient(
     val name: String,
     var likes: Int
-)
+) : Comparable<Ingredient> {
+    override fun compareTo(other: Ingredient) = compareValuesBy(this, other) { it.likes }
+}
 
 data class Cuisine(
     val name: String,
     var likes: Int
-)
+) : Comparable<Cuisine> {
+    override fun compareTo(other: Cuisine) = compareValuesBy(this, other) { it.likes }
+}
+
+class UserUpdates {
+    fun findLikedMeal(list: MutableList<Meal>): Meal? {
+        val max = list.maxOrNull()
+        return if (max != null && max.likes > 0) {
+            val diff: Long = ChronoUnit.DAYS.between(max.last_selected, LocalDate.now())
+            if (diff < 3 && list.remove(max)) findLikedMeal(list) else max
+        } else max
+    }
+
+    // Update last selected as meal
+    fun updateMealDate(meal : Meal, list: MutableList<Meal>, date: LocalDate): MutableList<Meal> {
+        list?.find { it.id == meal.id }?.last_selected = date
+        return list
+    }
+
+    // Update meal likes
+    fun updateLikes(meal : Meal, list: MutableList<Meal>, rating: Int): MutableList<Meal> {
+        list?.find { it.id == meal.id }?.likes?.plus(rating)
+        return list
+    }
+
+    // Ingredient likes
+    fun updateLikes(meal : Ingredient, list: MutableList<Ingredient>, rating: Int): MutableList<Ingredient> {
+        list?.find { it.name == meal.name }?.likes?.plus(rating)
+        return list
+    }
+
+    // Cuisine likes
+    fun updateLikes(meal : Cuisine, list: MutableList<Cuisine>, rating: Int): MutableList<Cuisine> {
+        list?.find { it.name == meal.name }?.likes?.plus(rating)
+        return list
+    }
+}
+
 /**
  *  Class Datamanger:
  *  Handles storage of long term and one_shot data.
