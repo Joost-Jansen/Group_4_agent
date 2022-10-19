@@ -23,6 +23,7 @@ val FoodJoke : State = state(Parent) {
     // If not, ask if the user wants new ones
     onResponse<No>{
         furhat.say("Okay, no problem!")
+        goto(Idle)
     }
 }
 

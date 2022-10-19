@@ -1,40 +1,35 @@
 package furhatos.app.agent.flow.recipes
 
 import furhatos.app.agent.flow.Parent
+import furhatos.app.agent.flow.main.Evaluation
 import furhatos.app.agent.flow.main.Idle
 import furhatos.nlu.common.*
 import furhatos.nlu.common.Number as NumberNLU
 import furhatos.flow.kotlin.*
-import kotlin.random.Random
 
 val BASE_URL = "https://api.spoonacular.com" // Spoonacular API url
 val API_KEY = "e9eeb0d76f024efcaf7cd32ae444c899" // Key to free account
 val TIMEOUT = 5000 // 4 seconds
 
 // Start state containing everything except the query to the API
-fun Recommendation(states: List<State>) : State = state(Parent) {
+val Recommendation : State = state(Parent) {
     onEntry {
-        furhat.ask("Hi there! Would you like to eat something?")
+        furhat.ask("Welcome at the recommendation module. Would you like a random recommendation?")
     }
 
     onResponse<Yes>{
-        // All recommendation states available
-        val allStates = listOf(RandomRecommendation, SearchBasedRecommendation)
-
-        if (states.isEmpty()) {
-            // If no states available to visit, get random one from total
-            val rand = Random.nextInt(0, allStates.size)
-            goto(allStates[rand])
-        } else {
-            // Get state from non-visited states
-            val rand = Random.nextInt(0, states.size)
-            goto(states[rand])
-        }
+        furhat.say("Going to random recommendation.")
+        goto(RandomRecommendation)
     }
 
     onResponse<No>{
-        furhat.say("Okay, no problem.")
-        goto(FoodJoke)
+        furhat.say("Going to search based recommendation.")
+        goto(SearchBasedRecommendation)
+    }
+
+    onResponse {
+        furhat.say("Going to evaluation module.")
+        goto(Evaluation)
     }
 
 }
@@ -51,16 +46,16 @@ val RandomRecommendation : State = state(Parent) {
 
     // If user does not want random one, recommend search based
     onResponse<No>{
-        furhat.say("Okay, no worries.")
-        goto(Recommendation(listOf(SearchBasedRecommendation)))
+        furhat.say("Okay, lets go to search based recommendation.")
+        goto(SearchBasedRecommendation)
     }
 
     onResponse<NumberNLU>{
-        goto(RandomRecipes(it.text))
+        goto(randomRecipes(it.text))
     }
 }
 
-fun RandomRecipes(input : String) = state(Parent) {
+fun randomRecipes(input : String) = state(Parent) {
     onEntry {
         // Get responses
         val results = call(query(input, "random", "recipes")) as List<String>
@@ -96,15 +91,16 @@ val SearchBasedRecommendation : State = state(Parent) {
 
     // If user does not want random one, recommend search based
     onResponse<No>{
-        furhat.say("Okay, no worries.")
-        goto(Recommendation(listOf(RandomRecommendation)))
+        furhat.say("Okay, lets go to random recommendation.")
+        goto(RandomRecommendation)
     }
 
     onResponse {
-        call(SearchRecipes(it.text))
+        call(searchRecipes(it.text))
     }
 }
-fun SearchRecipes(input : String) : State = state(Parent) {
+
+fun searchRecipes(input : String) : State = state(Parent) {
     onEntry {
         // Get responses
         val results = call(query(input, "search", "recipes")) as List<String>
