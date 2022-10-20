@@ -1,32 +1,45 @@
 package furhatos.app.agent.flow.main
 
+import addMeal
+import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
-import furhatos.app.agent.flow.recipes.FoodJoke
 import furhatos.app.agent.flow.recipes.Recommendation
+import furhatos.app.agent.flow.recipes.query
+import furhatos.app.agent.nlu.Ingredients
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
-import furhatos.gestures.Gestures
 import furhatos.nlu.Intent
-import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 import furhatos.util.Language
 
-val DayPreference : State = state(Parent) {
-    onEntry {
-        random (
-            { furhat.say("What did you eat today?") },
-            { furhat.say("What did you eat for lunch?")}
-
+class Previous_meal(
+    val meal : Ingredients? = null
+) : Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "today i had @meal",
+            "this morning i had @meal",
+            "for lunch i had @ meal"
         )
     }
+}
 
-
+val DayPreference : State = state(Parent) {
+    onEntry {
+        print(current_user.meals)
+        furhat.ask("What did you eat today?")
+    }
 
     onResponse<Previous_meal> {
-        furhat.say("Alright, I will tell you a joke.")
-        goto(FoodJoke)
+        val meal = call(query(it.intent.meal.toString(),"complexSearch", "recipes")) as ArrayList<String>
+        val meal_ID = meal.first().toInt()
+
+        addMeal(meal_ID, current_user.meals)
+        print(current_user.meals)
+        furhat.say("Thanks for sharing")
+        goto(Recommendation)
     }
 
     onResponse<Yes> {
@@ -35,8 +48,3 @@ val DayPreference : State = state(Parent) {
     }
 }
 
-class Previous_meal : Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I had ", "nice to meet you")
-    }
-}
