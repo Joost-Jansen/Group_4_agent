@@ -7,6 +7,7 @@ import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
+import furhatos.gestures.Gestures
 import furhatos.nlu.common.No
 import furhatos.nlu.common.TellName
 
@@ -22,11 +23,13 @@ val Greeting : State = state(Parent) {
             current_user = user
             // Skip personal identification
             furhat.say("Good to see you back, ${current_user.name}")
+            furhat.gesture(Gestures.Smile(duration=2.0))
             goto(PersonalInformation)
         }
         else{
             furhat.say("Nice to meet you ${it.intent.name}")
             // goto personal identifcation
+            furhat.gesture(Gestures.Smile(duration=2.0))
             current_user = dataManager.newUser( name= it.intent.name.toString())
             goto(PersonIdentification)
         }
