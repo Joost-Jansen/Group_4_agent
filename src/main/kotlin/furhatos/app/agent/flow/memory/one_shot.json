@@ -38,4 +38,24 @@
   "name": "Jim",
   "diet": [],
   "allergies": []
+}, {
+  "user_id": 8,
+  "name": "John",
+  "diet": [],
+  "allergies": ["gluten"]
+}, {
+  "user_id": 9,
+  "name": "Joe",
+  "diet": ["gluten free"],
+  "allergies": []
+}, {
+  "user_id": 10,
+  "name": "Jack",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 11,
+  "name": "Nick",
+  "diet": [],
+  "allergies": []
 }]
