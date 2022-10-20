@@ -3,6 +3,7 @@ package furhatos.app.agent.nlu
 
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
+import furhatos.nlu.ListEntity
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
@@ -30,12 +31,16 @@ class Diet : EnumEntity() {
     }
 }
 
-class Intolerances : EnumEntity() {
+class ListOfDiets : ListEntity<Diet>()
+
+class Intolerance : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
         return listOf("Diary", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Pescetarian", "Sesame", "Shellfish",
             "Soy", "Sulfite", "Tree Nut", "Wheat")
     }
 }
+
+class ListOfIntolerances : ListEntity<Intolerance>()
 
 class MealType : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
