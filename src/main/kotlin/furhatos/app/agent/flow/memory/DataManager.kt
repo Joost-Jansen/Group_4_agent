@@ -4,9 +4,8 @@ import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
 import org.jetbrains.kotlinx.dataframe.io.writeJson
 import java.time.LocalDate
-import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.util.*
 
 /**
  *  User class with all data known from user. Contains short-term, long-term and one-shot memory of the user
@@ -31,7 +30,7 @@ data class Meal(
     val id: Int, // id in spoonacular can request by getID
     val name: String, // name of meal
     var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: LocalDate, // last time this meal was selected
+    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
     var course: String // type of meal eg. desert
 ) : Comparable<Meal> {
     override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
@@ -55,32 +54,32 @@ class UserUpdates {
     fun findLikedMeal(list: MutableList<Meal>): Meal? {
         val max = list.maxOrNull()
         return if (max != null && max.likes > 0) {
-            val diff: Long = ChronoUnit.DAYS.between(max.last_selected, LocalDate.now())
+            val diff: Long = ChronoUnit.DAYS.between(LocalDate.parse(max.last_selected), LocalDate.now())
             if (diff < 3 && list.remove(max)) findLikedMeal(list) else max
         } else max
     }
 
     // Update last selected as meal
     fun updateMealDate(meal : Meal, list: MutableList<Meal>, date: LocalDate): MutableList<Meal> {
-        list?.find { it.id == meal.id }?.last_selected = date
+        list.find { it.id == meal.id }?.last_selected = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
         return list
     }
 
     // Update meal likes
     fun updateLikes(meal : Meal, list: MutableList<Meal>, rating: Int): MutableList<Meal> {
-        list?.find { it.id == meal.id }?.likes?.plus(rating)
+        list.find { it.id == meal.id }?.likes?.plus(rating)
         return list
     }
 
     // Ingredient likes
     fun updateLikes(meal : Ingredient, list: MutableList<Ingredient>, rating: Int): MutableList<Ingredient> {
-        list?.find { it.name == meal.name }?.likes?.plus(rating)
+        list.find { it.name == meal.name }?.likes?.plus(rating)
         return list
     }
 
     // Cuisine likes
     fun updateLikes(meal : Cuisine, list: MutableList<Cuisine>, rating: Int): MutableList<Cuisine> {
-        list?.find { it.name == meal.name }?.likes?.plus(rating)
+        list.find { it.name == meal.name }?.likes?.plus(rating)
         return list
     }
 }
@@ -128,7 +127,7 @@ class DataManager () {
             val m = dfUser["meals"] as DataFrame<*>
             val meals: MutableList<Meal> = mutableListOf()
             m.forEach {
-                meals.add(Meal(it["id"].toString().toInt(), it["name"].toString(), it["likes"].toString().toInt(), LocalDate.parse(it["last_selected"].toString()), it["course"].toString()))
+                meals.add(Meal(it["id"].toString().toInt(), it["name"].toString(), it["likes"].toString().toInt(), it["last_selected"].toString(), it["course"].toString()))
             }
 
             val i = dfUser["ingredients"] as DataFrame<*>

@@ -2,7 +2,7 @@
   "user_id": 0,
   "name": "joost",
   "diet": ["vegan"],
-  "allergies": ["peanuts", " milk"]
+  "allergies": ["peanuts", "   milk"]
 }, {
   "user_id": 1,
   "name": "zeger",

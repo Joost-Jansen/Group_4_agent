@@ -1,11 +1,6 @@
 [{
   "user_id": 0,
-  "meals": "     course     id last_selected likes                                     name\n 0 Japanese  73420          null     1                   Apple Or Peach Strudel\n 1 Japanese 716429          null     3 Pasta with Garlic, Scallions, Caulifl...\n",
-  "ingredients": "   likes   name\n 0     3 Tomato\n 1     1 Potato\n",
-  "cuisines": "   likes   name\n 0     3 Tomato\n 1     1 Potato\n"
-}, {
-  "user_id": 7,
-  "meals": "[]",
-  "ingredients": "[]",
-  "cuisines": "[]"
+  "meals": [{"course" : "desert", "id" : 73420, "last_selected" : "2018-12-10", "likes" : 1, "name" : "Apple Or Peach Strudel"}, {"course" : "main", "id" : 716429, "last_selected" : "2018-12-12", "likes" : 3, "name" : "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"}],
+  "ingredients": [{"likes" : 3, "name" : "Tomato"}, {"likes" : 1, "name" : "Potato"}],
+  "cuisines": [{"likes" : 3, "name" : "Tomato"}, {"likes" : 1, "name" : "Potato"}]
 }]
