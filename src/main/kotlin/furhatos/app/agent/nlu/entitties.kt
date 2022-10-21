@@ -1,17 +1,12 @@
 package furhatos.app.agent.nlu
 
+
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
 import java.lang.Exception
-
-class Person : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("Mike", "Zeger", "Jeron", "Joost", "Jochem", "Jim")
-    }
-}
 
 class Ingredients : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {

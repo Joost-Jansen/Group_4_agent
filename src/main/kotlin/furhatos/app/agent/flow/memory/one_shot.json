@@ -1,21 +1,21 @@
 [{
   "user_id": 0,
-  "name": "joost",
+  "name": "Joost",
   "diet": ["vegan"],
   "allergies": ["peanuts", "milk"]
 }, {
   "user_id": 1,
-  "name": "zeger",
+  "name": "Zeger",
   "diet": [],
   "allergies": ["chocolate"]
 }, {
   "user_id": 2,
-  "name": "jim",
+  "name": "Jim",
   "diet": ["vegatarian"],
   "allergies": []
 }, {
   "user_id": 3,
-  "name": "jochem",
+  "name": "Jochem",
   "diet": [""],
   "allergies": ["peanuts"]
 }, {
