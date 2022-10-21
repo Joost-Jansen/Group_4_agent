@@ -59,6 +59,10 @@ class UserUpdates {
         } else max
     }
 
+    fun findLastMeal(list: MutableList<Meal>): Meal? {
+        return list.minByOrNull { ChronoUnit.DAYS.between(LocalDate.parse(it.last_selected), LocalDate.now()) }
+    }
+
     // Update last selected as meal
     fun updateMealDate(meal : Meal, list: MutableList<Meal>, date: LocalDate): MutableList<Meal> {
         list.find { it.id == meal.id }?.last_selected = date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))

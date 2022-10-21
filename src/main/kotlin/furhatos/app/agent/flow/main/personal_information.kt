@@ -20,6 +20,6 @@ val PersonalInformation : State = state(Parent) {
 
     onResponse<Yes> {
         furhat.say("We will now go to the day preference module.")
-        goto(DayPreference)
+        goto(Evaluation)
     }
 }
