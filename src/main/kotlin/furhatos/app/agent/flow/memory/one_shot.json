@@ -1,6 +1,6 @@
 [{
   "user_id": 0,
-  "name": "joost",
+  "name": "James",
   "diet": ["vegan"],
   "allergies": ["peanuts", "   milk"]
 }, {
@@ -18,12 +18,7 @@
   "name": "jochem",
   "diet": [""],
   "allergies": ["peanuts"]
-}, {
-  "user_id": 4,
-  "name": "James",
-  "diet": [""],
-  "allergies": ["peanuts"]
-}, {
+},{
   "user_id": 5,
   "name": "Jeff",
   "diet": [],
