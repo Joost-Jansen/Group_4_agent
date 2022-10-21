@@ -18,7 +18,7 @@ import furhatos.util.Language
 
 val Evaluation : State = state(Parent) {
     onEntry {
-        furhat.ask("Welcome to the evaluation module. Would you like to continue?")
+        furhat.ask("Welcome to the evaluation module. This module will be skipped if you're new user. Would you like to continue?")
     }
 
     onResponse<No> {
@@ -36,16 +36,15 @@ var lastMeal: Meal = Meal(-1, "", -1,"", "")
 val mealEvaluation : State = state(Parent){
     onEntry {
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal != null) {
+        if (meal !== null){
             lastMeal = meal
             furhat.ask(
                 random(
                     "The last time I saw you, I recommended you to eat ${lastMeal.name} for ${lastMeal.course}. Did you like that meal?"
-                    ,"Did you like  that ${lastMeal.name} for ${lastMeal.course}? I recommended it you last time."
+                    ,"Did you like that ${lastMeal.name} for ${lastMeal.course}? I recommended it you last time."
                 )
             )
-        }
-        else{
+        } else {
             goto(DayPreference)
         }
     }
@@ -90,14 +89,15 @@ val mealEvaluation : State = state(Parent){
 
     onResponse<negativeFlavourMeal> {
         print(it.intent.flavours)
-        if(it.intent.flavours != null) {
+        val flavours = it.intent.flavours
+        if (flavours !== null)  {
             furhat.say(
                 random(
-                    "Alright, I get that you find the ${lastMeal.name} ${it.intent.flavours}. I'll keep that in mind for the next time",
-                    "Too bad that ${lastMeal.name} was ${it.intent.flavours}. I'll try to remember that for your next meal."
+                    "Alright, I get that you find the ${lastMeal.name} ${flavours}. I'll keep that in mind for the next time",
+                    "Too bad that ${lastMeal.name} was ${flavours}. I'll try to remember that for your next meal."
                 )
             )
-        }else{
+        } else {
             furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
         }
         furhat.gesture(Gestures.Blink)
@@ -105,12 +105,12 @@ val mealEvaluation : State = state(Parent){
         // update likes of meal
         lastMeal.likes -= 2
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
 
     onResponse<positiveFlavourMeal> {
-        if(it.intent.flavours != null){
+        if(it.intent.flavours !== null){
                 furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
 
         }
@@ -124,7 +124,7 @@ val mealEvaluation : State = state(Parent){
         lastMeal.likes += 2
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
         furhat.gesture(Gestures.Blink)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
     onNoResponse { reentry() }
@@ -142,15 +142,15 @@ val positiveMealEvaluation : State = state(Evaluation){
 
     onResponse<positiveFlavourMeal> {
         println(it.intent.flavours)
-        if(it.intent.flavours == null || !it.intent.flavours!!.isEmpty ){
+        if(it.intent.flavours === null || it.intent.flavours!!.isEmpty ){
             furhat.say("Good. I'll try to remember that for your next meal.")
         } else{
-            furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
+            furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time.")
         }
         furhat.gesture(Gestures.Blink)
         lastMeal.likes += 2
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
     onResponse<DontKnow> {
@@ -158,7 +158,7 @@ val positiveMealEvaluation : State = state(Evaluation){
         furhat.say("We'll talk about something else then.")
         lastMeal.likes += 1
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
 }
@@ -173,7 +173,7 @@ val negativeMealEvaluation : State = state(Evaluation){
     }
 
     onResponse<negativeFlavourMeal> {
-        if(it.intent.flavours != null) {
+        if(it.intent.flavours !== null) {
             furhat.say(
                 random(
                     "Alright, I get that you find the ${lastMeal.name} ${it.intent.flavours}. I'll keep that in mind for the next time",
@@ -186,7 +186,7 @@ val negativeMealEvaluation : State = state(Evaluation){
         furhat.gesture(Gestures.Blink)
         lastMeal.likes -= 2
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
     onResponse<DontKnow> {
@@ -194,7 +194,7 @@ val negativeMealEvaluation : State = state(Evaluation){
         furhat.say("We'll talk about something else then.")
         lastMeal.likes -= 1
         userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
 }

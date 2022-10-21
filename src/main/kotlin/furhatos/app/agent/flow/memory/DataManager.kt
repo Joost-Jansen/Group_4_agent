@@ -126,7 +126,7 @@ class DataManager () {
     fun getUserByName(username: String): User? {
 
         val dfUser = dfUsers.firstOrNull { it["name"] == username }
-        if (dfUser != null){
+        if (dfUser !== null){
 
             val m = dfUser["meals"] as DataFrame<*>
             val meals: MutableList<Meal> = mutableListOf()
