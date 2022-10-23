@@ -1,5 +1,5 @@
 //package furhatos.app.agent.flow.memory
-import furhatos.app.agent.flow.recipes.query
+
 import furhatos.app.agent.flow.recipes.queryRecipe
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
@@ -88,6 +88,23 @@ class UserUpdates {
         list.find { it.name == meal.name }?.likes?.plus(rating)
         return list
     }
+
+    fun addMeal(mealID : Int, list: MutableList<Meal>) : MutableList<Meal> {
+        for(m : Meal in list) {
+            if(m.id == mealID) {
+                m.likes =+ 1
+                m.last_selected = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                return list
+            }
+        }
+        val m = queryRecipe(mealID)
+        list.add(m)
+        return list
+    }
+
+//    fun addLeftOvers(user : User, list: MutableList<Ingredients>, ) : MutableList<Ingredients> {
+//
+//    }
 }
 
 /**

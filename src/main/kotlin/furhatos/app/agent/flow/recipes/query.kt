@@ -7,8 +7,10 @@ import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.state
 import furhatos.gestures.Gestures
 import khttp.get
+import khttp.post
 import org.jetbrains.kotlinx.dataframe.api.head
 import org.json.JSONArray
+import java.net.URLEncoder
 import java.time.LocalDate
 import kotlin.reflect.typeOf
 
@@ -84,6 +86,16 @@ fun query(user_input: String, query_type: String, query_field: String) = state {
 
 }
 
+fun getMeal(t: String) {
+    val q = "${BASE_URL}/food/detect?apiKey=${API_KEY}&cheese"
+
+    URLEncoder.encode("I like tomatoes")
+    val x = post(q, data="i like tom")
+    print(x.text)
+    print(x.raw)
+}
+
+
 
 fun queryRecipe(recipe_id: Int): Meal {
     val query = "$BASE_URL/recipes/$recipe_id/information?apiKey=${API_KEY}&includeNutrion=false"
@@ -104,7 +116,8 @@ fun queryRecipe(recipe_id: Int): Meal {
 //var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 //var course: String // type of meal eg. desert
 fun main(args: Array<String>) {
-    queryRecipe(716429)
+//    queryRecipe(716429)
+    getMeal("tedt")
 //    val dm = DataManager()
 //    print(dm.dfUsers.head())
 //    val user = dm.getUserByName("joost")
