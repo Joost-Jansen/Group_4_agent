@@ -10,7 +10,7 @@ import furhatos.nlu.common.Yes
 
 val PersonalInformation : State = state(Parent) {
     onEntry {
-        furhat.ask("Welcome to the personal information module. Would you like to go to the day preference module?")
+        furhat.ask("Welcome to the personal information module. Would you like to go to the evaluation module ?")
     }
 
     onResponse<No> {
@@ -19,7 +19,7 @@ val PersonalInformation : State = state(Parent) {
     }
 
     onResponse<Yes> {
-        furhat.say("We will now go to the day preference module.")
-        goto(DayPreference)
+        furhat.say("We will now go to the evaluation module.")
+        goto(Evaluation)
     }
 }

@@ -1,29 +1,24 @@
 [{
   "user_id": 0,
-  "name": "Joost",
+  "name": "James",
   "diet": ["vegan"],
-  "allergies": ["peanuts", "milk"]
+  "allergies": ["peanuts", "   milk"]
 }, {
   "user_id": 1,
-  "name": "Zeger",
+  "name": "zeger",
   "diet": [],
   "allergies": ["chocolate"]
 }, {
   "user_id": 2,
-  "name": "Jim",
+  "name": "jim",
   "diet": ["vegatarian"],
   "allergies": []
 }, {
   "user_id": 3,
-  "name": "Jochem",
+  "name": "jochem",
   "diet": [""],
   "allergies": ["peanuts"]
-}, {
-  "user_id": 4,
-  "name": "James",
-  "diet": [""],
-  "allergies": ["peanuts"]
-}, {
+},{
   "user_id": 5,
   "name": "Jeff",
   "diet": [],
@@ -35,27 +30,7 @@
   "allergies": []
 }, {
   "user_id": 7,
-  "name": "Ryan",
-  "diet": [],
-  "allergies": []
-}, {
-  "user_id": 8,
-  "name": "Kim",
-  "diet": [],
-  "allergies": []
-}, {
-  "user_id": 9,
-  "name": "Bobbie",
-  "diet": [],
-  "allergies": []
-}, {
-  "user_id": 10,
-  "name": "Bobby",
-  "diet": [],
-  "allergies": []
-}, {
-  "user_id": 11,
-  "name": "Jerome",
+  "name": "Jim",
   "diet": [],
   "allergies": []
 }]

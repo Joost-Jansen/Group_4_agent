@@ -20,7 +20,7 @@ val Greeting : State = state(Parent) {
         println(it.intent)
         val user = dataManager.getUserByName(it.intent.name.toString())
         // If name is not in memory
-        if (user != null){
+        if (user !== null){
             current_user = user
             // Skip personal identification
             furhat.say("Good to see you back, ${current_user.name}")
