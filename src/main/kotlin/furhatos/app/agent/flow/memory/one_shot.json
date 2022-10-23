@@ -58,4 +58,9 @@
   "name": "Nick",
   "diet": [],
   "allergies": []
+}, {
+  "user_id": 12,
+  "name": "Jason",
+  "diet": [],
+  "allergies": []
 }]

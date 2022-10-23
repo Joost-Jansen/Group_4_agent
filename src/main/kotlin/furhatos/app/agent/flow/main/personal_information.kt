@@ -56,7 +56,7 @@ val PersonalInformation : State = state(ChangePersonalInformation) {
     }
 
     onResponse<Yes> {
-        furhat.say("Could you tell me what they are?")
+        furhat.askFor<TellPersonalInformation>("Could you tell me what they are?")
         reentry()
     }
 }
