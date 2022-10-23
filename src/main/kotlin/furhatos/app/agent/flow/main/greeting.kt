@@ -6,7 +6,7 @@ import furhatos.app.agent.flow.Parent
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
-import furhatos.app.agent.nlu.User_identification
+import furhatos.app.agent.nlu.UserIdentification
 import furhatos.flow.kotlin.*
 import furhatos.nlu.common.No
 
@@ -16,8 +16,8 @@ val Greeting : State = state(Parent) {
         furhat.ask("Hi there, who am I talking to?")
     }
 
-    onResponse<User_identification> {
-        print(it.intent)
+    onResponse<UserIdentification> {
+        println(it.intent)
         val user = dataManager.getUserByName(it.intent.name.toString())
         // If name is not in memory
         if (user != null){

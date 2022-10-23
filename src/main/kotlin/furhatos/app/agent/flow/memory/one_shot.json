@@ -33,4 +33,29 @@
   "name": "Eric",
   "diet": [],
   "allergies": []
+}, {
+  "user_id": 7,
+  "name": "Ryan",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 8,
+  "name": "Kim",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 9,
+  "name": "Bobbie",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 10,
+  "name": "Bobby",
+  "diet": [],
+  "allergies": []
+}, {
+  "user_id": 11,
+  "name": "Jerome",
+  "diet": [],
+  "allergies": []
 }]
