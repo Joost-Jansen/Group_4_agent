@@ -5,9 +5,9 @@
   "cuisines": ["   likes   name\n 0     3 Tomato\n 1     1 Potato\n"]
 }, {
   "user_id": 7,
-  "meals": ["[]"],
-  "ingredients": ["[]"],
-  "cuisines": ["[]"]
+  "meals": [],
+  "ingredients": [],
+  "cuisines": []
 }, {
   "user_id": 8,
   "meals": [],

@@ -10,28 +10,47 @@ import furhatos.app.agent.nlu.UserIdentification
 import furhatos.flow.kotlin.*
 import furhatos.nlu.common.No
 
+fun setUser(furhat: Furhat, name: String) {
+    val user = dataManager.getUserByName(name)
+    // If name is not in memory
+    if (user !== null){
+        current_user = user
+        // Skip personal identification
+        furhat.say("Good to see you back, ${current_user.name}")
+    }
+    else{
+        furhat.say("Nice to meet you $name")
+        // goto personal identifcation
+        current_user = dataManager.newUser( name= name)
+    }
+}
 
 val Greeting : State = state(Parent) {
-    onEntry {
-        furhat.ask("Hi there, who am I talking to?")
+    init {
+        furhat.say("Hi There")
     }
 
-    onResponse<UserIdentification> {
-        println(it.intent)
-        val user = dataManager.getUserByName(it.intent.name.toString())
-        // If name is not in memory
-        if (user !== null){
-            current_user = user
-            // Skip personal identification
-            furhat.say("Good to see you back, ${current_user.name}")
-            goto(PersonalInformation)
-        }
-        else{
-            furhat.say("Nice to meet you ${it.intent.name}")
-            // goto personal identifcation
-            current_user = dataManager.newUser( name= it.intent.name.toString())
+    onEntry {
+        val name = furhat.askFor<UserIdentification>("Who am I talking to?")
+        if (name != null) {
+            setUser(furhat, name.name.toString())
             goto(PersonIdentification)
         }
+    }
+    onReentry {
+        val name = furhat.askFor<UserIdentification>("Could you repeat that?")
+        if (name != null) {
+            setUser(furhat, name.name.toString())
+            goto(PersonIdentification)
+        } else {
+            reentry()
+        }
+
+    }
+//
+
+    onResponse<UserIdentification> {
+
     }
 
     onResponse<No> {
@@ -39,4 +58,6 @@ val Greeting : State = state(Parent) {
         goto(Idle)
     }
 }
+
+
 

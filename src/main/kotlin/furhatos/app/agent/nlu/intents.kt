@@ -21,6 +21,6 @@ class WrongPerson(
 ) : Intent() {
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I am not @name", "my name is not @name", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
+        return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
     }
 }
