@@ -10,8 +10,10 @@ open class TellPersonalInformation : Intent(), TextGenerator {
 
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I am following a @diets diet",
-            "I am allergic to @allergies"
+            "I am following a @diets diet and I am allergic to @allergies",
+            "I am allergic to @allergies and I am following a @diets diet",
+            "I am on the @diets diet and my allergies are @allergies",
+            "My allergies are @allergies and I am on the @diets diet"
         )
     }
 
@@ -28,7 +30,13 @@ class TellDiets : Intent() {
     var diets: ListOfDiets? = null
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I am following a @diets diet")
+        return listOf(
+            "I am following a @diets diet",
+            "I am following the @diets diet",
+            "I am on a @diets diet",
+            "I am on the @diets diet",
+            "@diets"
+        )
     }
 }
 
@@ -36,7 +44,15 @@ class TellAllergies : Intent() {
     var allergies: ListOfAllergies? = null
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I am allergic to @allergies")
+        return listOf(
+            "I am allergic to @allergies",
+            "I am intolerant to @allergies",
+            "my allergy is @allergies",
+            "my allergies are @allergies",
+            "my intolerance is @allergies",
+            "my intolerances are @allergies",
+            "@allergies"
+        )
     }
 }
 
@@ -46,8 +62,14 @@ open class RemovePersonalInformation : Intent(), TextGenerator {
 
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I am not following a @diets diet",
-            "I am not allergic to @allergies"
+            "not following a @diets diet",
+            "not on the @diets diet",
+            "not allergic to @allergies",
+            "not intolerant to @allergies",
+            "@diets is not my diet",
+            "@diets are not my diets",
+            "@allergies is not my allergy",
+            "@allergies are not my allergies",
         )
     }
 

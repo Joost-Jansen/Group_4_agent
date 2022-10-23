@@ -14,13 +14,20 @@ import furhatos.nlu.common.Yes
 var diets_known = false
 var allergies_known = false
 
-val ChangePersonalInformation : State = state(Parent) {
+val HandlePersonalInformation : State = state(Parent) {
     onEntry() {
-        furhat.ask("What did I understand incorrectly?")
+        random(
+            {furhat.ask("What did I understand incorrectly?")},
+            {furhat.ask("What did I forget?")},
+            {furhat.ask("What did I get wrong?")}
+        )
     }
 
     onResponse<No> {
-        furhat.say("Alright, then I suppose that I remember everything correctly.")
+        random(
+            {furhat.say("Alright, then I suppose that I remember everything correctly.")},
+            {furhat.say("Okay, I guess I remember everything then.")}
+        )
         goto(EndPersonalInformation)
     }
 
@@ -33,7 +40,7 @@ val ChangePersonalInformation : State = state(Parent) {
 
     onResponse<TellPersonalInformation> {
         // Repeat diets and allergies
-        furhat.say("Ok, you are ${it.intent}")
+        furhat.say("Alright, you are ${it.intent}")
 
         // Save in memory
         updateDiets(it.intent.diets)
@@ -41,23 +48,26 @@ val ChangePersonalInformation : State = state(Parent) {
 
         goto(CheckPersonalInformation)
     }
+
+    onResponse<TellDiets> {
+        furhat.say("I see, you follow the ${it.intent.diets} diet")
+        updateDiets(it.intent.diets)
+        goto(CheckPersonalInformation)
+    }
+
+    onResponse<TellAllergies> {
+        furhat.say("Okay, you are allergic to ${it.intent.allergies}")
+        updateAllergies(it.intent.allergies)
+        goto(CheckPersonalInformation)
+    }
 }
 
-val PersonalInformation : State = state(ChangePersonalInformation) {
+val PersonalInformation : State = state(HandlePersonalInformation) {
     onEntry {
-        furhat.ask("Do you have any allergies or do you follow any specific diets?")
-    }
-
-    onResponse<No> {
-        furhat.say("Great! Let's continue.")
-        diets_known = true
-        allergies_known = true
-        goto(EndPersonalInformation)
-    }
-
-    onResponse<Yes> {
-        furhat.askFor<TellPersonalInformation>("Could you tell me what they are?")
-        reentry()
+        random(
+            {goto(RequestDiets)},
+            {goto(RequestAllergies)}
+        )
     }
 }
 
@@ -71,77 +81,92 @@ val CheckPersonalInformation = state(Parent) {
     }
 }
 
-val RequestDiets : State = state(ChangePersonalInformation) {
+val RequestDiets : State = state(HandlePersonalInformation) {
     onEntry() {
-        furhat.ask("Do you follow any diets?")
+        random(
+            {furhat.ask("Do you follow any diets?")},
+            {furhat.ask("Are you on any diets?")}
+        )
     }
 
     onResponse<No> {
-        furhat.say("Great!")
+        random(
+            {furhat.say("Nice, that makes my life easy.")},
+            {furhat.say("Good to know, thanks.")}
+        )
         diets_known = true
         goto(CheckPersonalInformation)
     }
 
     onResponse<Yes> {
-        furhat.say("Which diets do you follow?")
-        reentry()
-    }
+        val response = furhat.askFor<TellDiets>("Which diets do you follow?")
+        if (response != null) {
+            var msg = "Okay, so you follow the ${response.diets} diet"
+            if (response.size() > 1) msg += "s"
 
-    onResponse<TellDiets> {
-        furhat.say("Okay, you follow these diets: ${it.intent.diets}")
-        updateDiets(it.intent.diets)
+            furhat.say(msg)
+            updateDiets(response.diets)
+        }
         goto(CheckPersonalInformation)
     }
 }
 
-val RequestAllergies : State = state(ChangePersonalInformation) {
+val RequestAllergies : State = state(HandlePersonalInformation) {
     onEntry() {
-        furhat.ask("Do you have any allergies?")
+        random(
+            {furhat.ask("Do you have any allergies?")},
+            {furhat.ask("Are you intolerant to anything?")}
+        )
     }
 
     onResponse<No> {
-        furhat.say("Great!")
+        random(
+            {furhat.say("Great!")},
+            {furhat.say("Good for you!")}
+        )
         diets_known = true
         goto(ConfirmPersonalInformation)
     }
 
     onResponse<Yes> {
-        furhat.say("What are you allergic to?")
-        reentry()
-    }
-
-    onResponse<TellAllergies> {
-        furhat.say("Okay, you follow these diets: ${it.intent.allergies}")
-        updateAllergies(it.intent.allergies)
+        val response = furhat.askFor<TellAllergies>("What are you allergic to?")
+        if (response != null) {
+            furhat.say("Alright, so you are allergic to ${response.allergies}")
+            updateAllergies(response.allergies)
+        }
         goto(CheckPersonalInformation)
     }
 }
 
-val ConfirmPersonalInformation : State = state(ChangePersonalInformation) {
+val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
     onEntry() {
         var msg = "I can remember that "
 
-        if (getAllergiesString() == null)
-            msg += "you are not allergic to anything "
+        msg += if (getAllergiesString() == null)
+            "you are not allergic to anything "
         else
-            msg += getAllergiesString()
+            getAllergiesString()
 
-        if (getDietsString() == null)
-            msg += "and you don't follow any diets"
+        msg += if (getDietsString() == null)
+            "and you don't follow any diets"
         else
-            msg += "and " + getDietsString()
+            "and " + getDietsString()
 
         furhat.say(msg)
-        furhat.ask("Is that correct?")
+        random(
+            {furhat.ask("Is that correct?")},
+            {furhat.ask("Am I right?")},
+            {furhat.ask("Did I remember that correctly?")}
+        )
     }
 
     onResponse<Yes> {
-        furhat.say("Great! Let's move on")
+        furhat.say("Awesome! Let's move on")
         goto(EndPersonalInformation)
     }
 
     onResponse<No> {
-        goto(ChangePersonalInformation)
+        goto(HandlePersonalInformation)
     }
 }
 
@@ -182,7 +207,8 @@ fun removeAllergies(input: ListEntity<Allergy>?) {
 fun getDietsString(): String? {
     var str: String? = null
     if (current_user.diet.size > 0)
-        str = "you follow the diets called ${current_user.diet.toString()} "
+        str = "you follow the ${listToString(current_user.diet)} diet"
+        if (current_user.diet.size > 1) str += "s"
 
     return str
 }
@@ -190,7 +216,15 @@ fun getDietsString(): String? {
 fun getAllergiesString(): String? {
     var str: String? = null
     if (current_user.allergies.size > 0)
-        str = "you are allergic to ${current_user.allergies.toString()} "
+        str = "you are allergic to ${listToString(current_user.allergies)} "
 
     return str
+}
+
+fun listToString(input: MutableList<String>): String {
+    return when (input.size) {
+        1 -> input[0]
+        2 -> input[0] + " and " + input[1]
+        else -> input[0] + " " + listToString(input.drop(1) as MutableList<String>)
+    }
 }
