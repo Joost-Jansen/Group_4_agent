@@ -1,9 +1,14 @@
 //package furhatos.app.agent.flow.memory
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
+import furhatos.app.agent.flow.memory.data.OneShotData
 import furhatos.app.agent.flow.recipes.queryRecipe
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
 import org.jetbrains.kotlinx.dataframe.io.writeJson
+import java.io.File
+import java.io.InputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -115,11 +120,16 @@ class UserUpdates {
  *  Can read and write data
  */
 class DataManager () {
+
     var oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
     var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
     var dfUsers: DataFrame<Any?>? = null
     init {
-        if (oneShot.isEmpty() === false){
+        val inputStream = File("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json").inputStream().bufferedReader().use { it.readText() }
+        val oneShotType = object : TypeToken<List<OneShotData>>() {}.type
+        val list = Gson().fromJson<List<OneShotData>>(inputStream, oneShotType)
+        print(list.get(0).name)
+        if (!oneShot.isEmpty()){
             dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
         }
     }
@@ -157,7 +167,7 @@ class DataManager () {
     fun getUserByName(username: String): User? {
         if ( this.dfUsers !== null) {
             val dfUser = dfUsers!!.firstOrNull { it["name"] == username }
-            println(dfUser)
+//            println(dfUser)
             if (dfUser != null) {
 
                 val m = dfUser["meals"] as DataFrame<*>
@@ -221,18 +231,18 @@ class DataManager () {
      * return: nothing
      */
     fun writeUser(user: User){
-        print(oneShot.head())
+//        print(oneShot.head())
         val oneShotNames = listOf("user_id", "name", "diet", "allergies")
         val oneShotValues = listOf(user.user_id, user.name, user.diet, user.allergies)
         val oneShotUser = dataFrameOf(oneShotNames, oneShotValues)
         val oneShotDropped = oneShot.drop{ it["user_id"] == user.user_id}
         val newOneShot = oneShotDropped.concat(oneShotUser).sortBy("user_id")
         this.oneShot = newOneShot
-
-        print(newOneShot.head())
+//        print("oneshothead")
+//        print(newOneShot.head())
         newOneShot.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json", prettyPrint = true)
 
-        print(longTerm.head())
+//        print(longTerm.head())
 //        val meals = dataFrameOf(listOf("id", "name", "likes", "last_selected", "course"), )
         val longTermNames = listOf("user_id","meals","ingredients","cuisines")
         val longTermValues = listOf(user.user_id, user.meals, user.ingredients, user.cuisines)
@@ -253,12 +263,10 @@ class DataManager () {
  */
 fun main(args: Array<String>) {
     val dm = DataManager()
-    print(dm.dfUsers?.head())
-    val user = dm.getUserByName("joost")
-    if (user != null) {
-        dm.writeUser(user)
-    }
-    print(user?.ingredients)
+//    val user = dm.getUserByName("James")
+//    if (user != null) {
+//        dm.writeUser(user)
+//    }
 
 
 //    var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term2.json")

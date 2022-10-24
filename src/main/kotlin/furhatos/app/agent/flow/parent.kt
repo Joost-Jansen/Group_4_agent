@@ -1,5 +1,7 @@
 package furhatos.app.agent.flow
 
+import furhatos.app.agent.current_user
+import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.main.Greeting
 import furhatos.app.agent.flow.main.Idle
 import furhatos.app.agent.nlu.WrongPerson
@@ -50,6 +52,7 @@ val Parent: State = state {
     }
 
     onUserLeave(instant = true) {
+        dataManager.writeUser(current_user)
         when {
             users.count == 0 -> goto(Idle)
             it == users.current -> furhat.attend(users.other)
