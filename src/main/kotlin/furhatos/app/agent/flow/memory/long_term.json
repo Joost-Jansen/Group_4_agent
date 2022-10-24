@@ -1,16 +1,11 @@
 [{
   "user_id": 0,
-  "meals": " \n",
-  "ingredients": " \n",
-  "cuisines": " \n"
+  "meals": [{"course" : "desert", "id" : 73420, "ingredients" : ["Apple", "           Peach", "           Strudel"], "last_selected" : "2018-12-10", "likes" : 1, "name" : "Apple Or Peach Strudel"}, {"course" : "desert", "id" : 716429, "ingredients" : ["pasta", "           garlic", "           scallions"], "last_selected" : "2018-12-12", "likes" : 3, "name" : "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"}],
+  "ingredients": [{"likes" : 3, "name" : "pasta"}, {"likes" : 1, "name" : "garlic"}, {"likes" : -1, "name" : "scallions"}],
+  "cuisines": [{"likes" : 3, "name" : "pasta"}, {"likes" : 1, "name" : "garlic"}, {"likes" : -1, "name" : "scallions"}]
 }, {
   "user_id": 1,
-  "meals": "[]",
-  "ingredients": "[]",
-  "cuisines": "[]"
-}, {
-  "user_id": 2,
-  "meals": "[]",
-  "ingredients": "[]",
-  "cuisines": "[]"
+  "meals": [],
+  "ingredients": [],
+  "cuisines": []
 }]

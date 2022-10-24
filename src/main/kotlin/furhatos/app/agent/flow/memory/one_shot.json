@@ -1,16 +1,11 @@
 [{
   "user_id": 0,
   "name": "James",
-  "diet": " \n",
-  "allergies": " \n"
+  "diet": [""],
+  "allergies": [""]
 }, {
   "user_id": 1,
-  "name": "Jeff",
-  "diet": "[]",
-  "allergies": "[]"
-}, {
-  "user_id": 2,
-  "name": "Karen",
-  "diet": "[]",
-  "allergies": "[]"
+  "name": "Alexis",
+  "diet": [],
+  "allergies": []
 }]

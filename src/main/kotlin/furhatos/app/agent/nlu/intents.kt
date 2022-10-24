@@ -120,20 +120,36 @@ class WrongPerson(
     }
 }
 
-class positiveFlavourMeal(var flavours : flavourListPostive? = null) : Intent() {
+class wildCardIntent(): Intent() {
+
+    var textInput: textEntity? = null
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I liked the taste", "I like the taste",  "@flavours", "I like the @flavours", "I loved the @flavours",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours","What I liked was that @flavours",
-            "It was @flavours", "It had a @flavours taste"
-        )
+        return listOf(
+            "@textInput"
+        );
     }
+
 }
 
+class negativeWildCardIntent(): Intent() {
+    var textInput: negativeWildCardEntity? = null
 
-class negativeFlavourMeal(var flavours : flavourListNegative? = null) : Intent() {
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I didn't like the taste", "@flavours", "I did not like the @flavours", "I found the @flavours not nice",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours", "What I didn't like was that @flavours",
-            "It was @flavours", "It had a @flavours taste"  )
+        return listOf(
+            "@textInput",
+        );
     }
+
+}
+
+class postiveWildCardIntent(): Intent() {
+
+    var textInput: positiveWildCardEntity? = null
+
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "@textInput",
+        );
+    }
+
 }

@@ -8,6 +8,7 @@ import furhatos.app.agent.resources.getMealTypes
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.ListEntity
+import furhatos.nlu.WildcardEntity
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
@@ -79,55 +80,30 @@ fun readCsv(): MutableList<String> {
 
     return ingredients
 }
+
+class textEntity: WildcardEntity("textInput", wildCardIntent())
+
+class negativeWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "no @textInput",
+            "nah @textInput"
+        )
+    }
+}
+
+
+class positiveWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "yes @textInput",
+            "yeah @textInput"
+        )
+    }
+}
 //fun main(args: Array<String>) {
 //    val base_query = "https://api.spoonacular.com?apiKey=e9eeb0d76f024efcaf7cd32ae444c899"
 //    val a = options(base_query)
 //    readCsv()
 //}
 
-class flavourListPostive : ListEntity<QuantifiedFlavourPositive>()
-class flavourListNegative : ListEntity<QuantifiedFlavourNegative>()
-
-class flavour : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("sweet","sweetness", "sour","sourness", "spicy", "spicyness", "chili", "salty","bitter","bitterness", "umami")
-    }
-}
-
-class adjectivePositive : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("very", "truly", "really")
-    }
-}
-
-class adjectiveNegative : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("too", "a bit", "too much", "a lot")
-    }
-}
-
-class QuantifiedFlavourPositive(
-    val adjective: adjectivePositive? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
-
-class QuantifiedFlavourNegative(
-    val adjective: adjectiveNegative? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
