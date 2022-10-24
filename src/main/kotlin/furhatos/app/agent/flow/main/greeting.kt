@@ -9,6 +9,7 @@ import furhatos.flow.kotlin.onResponse
 import furhatos.app.agent.nlu.UserIdentification
 import furhatos.flow.kotlin.*
 import furhatos.nlu.common.No
+import furhatos.app.agent.flow.getCurrentEmotion
 
 fun setUser(furhat: Furhat, name: String) {
     val user = dataManager.getUserByName(name)
@@ -29,8 +30,16 @@ val Greeting : State = state(Parent) {
     init {
         furhat.say("Hi There")
     }
-
     onEntry {
+        val cur_emo = getCurrentEmotion()
+        if(cur_emo.has("emotion")) {
+            when (cur_emo.get("emotion")) {
+                "Happy" -> furhat.say("It is good to see you happy. My recipes will make you even happier!")
+                "Surpise" -> furhat.say("Are you surprised to see my skills?")
+                "Sad" -> furhat.say("It seems you are sad. I hope I can cheer you up with a recipe")
+                "Anger" -> furhat.say("I'm sure a recipe will calm you down")
+            }
+        }
         val name = furhat.askFor<UserIdentification>("Who am I talking to?")
         if (name != null) {
             setUser(furhat, name.name.toString())

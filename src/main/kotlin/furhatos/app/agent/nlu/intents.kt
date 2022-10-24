@@ -2,8 +2,8 @@ package furhatos.app.agent.nlu
 
 import furhatos.nlu.Intent
 import furhatos.nlu.TextGenerator
-import furhatos.nlu.common.PersonName
 import furhatos.util.Language
+import furhatos.nlu.common.PersonName
 
 
 open class TellPersonalInformation : Intent(), TextGenerator {
@@ -151,5 +151,5 @@ class postiveWildCardIntent(): Intent() {
             "@textInput",
         );
     }
-
 }
+

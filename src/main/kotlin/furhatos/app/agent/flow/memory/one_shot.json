@@ -3,9 +3,7 @@
   "name": "James",
   "diet": [""],
   "allergies": [""]
-}, {
-  "user_id": 1,
-  "name": "Alexis",
-  "diet": [],
-  "allergies": []
-}]
+},
+  {
+    "user_id": 1
+  }]
