@@ -1,6 +1,6 @@
 [{
   "user_id": 0,
   "name": "James",
-  "diet": [],
-  "allergies": []
+  "diet": [""],
+  "allergies":[""]
 }]

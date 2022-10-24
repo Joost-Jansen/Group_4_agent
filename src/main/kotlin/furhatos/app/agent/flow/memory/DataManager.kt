@@ -152,7 +152,7 @@ class DataManager () {
      *  return: User or null
      */
     fun getUserByName(username: String): User? {
-        if ( this.dfUsers !== null) {
+        if (this.dfUsers !== null) {
             val dfUser = dfUsers!!.firstOrNull { it["name"] == username }
             println(dfUser)
             if (dfUser != null) {

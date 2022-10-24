@@ -117,7 +117,8 @@ fun queryRecipe(recipe_id: Int): Meal {
 //var course: String // type of meal eg. desert
 fun main(args: Array<String>) {
 //    queryRecipe(716429)
-    getMeal("tedt")
+    val date = LocalDate.now().dayOfWeek.toString()
+    print(date)
 //    val dm = DataManager()
 //    print(dm.dfUsers.head())
 //    val user = dm.getUserByName("joost")
