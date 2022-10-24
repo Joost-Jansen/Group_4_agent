@@ -1,4 +1,5 @@
 //package furhatos.app.agent.flow.memory
+import furhatos.app.agent.flow.recipes.queryRecipe
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
@@ -29,9 +30,10 @@ data class User(
 data class Meal(
     val id: Int, // id in spoonacular can request by getID
     val name: String, // name of meal
+    var ingredients: MutableList<String>,
+    val course: String, // type of meal eg. desert
     var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
-    var course: String // type of meal eg. desert
+    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 ) : Comparable<Meal> {
     override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
 }
@@ -86,6 +88,25 @@ class UserUpdates {
         list.find { it.name == meal.name }?.likes?.plus(rating)
         return list
     }
+
+    fun addMeal(mealID : Int, list: MutableList<Meal>) : MutableList<Meal> {
+        for(m : Meal in list) {
+            if(m.id == mealID) {
+                m.likes =+ 1
+                m.last_selected = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                return list
+            }
+        }
+        val m = queryRecipe(mealID)
+        list.add(m)
+        return list
+    }
+
+
+
+//    fun addLeftOvers(user : User, list: MutableList<Ingredients>, ) : MutableList<Ingredients> {
+//
+//    }
 }
 
 /**
@@ -146,9 +167,10 @@ class DataManager () {
                         Meal(
                             it["id"].toString().toInt(),
                             it["name"].toString(),
+                            stringToList(it["ingredients"].toString()),
+                            it["course"].toString(),
                             it["likes"].toString().toInt(),
-                            it["last_selected"].toString(),
-                            it["course"].toString()
+                            it["last_selected"].toString()
                         )
                     )
                 }

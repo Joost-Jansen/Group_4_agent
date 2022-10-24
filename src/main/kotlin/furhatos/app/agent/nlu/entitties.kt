@@ -11,7 +11,7 @@ import furhatos.nlu.ListEntity
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
-import java.lang.Exception
+
 
 class Ingredients : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
@@ -85,3 +85,49 @@ fun readCsv(): MutableList<String> {
 //    readCsv()
 //}
 
+class flavourListPostive : ListEntity<QuantifiedFlavourPositive>()
+class flavourListNegative : ListEntity<QuantifiedFlavourNegative>()
+
+class flavour : EnumEntity(stemming = true, speechRecPhrases = true) {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf("sweet","sweetness", "sour","sourness", "spicy", "spicyness", "chili", "salty","bitter","bitterness", "umami")
+    }
+}
+
+class adjectivePositive : EnumEntity(stemming = true, speechRecPhrases = true) {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf("very", "truly", "really")
+    }
+}
+
+class adjectiveNegative : EnumEntity(stemming = true, speechRecPhrases = true) {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf("too", "a bit", "too much", "a lot")
+    }
+}
+
+class QuantifiedFlavourPositive(
+    val adjective: adjectivePositive? = null,
+    val flavour : flavour? = null) : ComplexEnumEntity() {
+
+    override fun getEnum(lang: Language): List<String> {
+        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
+    }
+
+    override fun toText(): String {
+        return generate("$adjective $flavour")
+    }
+}
+
+class QuantifiedFlavourNegative(
+    val adjective: adjectiveNegative? = null,
+    val flavour : flavour? = null) : ComplexEnumEntity() {
+
+    override fun getEnum(lang: Language): List<String> {
+        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
+    }
+
+    override fun toText(): String {
+        return generate("$adjective $flavour")
+    }
+}
