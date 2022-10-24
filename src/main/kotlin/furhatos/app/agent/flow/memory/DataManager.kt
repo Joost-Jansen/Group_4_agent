@@ -30,9 +30,10 @@ data class User(
 data class Meal(
     val id: Int, // id in spoonacular can request by getID
     val name: String, // name of meal
+    val ingredients: MutableList<String>,
+    val course: String, // type of meal eg. desert
     var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
-    var course: String // type of meal eg. desert
+    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 ) : Comparable<Meal> {
     override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
 }
@@ -164,9 +165,10 @@ class DataManager () {
                         Meal(
                             it["id"].toString().toInt(),
                             it["name"].toString(),
+                            stringToList(it["ingredients"].toString()),
+                            it["course"].toString(),
                             it["likes"].toString().toInt(),
-                            it["last_selected"].toString(),
-                            it["course"].toString()
+                            it["last_selected"].toString()
                         )
                     )
                 }
