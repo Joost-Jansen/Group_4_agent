@@ -53,6 +53,8 @@ class TellAllergies : Intent() {
             "my allergies are @allergies",
             "my intolerance is @allergies",
             "my intolerances are @allergies",
+            "@allergies intolerance",
+            "@allergies allergy",
             "@allergies"
         )
     }

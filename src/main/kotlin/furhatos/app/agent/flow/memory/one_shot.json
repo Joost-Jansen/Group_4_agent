@@ -1,6 +1,31 @@
 [{
   "user_id": 0,
   "name": "James",
-  "diet": [],
-  "allergies": []
+  "diet": "   nrow\n 0    0\n",
+  "allergies": "   nrow value\n 0    0  null\n"
+}, {
+  "user_id": 1,
+  "name": "Bobby",
+  "diet": " \n",
+  "allergies": " \n"
+}, {
+  "user_id": 2,
+  "name": "Bobbie",
+  "diet": " \n",
+  "allergies": "   nrow   value\n 0 null peanuts\n"
+}, {
+  "user_id": 3,
+  "name": "Jim",
+  "diet": " \n",
+  "allergies": " \n"
+}, {
+  "user_id": 4,
+  "name": "Marcus",
+  "diet": "[]",
+  "allergies": "[]"
+}, {
+  "user_id": 5,
+  "name": "Darrell",
+  "diet": "[]",
+  "allergies": "[]"
 }]
