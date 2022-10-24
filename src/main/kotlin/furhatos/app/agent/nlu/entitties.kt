@@ -1,7 +1,10 @@
 package furhatos.app.agent.nlu
 
 
-import furhatos.app.agent.resources.*
+import furhatos.app.agent.resources.getAllergies
+import furhatos.app.agent.resources.getCuisines
+import furhatos.app.agent.resources.getDiets
+import furhatos.app.agent.resources.getMealTypes
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.ListEntity
@@ -33,7 +36,7 @@ class ListOfDiets : ListEntity<Diet>()
 
 class Allergy : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return getIntolerances()
+        return getAllergies()
     }
 }
 
