@@ -3,37 +3,18 @@ package furhatos.app.agent.flow.main
 import Meal
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
-import furhatos.app.agent.flow.recipes.FoodJoke
+import furhatos.app.agent.nlu.negativeFlavourMeal
+import furhatos.app.agent.nlu.positiveFlavourMeal
 import furhatos.app.agent.userUpdates
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
-import furhatos.nlu.ComplexEnumEntity
-import furhatos.nlu.EnumEntity
-import furhatos.nlu.Intent
-import furhatos.nlu.ListEntity
 import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
-import furhatos.util.Language
+
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "")
 
 val Evaluation : State = state(Parent) {
-    onEntry {
-        furhat.ask("Welcome to the evaluation module. This module will be skipped if you're new user. Would you like to continue?")
-    }
-
-    onResponse<No> {
-        furhat.say("Alright, then I will tell you a joke.")
-        goto(FoodJoke)
-    }
-
-    onResponse<Yes> {
-        furhat.say("great.")
-        goto(mealEvaluation)
-    }
-}
-var lastMeal: Meal = Meal(-1, "", -1,"", "")
-
-val mealEvaluation : State = state(Parent){
     onEntry {
         val meal = userUpdates.findLastMeal(current_user.meals)
         if (meal !== null){
@@ -53,7 +34,7 @@ val mealEvaluation : State = state(Parent){
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
         furhat.say("We'll talk about something else then.")
-        goto(Evaluation)
+        goto(DayPreference)
     }
 
     onResponse<No> {
@@ -111,7 +92,7 @@ val mealEvaluation : State = state(Parent){
 
     onResponse<positiveFlavourMeal> {
         if(it.intent.flavours !== null){
-                furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
+            furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
 
         }
 //        else if(it.intent.ingredients != null){
@@ -198,14 +179,9 @@ val negativeMealEvaluation : State = state(Evaluation){
     }
 
 }
-class positiveFlavourMeal(var flavours : flavourListPostive? = null) : Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I liked the taste", "I like the taste",  "@flavours", "I like the @flavours", "I loved the @flavours",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours","What I liked was that @flavours",
-            "It was @flavours", "It had a @flavours taste"
-        )
-    }
-}
+
+
+//class negativeIngredientsAndFlavours(
 
 //class positiveIngredientsAndFlavours(
 //    val ingredients : String? = null,
@@ -218,15 +194,6 @@ class positiveFlavourMeal(var flavours : flavourListPostive? = null) : Intent() 
 //    }
 //}
 
-class negativeFlavourMeal(var flavours : flavourListNegative? = null) : Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I didn't like the taste", "@flavours", "I did not like the @flavours", "I found the @flavours not nice",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours", "What I didn't like was that @flavours",
-            "It was @flavours", "It had a @flavours taste"  )
-    }
-}
-
-//class negativeIngredientsAndFlavours(
 //    val ingredients : String? = null,
 //    var flavours : flavourListNegative? = null,
 //    ) : ComplexEnumEntity() {
@@ -237,52 +204,7 @@ class negativeFlavourMeal(var flavours : flavourListNegative? = null) : Intent()
 //    }
 //}
 
-class flavourListPostive : ListEntity<QuantifiedFlavourPositive>()
-class flavourListNegative : ListEntity<QuantifiedFlavourNegative>()
 
-class flavour : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("sweet","sweetness", "sour","sourness", "spicy", "spicyness", "chili", "salty","bitter","bitterness", "umami")
-    }
-}
-
-class adjectivePositive : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("very", "truly", "really")
-    }
-}
-
-class adjectiveNegative : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("too", "a bit", "too much", "a lot")
-    }
-}
-
-class QuantifiedFlavourPositive(
-    val adjective: adjectivePositive? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
-
-class QuantifiedFlavourNegative(
-    val adjective: adjectiveNegative? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
 
 //
 //class compliment : EnumEntity(stemming = true, speechRecPhrases = true) {

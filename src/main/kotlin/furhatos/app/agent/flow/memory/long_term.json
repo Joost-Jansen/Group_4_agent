@@ -1,6 +1,16 @@
 [{
   "user_id": 0,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": " \n",
+  "ingredients": " \n",
+  "cuisines": " \n"
+}, {
+  "user_id": 1,
+  "meals": "[]",
+  "ingredients": "[]",
+  "cuisines": "[]"
+}, {
+  "user_id": 2,
+  "meals": "[]",
+  "ingredients": "[]",
+  "cuisines": "[]"
 }]

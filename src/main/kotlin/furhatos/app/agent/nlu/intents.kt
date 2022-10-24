@@ -2,8 +2,8 @@ package furhatos.app.agent.nlu
 
 import furhatos.nlu.Intent
 import furhatos.nlu.TextGenerator
-import furhatos.util.Language
 import furhatos.nlu.common.PersonName
+import furhatos.util.Language
 
 
 open class TellPersonalInformation : Intent(), TextGenerator {
@@ -101,5 +101,23 @@ class WrongPerson(
 
     override fun getExamples(lang: Language): List<String> {
         return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
+    }
+}
+
+class positiveFlavourMeal(var flavours : flavourListPostive? = null) : Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("I liked the taste", "I like the taste",  "@flavours", "I like the @flavours", "I loved the @flavours",
+            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours","What I liked was that @flavours",
+            "It was @flavours", "It had a @flavours taste"
+        )
+    }
+}
+
+
+class negativeFlavourMeal(var flavours : flavourListNegative? = null) : Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("I didn't like the taste", "@flavours", "I did not like the @flavours", "I found the @flavours not nice",
+            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours", "What I didn't like was that @flavours",
+            "It was @flavours", "It had a @flavours taste"  )
     }
 }
