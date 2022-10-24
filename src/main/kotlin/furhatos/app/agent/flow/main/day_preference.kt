@@ -46,7 +46,7 @@ class cookingTime() : Intent() {
     val n: Number? = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine"
+            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine", "@n"
         )
     }
 }
@@ -55,7 +55,7 @@ class cookingTimeLong() : Intent() {
     val n: Number? = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n hours", "I -only have @n hours", "@n hours", "I will cook for @n hours", "I can cook for @n hours", "I want to cook for @n hours", "Under @n hours", "Under @n minutes would be fine"
+            "I have @n hours", "I -only have @n hours", "@n hours", "I will cook for @n hours", "I can cook for @n hours", "I want to cook for @n hours", "Under @n hours", "Under @n minutes would be fine", "@n"
         )
     }
 }
@@ -98,7 +98,7 @@ val DayPreference : State = state(Parent) {
         if (!it.intent.isEmpty) {
             val course = it.intent.m
             if(course != null) {
-//                print(course.meal)
+                current_user.courseType = course.toString()
             }
             furhat.say("Okay, but before I give you an ${course} recommendation I would like to have a bit more information")
 
@@ -131,7 +131,6 @@ val askAppitite : State = state(Parent) {
                     prefs.add(c)
                 }
             }
-            print(current_user.preferences)
         }
         furhat.gesture(Gestures.Smile)
         furhat.say(
@@ -184,7 +183,7 @@ val askTime : State = state(Parent) {
         } else {
             furhat.ask(
                 random(
-                    "Since it is a weekday would you prefer easy to make meal?",
+                    "Since it is a weekday would you prefer a meal that is easy to make?",
                     "Would you prefer a meal that you can quickly prepare?"
                 )
             )
@@ -225,8 +224,8 @@ val askShort : State = state(askTime) {
     }
     onResponse<cookingTime> {
         if(it.intent.n != null) {
-            val x = it.intent.n
-            print(x.toString().toInt())
+            val timeToCook = it.intent.n.toString().toInt()
+            current_user.time = timeToCook
             goto(askAppitite)
         }
     }
@@ -243,8 +242,8 @@ val askLong : State = state(askTime) {
     }
     onResponse<cookingTimeLong> {
         if(it.intent.n != null) {
-            val x = it.intent.n
-            print(x.toString().toInt() * 60)
+            val timeToCook = it.intent.n.toString().toInt() * 60
+            current_user.time = timeToCook
             goto(askAppitite)
         }
     }

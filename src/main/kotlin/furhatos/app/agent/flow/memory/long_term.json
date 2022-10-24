@@ -67,5 +67,11 @@
     "meals": [],
     "ingredients": [],
     "cuisines": []
+  },
+  {
+    "user_id": 3,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
   }
 ]
