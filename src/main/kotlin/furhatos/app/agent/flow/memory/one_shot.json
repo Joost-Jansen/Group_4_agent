@@ -18,7 +18,7 @@
   "name": "jochem",
   "diet": [""],
   "allergies": ["peanuts"]
-},{
+}, {
   "user_id": 5,
   "name": "Jeff",
   "diet": [],
@@ -30,7 +30,7 @@
   "allergies": []
 }, {
   "user_id": 7,
-  "name": "Jim",
+  "name": "Yvonne",
   "diet": [],
   "allergies": []
 }, {

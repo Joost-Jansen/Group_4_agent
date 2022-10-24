@@ -1,62 +1,26 @@
 package furhatos.app.agent.nlu
 
 import furhatos.nlu.Intent
-import furhatos.nlu.TextGenerator
+import furhatos.nlu.common.PersonName
 import furhatos.util.Language
 
-open class TellPersonalInformation : Intent(), TextGenerator {
-    var diets: ListOfDiets? = null
-    var allergies: ListOfAllergies? = null
-
+class UserIdentification(
+    val name : PersonName? = null
+) : Intent() {
     override fun getExamples(lang: Language): List<String> {
-        return listOf(
-            "I am following a @diets diet",
-            "I am allergic to @allergies"
-        )
+        return listOf("@name", "I am @name", "they call me @name", "my name is @name", "this is @name", "@name is my name", "@name, is what I am")
     }
-
-    override fun toText(lang : Language) : String {
-        return generate(lang, "[allergic to $allergies] [following the $diets diet]")
-    }
-
-    override fun toString(): String {
-        return toText()
-    }
+//
+//    override fun getNegativeExamples(lang: Language?): List<String> {
+//        return listOf("I am not @name", "they don't call me @name", "my name is not @name", "this is not @name")
+//    }
 }
 
-class TellDiets : Intent() {
-    var diets: ListOfDiets? = null
+class WrongPerson(
+    val name : PersonName? = null
+) : Intent() {
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf("I am following a @diets diet")
+        return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
     }
 }
-
-class TellAllergies : Intent() {
-    var allergies: ListOfAllergies? = null
-
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I am allergic to @allergies")
-    }
-}
-
-open class RemovePersonalInformation : Intent(), TextGenerator {
-    var diets: ListOfDiets? = null
-    var allergies: ListOfAllergies? = null
-
-    override fun getExamples(lang: Language): List<String> {
-        return listOf(
-            "I am not following a @diets diet",
-            "I am not allergic to @allergies"
-        )
-    }
-
-    override fun toText(lang : Language) : String {
-        return generate(lang, "[not allergic to $allergies] [not following the $diets diet]")
-    }
-
-    override fun toString(): String {
-        return toText()
-    }
-}
-

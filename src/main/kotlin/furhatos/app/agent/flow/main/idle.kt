@@ -8,7 +8,7 @@ val Idle: State = state {
         when {
             users.count > 0 -> {
                 furhat.attend(users.random)
-                goto(Greeting)
+                    goto(Greeting)
             }
             users.count == 0 && furhat.isVirtual() -> furhat.say("I can't see anyone. Add a virtual user please. ")
             users.count == 0 && !furhat.isVirtual() -> furhat.say("I can't see anyone. Step closer please. ")
@@ -21,6 +21,6 @@ val Idle: State = state {
 
     onUserEnter {
         furhat.attend(it)
-        goto(Greeting)
+          goto(Greeting)
     }
 }
