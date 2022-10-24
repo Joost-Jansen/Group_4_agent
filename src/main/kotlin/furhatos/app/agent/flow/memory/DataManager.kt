@@ -1,7 +1,7 @@
 //package furhatos.app.agent.flow.memory
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import furhatos.app.agent.flow.memory.data.OneShotData
+import furhatos.app.agent.flow.memory.data.*
 import furhatos.app.agent.flow.recipes.queryRecipe
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
@@ -23,42 +23,19 @@ data class User(
     var diet: MutableList<String>,
     var allergies: MutableList<String>,
     // long term
-    var meals: MutableList<Meal>,
-    var ingredients: MutableList<Ingredient>,
-    var cuisines: MutableList<Cuisine>,
+    var meals: MutableList<MealData>,
+    var ingredients: MutableList<IngredientsData>,
+    var cuisines: MutableList<CuisinesData>,
     // short term
     var time: LocalDate,
     var preferences: MutableList<String>,
-    var left_overs: MutableList<Ingredient>)
+    var left_overs: MutableList<IngredientsData>)
 
 
-data class Meal(
-    val id: Int, // id in spoonacular can request by getID
-    val name: String, // name of meal
-    var ingredients: MutableList<String>,
-    val course: String, // type of meal eg. desert
-    var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
-) : Comparable<Meal> {
-    override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
-}
 
-data class Ingredient(
-    val name: String,
-    var likes: Int
-) : Comparable<Ingredient> {
-    override fun compareTo(other: Ingredient) = compareValuesBy(this, other) { it.likes }
-}
-
-data class Cuisine(
-    val name: String,
-    var likes: Int
-) : Comparable<Cuisine> {
-    override fun compareTo(other: Cuisine) = compareValuesBy(this, other) { it.likes }
-}
 
 class UserUpdates {
-    fun findLikedMeal(list: MutableList<Meal>): Meal? {
+    fun findLikedMeal(list: MutableList<MealData>): MealData? {
         val max = list.maxOrNull()
         return if (max != null && max.likes > 0) {
             val diff: Long = ChronoUnit.DAYS.between(LocalDate.parse(max.last_selected), LocalDate.now())
@@ -125,10 +102,22 @@ class DataManager () {
     var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
     var dfUsers: DataFrame<Any?>? = null
     init {
-        val inputStream = File("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json").inputStream().bufferedReader().use { it.readText() }
+        val inputStreamOneShot = File("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json").inputStream().bufferedReader().use { it.readText() }
         val oneShotType = object : TypeToken<List<OneShotData>>() {}.type
-        val list = Gson().fromJson<List<OneShotData>>(inputStream, oneShotType)
-        print(list.get(0).name)
+        val listOneShot = Gson().fromJson<List<OneShotData>>(inputStreamOneShot, oneShotType)
+
+        val inputStreamLongTerm = File("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json").inputStream().bufferedReader().use { it.readText() }
+        val longTermType = object : TypeToken<List<LongTermData>>() {}.type
+        val listLongTerm = Gson().fromJson<List<LongTermData>>(inputStreamLongTerm, longTermType)
+        for (oData in listOneShot) {
+            for (ldata in listLongTerm) {
+                if (oData.user_id === ldata.user_id) {
+                    var u = User(user_id = oData.user_id!!, name = oData.name!!, diet = oData.diet!!,
+                        allergies = oData.allergies!!, cuisines = ldata.cuisines!!, ingredients = ldata.ingredients!!,
+                        left_overs = mutableListOf(), meals = ldata.meals!!, preferences = mutableListOf(), time = LocalDate.now())
+                }
+            }
+        }
         if (!oneShot.isEmpty()){
             dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
         }
@@ -142,12 +131,12 @@ class DataManager () {
     fun newUser(name: String = "",
                 diet: MutableList<String> = mutableListOf(),
                 allergies: MutableList<String> =  mutableListOf(),
-                meals: MutableList<Meal> =  mutableListOf(),
-                favourite_ingredients: MutableList<Ingredient> = mutableListOf(),
-                cuisines: MutableList<Cuisine> = mutableListOf(),
+                meals: MutableList<MealData> =  mutableListOf(),
+                favourite_ingredients: MutableList<IngredientsData> = mutableListOf(),
+                cuisines: MutableList<CuisinesData> = mutableListOf(),
                 preferences: MutableList<String> = mutableListOf(),
                 time: LocalDate = LocalDate.now(),
-                left_overs: MutableList<Ingredient> = mutableListOf()
+                left_overs: MutableList<IngredientsData> = mutableListOf()
     ): User {
         if (dfUsers !== null){
             val id = dfUsers!!.maxBy("user_id")["user_id"].toString().toInt() + 1
