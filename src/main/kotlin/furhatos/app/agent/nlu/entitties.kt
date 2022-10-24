@@ -8,7 +8,6 @@ import java.io.BufferedReader
 import java.io.FileReader
 import java.lang.Exception
 
-
 class Ingredients : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
         return readCsv()
