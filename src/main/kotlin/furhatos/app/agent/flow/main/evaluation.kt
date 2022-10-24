@@ -42,7 +42,8 @@ val Evaluation : State = state(Parent) {
             furhat.ask(
                 random(
                     "The last time I saw you, I recommended you to eat ${lastMeal.name} for ${lastMeal.course}. Did you like that meal?",
-                    "Did you like that ${lastMeal.name} for ${lastMeal.course}? I recommended it you last time."
+                    random ("Did you like that ${lastMeal.name} for ${lastMeal.course}?", "Did you enjoy that ${lastMeal.name} for ${lastMeal.course}?") +
+                    random ("I recommended it to you last time.", "I suggested it to you last time")
                 )
             )
         } else {
@@ -53,7 +54,7 @@ val Evaluation : State = state(Parent) {
 
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
-        furhat.say("We'll talk about something else then.")
+        furhat.say("Let's talk about what you would like to eat today.")
         goto(DayPreference)
     }
 
@@ -97,7 +98,8 @@ val Evaluation : State = state(Parent) {
             when(max_label){
                 "LABEL_0" ->{ 0
 //                    furhat.say("You were negative but you liked the meal.So Score is positive: $updateScore")
-                    furhat.say("Wait. you're saying that you liked the meal, but you sound kind of negative.")
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            "You're saying that you liked the meal, but you sound kind of negative.")
 //                    furhat.ask("Could you maybe specify?")
                     reentry()
                 }
@@ -107,8 +109,11 @@ val Evaluation : State = state(Parent) {
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
                     }
-                    furhat.say("Alright. Great to hear that you liked the recipe. I'll keep that in mind.")
-//                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Allright.","Nice!", "") +
+                                   random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
+                                   random("I'll keep that in mind.", "I'll remember that for the next time.")
+                    )
+
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -117,8 +122,10 @@ val Evaluation : State = state(Parent) {
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
                     }
-                    furhat.say("Alright. Great to hear that you liked the recipe. I'll keep that in mind.")
-//                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Allright.","Nice!", "") +
+                            random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
+                            random("I'll keep that in mind.", "I'll remember that for the next time.")
+                    )
                     goto(DayPreference)
                 }
             }
@@ -153,14 +160,16 @@ val Evaluation : State = state(Parent) {
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
                     }
-                    furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
-//                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
+                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    )
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
                     updateScore = -3
-                    furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
-//                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
+                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    )
                     userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
@@ -168,9 +177,9 @@ val Evaluation : State = state(Parent) {
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
-                    furhat.say("Wait. you're saying that you didn't like the meal, but you sound kind of positive.")
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
                     reentry()
-
                 }
             }
             reentry()
@@ -200,8 +209,9 @@ val Evaluation : State = state(Parent) {
             when(max_label){
                 "LABEL_0" ->{
                     updateScore = (-10*max).toInt()
-                    furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
-//                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
+                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    )
                     userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
@@ -209,13 +219,17 @@ val Evaluation : State = state(Parent) {
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
-                    furhat.say("You sound kind of neutral.")
+                    furhat.say(random("I didn't quite get your opinion ",
+                        "I didn't entirely understand your point of view on"
+                    ) + random("about the meal", "about ${lastMeal.name}"))
                     reentry()
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
-                    furhat.say("Alright. Great to hear that you liked the recipe. I'll keep that in mind.")
-                    furhat.say("I would go to Daypref now but stay for testing")
+                    furhat.say(random("Allright.","Nice!", "") +
+                            random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
+                            random("I'll keep that in mind.", "I'll remember that for the next time.")
+                    )
                     userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
                     for (i in lastMeal.ingredients){
                         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
@@ -306,26 +320,42 @@ val positiveMealEvaluation : State = state(Evaluation){
             var updateScore = 0
             when(max_label){
                 "LABEL_0" ->{
-                    updateScore = (5*max).toInt()
-                    furhat.say("You were negative but you liked the meal.So Score is positive: $updateScore")
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
+                    reentry()
                 }
-                "LABEL_1" ->{
+                "LABEL_1" -> {
                     updateScore = 5
-                    furhat.say("You were neutral. Score: $updateScore")
+                    furhat.say(
+                        random("Allright.", "Nice!", "") +
+                                random(
+                                    "Great to hear that you liked the recipe.",
+                                    "It's wonderful to hear you enjoy the recipe."
+                                ) +
+                                random("I'll keep that in mind.", "I'll remember that for the next time.")
+                    )
+                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore)
+                    for (i in lastMeal.ingredients) {
+                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+                    }
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
-                    furhat.say("You were positive. Score: $updateScore")
-
+                        furhat.say(random("Allright.","Nice!", "") +
+                                random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
+                                random("I'll keep that in mind.", "I'll remember that for the next time.")
+                        )
+                        userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
+                        for (i in lastMeal.ingredients) {
+                            userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+                        }
                 }
             }
-            userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-            for (i in lastMeal.ingredients){
-                userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-            }
-            goto(Evaluation)
         }else{
-            furhat.say("I thought you used the wildcard. But nothing was there")
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
             goto(Evaluation)
         }
     }
@@ -366,25 +396,38 @@ val negativeMealEvaluation : State = state(Evaluation){
             when(max_label){
                 "LABEL_0" ->{
                     updateScore = (-10*max).toInt()
-                    furhat.say("You were negative. Score: $updateScore")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    )
+                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
+                    for (i in lastMeal.ingredients){
+                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+                    }
+                    goto(DayPreference)
                 }
                 "LABEL_1" ->{
                     updateScore = -5
-                    furhat.say("You were neutral. Score: $updateScore")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    )
+                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
+                    for (i in lastMeal.ingredients){
+                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+                    }
+                    goto(DayPreference)
                 }
                 "LABEL_2" ->{
                     updateScore = (-5*max).toInt()
-                    furhat.say("You were positive but you didn't like the meal. Score: $updateScore")
-
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
+                    reentry()
                 }
             }
-            userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-            for (i in lastMeal.ingredients){
-                userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-            }
-            goto(Evaluation)
         }else{
-            furhat.say("I thought you used the wildcard. But nothing was there")
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
             goto(Evaluation)
         }
     }
