@@ -13,7 +13,6 @@ import java.io.BufferedReader
 import java.io.FileReader
 import java.lang.Exception
 
-
 class Ingredients : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
         return readCsv()
@@ -80,3 +79,9 @@ fun readCsv(): MutableList<String> {
 
     return ingredients
 }
+//fun main(args: Array<String>) {
+//    val base_query = "https://api.spoonacular.com?apiKey=e9eeb0d76f024efcaf7cd32ae444c899"
+//    val a = options(base_query)
+//    readCsv()
+//}
+
