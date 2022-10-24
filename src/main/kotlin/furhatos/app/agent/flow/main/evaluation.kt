@@ -4,6 +4,7 @@ import Ingredient
 import Meal
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
+import furhatos.app.agent.flow.getCurrentEmotion
 import furhatos.app.agent.flow.recipes.queryHuggingFace
 import furhatos.app.agent.nlu.negativeWildCardIntent
 import furhatos.app.agent.nlu.postiveWildCardIntent
@@ -30,6 +31,8 @@ val Evaluation : State = state(Parent) {
                     "Could you maybe specify?"
                 )
             )
+            println("checking emotion")
+            checkEmotion()
         } else {
             goto(DayPreference)
         }
@@ -43,9 +46,11 @@ val Evaluation : State = state(Parent) {
                 random(
                     "The last time I saw you, I recommended you to eat ${lastMeal.name} for ${lastMeal.course}. Did you like that meal?",
                     random ("Did you like that ${lastMeal.name} for ${lastMeal.course}?", "Did you enjoy that ${lastMeal.name} for ${lastMeal.course}?") +
-                    random ("I recommended it to you last time.", "I suggested it to you last time")
+                    random (" I recommended it to you last time.", " I suggested it to you last time")
                 )
             )
+            println("checking emotion")
+            checkEmotion()
         } else {
             goto(DayPreference)
         }
@@ -71,6 +76,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onResponse<Yes> {
+        checkEmotion()
         furhat.gesture(Gestures.Smile)
         furhat.say(
             random(
@@ -82,6 +88,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onResponse<postiveWildCardIntent>{
+        checkEmotion()
         if (it.intent.textInput !== null) {
             val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
             var max: Float = "0.0".toFloat()
@@ -99,32 +106,26 @@ val Evaluation : State = state(Parent) {
                 "LABEL_0" ->{ 0
 //                    furhat.say("You were negative but you liked the meal.So Score is positive: $updateScore")
                     furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
-                            "You're saying that you liked the meal, but you sound kind of negative.")
+                            " You're saying that you liked the meal, but you sound kind of negative.")
 //                    furhat.ask("Could you maybe specify?")
                     reentry()
                 }
                 "LABEL_1" ->{
                     updateScore = 5
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     furhat.say(random("Allright.","Nice!", "") +
-                                   random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
-                                   random("I'll keep that in mind.", "I'll remember that for the next time.")
+                                   random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                                   random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
 
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     furhat.say(random("Allright.","Nice!", "") +
-                            random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
-                            random("I'll keep that in mind.", "I'll remember that for the next time.")
+                            random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                            random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
                     goto(DayPreference)
                 }
@@ -140,6 +141,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onResponse<negativeWildCardIntent>{
+        checkEmotion()
         if (it.intent.textInput !== null) {
             val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
             var max: Float = "0.0".toFloat()
@@ -156,24 +158,18 @@ val Evaluation : State = state(Parent) {
             when(max_label){
                 "LABEL_0" ->{
                     updateScore = (-10*max).toInt()
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
-                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
-                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
                     updateScore = -3
-                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
-                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -193,6 +189,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onResponse<wildCardIntent> (priority = false){
+        checkEmotion()
         if (it.intent.textInput !== null) {
             val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
             var max: Float = "0.0".toFloat()
@@ -209,31 +206,25 @@ val Evaluation : State = state(Parent) {
             when(max_label){
                 "LABEL_0" ->{
                     updateScore = (-10*max).toInt()
-                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the $lastMeal.name.") +
-                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
                     furhat.say(random("I didn't quite get your opinion ",
-                        "I didn't entirely understand your point of view on"
-                    ) + random("about the meal", "about ${lastMeal.name}"))
+                        "I didn't entirely understand your point of view"
+                    ) )
                     reentry()
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
                     furhat.say(random("Allright.","Nice!", "") +
-                            random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
-                            random("I'll keep that in mind.", "I'll remember that for the next time.")
+                            random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                            random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
             }
@@ -247,53 +238,6 @@ val Evaluation : State = state(Parent) {
         }
     }
 }
-
-
-
-//
-//    onResponse<negativeFlavourMeal> {
-//        print(it.intent.flavours)
-//        val flavours = it.intent.flavours
-//        if (flavours !== null)  {
-//            furhat.say(
-//                random(
-//                    "Alright, I get that you find the ${lastMeal.name} ${flavours}. I'll keep that in mind for the next time",
-//                    "Too bad that ${lastMeal.name} was ${flavours}. I'll try to remember that for your next meal."
-//                )
-//            )
-//        } else {
-//            furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
-//        }
-//        furhat.gesture(Gestures.Blink)
-//
-//        // update likes of meal
-//        lastMeal.likes -= 2
-//        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-//        goto(DayPreference)
-//    }
-//
-//
-//    onResponse<positiveFlavourMeal> {
-//        if(it.intent.flavours !== null){
-//            furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
-//
-//        }
-////        else if(it.intent.ingredients != null){
-////            furhat.say("Great to hear that ${lastMeal.name} had such nice ingredients. I'll keep that in mind for the next time")
-////        }
-//        else{
-//            furhat.say("It's always nice to hear that people love my recommendations. I'll try to remember that for your next meal.")
-//        }
-//
-//        lastMeal.likes += 2
-//        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-//        furhat.gesture(Gestures.Blink)
-//        goto(DayPreference)
-//    }
-//
-//    onNoResponse { reentry() }
-//}
-//
 val positiveMealEvaluation : State = state(Evaluation){
     onEntry {
         furhat.ask(
@@ -302,6 +246,7 @@ val positiveMealEvaluation : State = state(Evaluation){
                 "What did you like about the ${lastMeal.name}?"
             )
         )
+        checkEmotion()
     }
 
     onResponse<wildCardIntent>{
@@ -329,26 +274,20 @@ val positiveMealEvaluation : State = state(Evaluation){
                     furhat.say(
                         random("Allright.", "Nice!", "") +
                                 random(
-                                    "Great to hear that you liked the recipe.",
-                                    "It's wonderful to hear you enjoy the recipe."
+                                    " Great to hear that you liked the recipe.",
+                                    " It's wonderful to hear you enjoy the recipe."
                                 ) +
-                                random("I'll keep that in mind.", "I'll remember that for the next time.")
+                                random(" I'll keep that in mind.", "I'll remember that for the next time.")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore)
-                    for (i in lastMeal.ingredients) {
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
                         furhat.say(random("Allright.","Nice!", "") +
-                                random("Great to hear that you liked the recipe.", "It's wonderful to hear you enjoy the recipe.") +
-                                random("I'll keep that in mind.", "I'll remember that for the next time.")
+                                random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                                random(" I'll keep that in mind.", " I'll remember that for the next time.")
                         )
-                        userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                        for (i in lastMeal.ingredients) {
-                            userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                        }
+                    updateMeal(updateScore)
                 }
             }
         }else{
@@ -376,7 +315,7 @@ val negativeMealEvaluation : State = state(Evaluation){
             furhat.ask("What didn't you like about the meal?"),
             furhat.ask("What didn't you like about the ${lastMeal.name}?")
         )
-
+        checkEmotion()
     }
 
     onResponse<wildCardIntent>{
@@ -397,23 +336,17 @@ val negativeMealEvaluation : State = state(Evaluation){
                 "LABEL_0" ->{
                     updateScore = (-10*max).toInt()
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
-                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
                     updateScore = -5
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
-                            random("I'll try to remember that for your next meal.", "I'll keep that in mind for your next recommendation")
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-                    for (i in lastMeal.ingredients){
-                        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-                    }
+                    updateMeal(updateScore)
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -435,12 +368,36 @@ val negativeMealEvaluation : State = state(Evaluation){
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
         furhat.say("We'll talk about something else then.")
-        userUpdates.updateLikes(lastMeal, current_user.meals, -1)
-        for (i in lastMeal.ingredients){
-            userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, -1)
-        }
+        updateMeal(-1)
         goto(Evaluation)
     }
 
 }
 
+fun checkEmotion(){
+    val emotion = getCurrentEmotion().get("emotion").toString()
+    var updateScore: Int = 0
+    when (emotion){"Neutral"-> {
+            updateScore = 0
+        }
+        "Happy", "Surprise" -> {
+            updateScore = 1
+        }
+        "Sad", "Anger", "Disgust", "Fear",
+        "Contempt",  -> {
+            updateScore = -1
+        }
+        else -> {
+        updateScore = 0
+    }
+    }
+    println("updated score based on emotion: " .plus(emotion) + ", score: ".plus(updateScore))
+    updateMeal(updateScore)
+}
+
+fun updateMeal(updateScore: Int){
+    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
+    for (i in lastMeal.ingredients){
+        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+    }
+}

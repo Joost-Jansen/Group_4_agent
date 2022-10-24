@@ -144,7 +144,7 @@ fun queryHuggingFace(text: String): JSONArray {
     val headers = mapOf("Authorization" to "Bearer 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")
     val output = mapOf("inputs" to  text)
     val query = get(API_URL, headers, json=output).jsonArray.getJSONArray(0)
-    print(query)
+//    print(query)
     return query
     // Get the title of the dish from the response
 //    val objects = get(query).jsonObject.getJSONArray("recipes")

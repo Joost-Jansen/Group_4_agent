@@ -157,7 +157,7 @@ class DataManager () {
     fun getUserByName(username: String): User? {
         if ( this.dfUsers !== null) {
             val dfUser = dfUsers!!.firstOrNull { it["name"] == username }
-            println(dfUser)
+//            println(dfUser)
             if (dfUser != null) {
 
                 val m = dfUser["meals"] as DataFrame<*>
@@ -221,7 +221,7 @@ class DataManager () {
      * return: nothing
      */
     fun writeUser(user: User){
-        print(oneShot.head())
+//        print(oneShot.head())
         val oneShotNames = listOf("user_id", "name", "diet", "allergies")
         val oneShotValues = listOf(user.user_id, user.name, user.diet, user.allergies)
         val oneShotUser = dataFrameOf(oneShotNames, oneShotValues)
@@ -229,10 +229,10 @@ class DataManager () {
         val newOneShot = oneShotDropped.concat(oneShotUser).sortBy("user_id")
         this.oneShot = newOneShot
 
-        print(newOneShot.head())
+//        print(newOneShot.head())
         newOneShot.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json", prettyPrint = true)
 
-        print(longTerm.head())
+//        print(longTerm.head())
 //        val meals = dataFrameOf(listOf("id", "name", "likes", "last_selected", "course"), )
         val longTermNames = listOf("user_id","meals","ingredients","cuisines")
         val longTermValues = listOf(user.user_id, user.meals, user.ingredients, user.cuisines)
@@ -241,7 +241,7 @@ class DataManager () {
         val newLongTerm = longTermDropped.concat(longTermUser).sortBy("user_id")
         this.longTerm = newLongTerm
 
-        print(newLongTerm.head())
+//        print(newLongTerm.head())
         newLongTerm.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json", prettyPrint = true)
         dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
     }
@@ -253,7 +253,7 @@ class DataManager () {
  */
 fun main(args: Array<String>) {
     val dm = DataManager()
-    print(dm.dfUsers?.head())
+//    print(dm.dfUsers?.head())
     val user = dm.getUserByName("joost")
     if (user != null) {
         dm.writeUser(user)
