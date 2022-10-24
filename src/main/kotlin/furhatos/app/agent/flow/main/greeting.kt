@@ -6,33 +6,52 @@ import furhatos.app.agent.flow.Parent
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
-import furhatos.flow.kotlin.state
-import furhatos.gestures.Gestures
+import furhatos.app.agent.nlu.UserIdentification
+import furhatos.flow.kotlin.*
 import furhatos.nlu.common.No
-import furhatos.nlu.common.TellName
+
+fun setUser(furhat: Furhat, name: String) {
+    val user = dataManager.getUserByName(name)
+    // If name is not in memory
+    if (user !== null){
+        current_user = user
+        // Skip personal identification
+        furhat.say("Good to see you back, ${current_user.name}")
+    }
+    else{
+        furhat.say("Nice to meet you $name")
+        // goto personal identifcation
+        current_user = dataManager.newUser( name= name)
+    }
+}
 
 val Greeting : State = state(Parent) {
-    onEntry {
-        furhat.ask("Hi there, who am I talking to?")
+    init {
+        furhat.say("Hi There")
     }
 
-    onResponse<TellName> {
-        val user = dataManager.getUserByName(it.intent.name.toString())
-        // If name is not in memory
-        if (user !== null){
-            current_user = user
-            // Skip personal identification
-            furhat.say("Good to see you back, ${current_user.name}")
-            furhat.gesture(Gestures.Smile(duration=2.0))
-            goto(PersonalInformation)
-        }
-        else{
-            furhat.say("Nice to meet you ${it.intent.name}")
-            // goto personal identifcation
-            furhat.gesture(Gestures.Smile(duration=2.0))
-            current_user = dataManager.newUser( name= it.intent.name.toString())
+    onEntry {
+        val name = furhat.askFor<UserIdentification>("Who am I talking to?")
+        if (name != null) {
+            setUser(furhat, name.name.toString())
             goto(PersonIdentification)
+        } else {
+            reentry()
         }
+    }
+
+    onReentry {
+        val name = furhat.askFor<UserIdentification>("Could you repeat that?")
+        if (name != null) {
+            setUser(furhat, name.name.toString())
+            goto(PersonIdentification)
+        } else {
+            reentry()
+        }
+    }
+
+    onResponse<UserIdentification> {
+
     }
 
     onResponse<No> {
@@ -40,3 +59,6 @@ val Greeting : State = state(Parent) {
         goto(Idle)
     }
 }
+
+
+

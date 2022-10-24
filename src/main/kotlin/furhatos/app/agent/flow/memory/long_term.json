@@ -1,6 +1,6 @@
 [{
   "user_id": 0,
-  "meals": [{"course" : "desert", "id" : 73420, "last_selected" : "2018-12-10", "likes" : 1, "name" : "Apple Or Peach Strudel"}, {"course" : "main", "id" : 716429, "last_selected" : "2018-12-12", "likes" : 3, "name" : "Pasta with Garlic, Scallions, Cauliflower & Breadcrumbs"}],
-  "ingredients": [{"likes" : 3, "name" : "Tomato"}, {"likes" : 1, "name" : "Potato"}],
-  "cuisines": [{"likes" : 3, "name" : "Tomato"}, {"likes" : 1, "name" : "Potato"}]
+  "meals": [],
+  "ingredients": [],
+  "cuisines": []
 }]
