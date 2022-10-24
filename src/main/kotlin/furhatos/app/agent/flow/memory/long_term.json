@@ -1,31 +1,31 @@
 [{
   "user_id": 0,
-  "meals": ["   course     id last_selected likes                                     name\n 0 desert  73420    2018-12-10     1                   Apple Or Peach Strudel\n 1   main 716429    2018-12-12     3 Pasta with Garlic, Scallions, Caulifl...\n"],
-  "ingredients": ["   likes   name\n 0     3 Tomato\n 1     1 Potato\n"],
-  "cuisines": ["   likes   name\n 0     3 Tomato\n 1     1 Potato\n"]
-}, {
-  "user_id": 7,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": "   nrow\n 0    2\n",
+  "ingredients": "   nrow\n 0    2\n",
+  "cuisines": "   nrow\n 0    2\n"
 }, {
   "user_id": 8,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": " \n",
+  "ingredients": " \n",
+  "cuisines": " \n"
 }, {
   "user_id": 9,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": " \n",
+  "ingredients": " \n",
+  "cuisines": " \n"
 }, {
   "user_id": 10,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": " \n",
+  "ingredients": " \n",
+  "cuisines": " \n"
 }, {
   "user_id": 11,
-  "meals": [],
-  "ingredients": [],
-  "cuisines": []
+  "meals": "[]",
+  "ingredients": "[]",
+  "cuisines": "[]"
+}, {
+  "user_id": 12,
+  "meals": "[]",
+  "ingredients": "[]",
+  "cuisines": "[]"
 }]

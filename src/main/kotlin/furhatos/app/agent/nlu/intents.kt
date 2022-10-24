@@ -1,9 +1,10 @@
 package furhatos.app.agent.nlu
 
 import furhatos.nlu.Intent
-import furhatos.nlu.common.PersonName
 import furhatos.nlu.TextGenerator
 import furhatos.util.Language
+import furhatos.nlu.common.PersonName
+
 
 open class TellPersonalInformation : Intent(), TextGenerator {
     var diets: ListOfDiets? = null
@@ -82,7 +83,6 @@ open class RemovePersonalInformation : Intent(), TextGenerator {
         return toText()
     }
 }
-
 class UserIdentification(
     val name : PersonName? = null
 ) : Intent() {
@@ -103,4 +103,3 @@ class WrongPerson(
         return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
     }
 }
-
