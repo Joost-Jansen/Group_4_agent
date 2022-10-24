@@ -12,11 +12,15 @@ open class TellPersonalInformation : Intent(), TextGenerator {
 
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I am following a @diets diet and I am allergic to @allergies",
-            "I am allergic to @allergies and I am following a @diets diet",
-            "I am on the @diets diet and my allergies are @allergies",
-            "My allergies are @allergies and I am on the @diets diet"
-        )
+            listOf(
+                "I am following a @diets diet and I am allergic to @allergies",
+                "I am allergic to @allergies and I am following a @diets diet",
+                "I am on the @diets diet and my allergies are @allergies",
+                "My allergies are @allergies and I am on the @diets diet"
+            ),
+            getDietExamples(),
+            getAllergyExamples()
+        ).flatten()
     }
 
     override fun toText(lang : Language) : String {
@@ -32,30 +36,42 @@ class TellDiets : Intent() {
     var diets: ListOfDiets? = null
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf(
-            "I am following a @diets diet",
-            "I am following the @diets diet",
-            "I am on a @diets diet",
-            "I am on the @diets diet",
-            "@diets"
-        )
+        return getDietExamples()
     }
+}
+
+fun getDietExamples(): List<String> {
+    return listOf(
+        "I am following a @diets diet",
+        "I am following the @diets diet",
+        "I am on a @diets diet",
+        "I am on the @diets diet",
+        "@diets diet",
+        "@diets"
+    )
 }
 
 class TellAllergies : Intent() {
     var allergies: ListOfAllergies? = null
 
     override fun getExamples(lang: Language): List<String> {
-        return listOf(
-            "I am allergic to @allergies",
-            "I am intolerant to @allergies",
-            "my allergy is @allergies",
-            "my allergies are @allergies",
-            "my intolerance is @allergies",
-            "my intolerances are @allergies",
-            "@allergies"
-        )
+        return getAllergyExamples()
     }
+}
+
+fun getAllergyExamples(): List<String> {
+    return listOf(
+        "I am allergic to @allergies",
+        "I am intolerant to @allergies",
+        "my allergy is @allergies",
+        "my allergies are @allergies",
+        "my intolerance is @allergies",
+        "my intolerances are @allergies",
+        "@allergies allergy",
+        "@allergies intolerance",
+        "@allergies intolerant",
+        "@allergies"
+    )
 }
 
 open class RemovePersonalInformation : Intent(), TextGenerator {
@@ -103,3 +119,37 @@ class WrongPerson(
         return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
     }
 }
+
+class wildCardIntent(): Intent() {
+
+    var textInput: textEntity? = null
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "@textInput"
+        );
+    }
+
+}
+
+class negativeWildCardIntent(): Intent() {
+    var textInput: negativeWildCardEntity? = null
+
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "@textInput",
+        );
+    }
+
+}
+
+class postiveWildCardIntent(): Intent() {
+
+    var textInput: positiveWildCardEntity? = null
+
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "@textInput",
+        );
+    }
+}
+

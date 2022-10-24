@@ -1,49 +1,56 @@
 package furhatos.app.agent.flow.main
 
-import Meal
 import furhatos.app.agent.current_user
+import furhatos.app.agent.flow.memory.data.Meal
+import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.flow.Parent
-import furhatos.app.agent.flow.recipes.FoodJoke
+import furhatos.app.agent.flow.getCurrentEmotion
+import furhatos.app.agent.flow.recipes.queryHuggingFace
+import furhatos.app.agent.nlu.negativeWildCardIntent
+import furhatos.app.agent.nlu.postiveWildCardIntent
+import furhatos.app.agent.nlu.wildCardIntent
 import furhatos.app.agent.userUpdates
-import furhatos.flow.kotlin.*
+import furhatos.flow.kotlin.State
+import furhatos.flow.kotlin.furhat
+import furhatos.flow.kotlin.onResponse
+import furhatos.flow.kotlin.state
 import furhatos.gestures.Gestures
-import furhatos.nlu.ComplexEnumEntity
-import furhatos.nlu.EnumEntity
-import furhatos.nlu.Intent
-import furhatos.nlu.ListEntity
 import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
-import furhatos.util.Language
+
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "")
 
 val Evaluation : State = state(Parent) {
-    onEntry {
-        furhat.ask("Welcome to the evaluation module. This module will be skipped if you're new user. Would you like to continue?")
-    }
-
-    onResponse<No> {
-        furhat.say("Alright, then I will tell you a joke.")
-        goto(FoodJoke)
-    }
-
-    onResponse<Yes> {
-        furhat.say("great.")
-        goto(mealEvaluation)
-    }
-}
-var lastMeal: Meal = Meal(-1, "", -1,"", "")
-
-val mealEvaluation : State = state(Parent){
-    onEntry {
+    onReentry {
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal !== null){
+        if (meal !== null) {
             lastMeal = meal
             furhat.ask(
                 random(
-                    "The last time I saw you, I recommended you to eat ${lastMeal.name} for ${lastMeal.course}. Did you like that meal?"
-                    ,"Did you like that ${lastMeal.name} for ${lastMeal.course}? I recommended it you last time."
+                    "Could you maybe specify?"
                 )
             )
+            println("checking emotion")
+            checkEmotion()
+        } else {
+            goto(DayPreference)
+        }
+    }
+
+    onEntry {
+        val meal = userUpdates.findLastMeal(current_user.meals)
+        if (meal !== null) {
+            lastMeal = meal
+            furhat.ask(
+                random(
+                    "The last time I saw you, I recommended you to eat ${lastMeal.name} for ${lastMeal.course}. Did you like that meal?",
+                    random ("Did you like that ${lastMeal.name} for ${lastMeal.course}?", "Did you enjoy that ${lastMeal.name} for ${lastMeal.course}?") +
+                    random (" I recommended it to you last time.", " I suggested it to you last time")
+                )
+            )
+            println("checking emotion")
+            checkEmotion()
         } else {
             goto(DayPreference)
         }
@@ -52,26 +59,24 @@ val mealEvaluation : State = state(Parent){
 
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
-        furhat.say("We'll talk about something else then.")
-        goto(Evaluation)
+        furhat.say("Let's talk about what you would like to eat today.")
+        goto(DayPreference)
     }
 
-    onResponse<No> {
+    onResponse<No> (priority = true) {
         furhat.gesture(Gestures.ExpressSad)
-        furhat.say(random(
-            "That's unfortunate.",
-            "That's too bad.")
+        furhat.say(
+            random(
+                "That's unfortunate.",
+                "That's too bad."
+            )
         )
 
         goto(negativeMealEvaluation)
     }
 
-    onPartialResponse<No> {
-        furhat.gesture(Gestures.ExpressSad)
-        raise(it, it.secondaryIntent)
-    }
-
     onResponse<Yes> {
+        checkEmotion()
         furhat.gesture(Gestures.Smile)
         furhat.say(
             random(
@@ -82,54 +87,157 @@ val mealEvaluation : State = state(Parent){
         goto(positiveMealEvaluation)
     }
 
-    onPartialResponse<Yes> {
-        furhat.gesture(Gestures.Smile)
-        raise(it, it.secondaryIntent)
+    onResponse<postiveWildCardIntent>{
+        checkEmotion()
+        if (it.intent.textInput !== null) {
+            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
+            var max: Float = "0.0".toFloat()
+            var max_label = ""
+            for (i in 0 until 3){
+                val current = sentimentQuery.getJSONObject(i)
+                val current_score = current.get("score").toString().toFloat()
+                if (current_score >= max){
+                    max = current_score
+                    max_label = current.get("label").toString()
+                }
+            }
+            var updateScore = 0
+            when(max_label){
+                "LABEL_0" ->{ 0
+//                    furhat.say("You were negative but you liked the meal.So Score is positive: $updateScore")
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you liked the meal, but you sound kind of negative.")
+//                    furhat.ask("Could you maybe specify?")
+                    reentry()
+                }
+                "LABEL_1" ->{
+                    updateScore = 5
+                    updateMeal(updateScore)
+                    furhat.say(random("Allright.","Nice!", "") +
+                                   random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                                   random(" I'll keep that in mind.", " I'll remember that for the next time.")
+                    )
+
+                    goto(DayPreference)
+                }
+                "LABEL_2" ->{
+                    updateScore = (10*max).toInt()
+                    updateMeal(updateScore)
+                    furhat.say(random("Allright.","Nice!", "") +
+                            random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                            random(" I'll keep that in mind.", " I'll remember that for the next time.")
+                    )
+                    goto(DayPreference)
+                }
+            }
+            reentry()
+        }else{
+            furhat.say(random("I didn't quite get that.",
+                                        "I'm sorry.",
+                                    ) + random(" Could you repeat that?",
+                                                " What were you saying?"))
+            reentry()
+        }
     }
 
-    onResponse<negativeFlavourMeal> {
-        print(it.intent.flavours)
-        val flavours = it.intent.flavours
-        if (flavours !== null)  {
-            furhat.say(
-                random(
-                    "Alright, I get that you find the ${lastMeal.name} ${flavours}. I'll keep that in mind for the next time",
-                    "Too bad that ${lastMeal.name} was ${flavours}. I'll try to remember that for your next meal."
-                )
-            )
-        } else {
-            furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
+    onResponse<negativeWildCardIntent>{
+        checkEmotion()
+        if (it.intent.textInput !== null) {
+            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
+            var max: Float = "0.0".toFloat()
+            var max_label = ""
+            for (i in 0 until 3){
+                val current = sentimentQuery.getJSONObject(i)
+                val current_score = current.get("score").toString().toFloat()
+                if (current_score >= max){
+                    max = current_score
+                    max_label = current.get("label").toString()
+                }
+            }
+            var updateScore = 0
+            when(max_label){
+                "LABEL_0" ->{
+                    updateScore = (-10*max).toInt()
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+                "LABEL_1" ->{
+                    updateScore = -3
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+                "LABEL_2" ->{
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
+                    reentry()
+                }
+            }
+            reentry()
+        }else{
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
+            reentry()
         }
-        furhat.gesture(Gestures.Blink)
-
-        // update likes of meal
-        lastMeal.likes -= 2
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(DayPreference)
     }
 
-
-    onResponse<positiveFlavourMeal> {
-        if(it.intent.flavours !== null){
-                furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time")
-
+    onResponse<wildCardIntent> (priority = false){
+        checkEmotion()
+        if (it.intent.textInput !== null) {
+            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
+            var max: Float = "0.0".toFloat()
+            var max_label = ""
+            for (i in 0 until 3){
+                val current = sentimentQuery.getJSONObject(i)
+                val current_score = current.get("score").toString().toFloat()
+                if (current_score >= max){
+                    max = current_score
+                    max_label = current.get("label").toString()
+                }
+            }
+            var updateScore = 0
+            when(max_label){
+                "LABEL_0" ->{
+                    updateScore = (-10*max).toInt()
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+                "LABEL_1" ->{
+                    furhat.say(random("I didn't quite get your opinion ",
+                        "I didn't entirely understand your point of view"
+                    ) )
+                    reentry()
+                }
+                "LABEL_2" ->{
+                    updateScore = (10*max).toInt()
+                    furhat.say(random("Allright.","Nice!", "") +
+                            random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                            random(" I'll keep that in mind.", " I'll remember that for the next time.")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+            }
+            reentry()
+        }else{
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
+            reentry()
         }
-//        else if(it.intent.ingredients != null){
-//            furhat.say("Great to hear that ${lastMeal.name} had such nice ingredients. I'll keep that in mind for the next time")
-//        }
-        else{
-            furhat.say("It's always nice to hear that people love my recommendations. I'll try to remember that for your next meal.")
-        }
-
-        lastMeal.likes += 2
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        furhat.gesture(Gestures.Blink)
-        goto(DayPreference)
     }
-
-    onNoResponse { reentry() }
 }
-
 val positiveMealEvaluation : State = state(Evaluation){
     onEntry {
         furhat.ask(
@@ -138,27 +246,65 @@ val positiveMealEvaluation : State = state(Evaluation){
                 "What did you like about the ${lastMeal.name}?"
             )
         )
+        checkEmotion()
     }
 
-    onResponse<positiveFlavourMeal> {
-        println(it.intent.flavours)
-        if(it.intent.flavours === null || it.intent.flavours!!.isEmpty ){
-            furhat.say("Good. I'll try to remember that for your next meal.")
-        } else{
-            furhat.say("Great to hear that ${lastMeal.name} were ${it.intent.flavours}. I'll keep that in mind for the next time.")
+    onResponse<wildCardIntent>{
+        if (it.intent.textInput !== null) {
+            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
+            var max: Float = "0.0".toFloat()
+            var max_label = ""
+            for (i in 0 until 3){
+                val current = sentimentQuery.getJSONObject(i)
+                val current_score = current.get("score").toString().toFloat()
+                if (current_score >= max){
+                    max = current_score
+                    max_label = current.get("label").toString()
+                }
+            }
+            var updateScore = 0
+            when(max_label){
+                "LABEL_0" ->{
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
+                    reentry()
+                }
+                "LABEL_1" -> {
+                    updateScore = 5
+                    furhat.say(
+                        random("Allright.", "Nice!", "") +
+                                random(
+                                    " Great to hear that you liked the recipe.",
+                                    " It's wonderful to hear you enjoy the recipe."
+                                ) +
+                                random(" I'll keep that in mind.", "I'll remember that for the next time.")
+                    )
+                    updateMeal(updateScore)
+                }
+                "LABEL_2" ->{
+                    updateScore = (10*max).toInt()
+                        furhat.say(random("Allright.","Nice!", "") +
+                                random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
+                                random(" I'll keep that in mind.", " I'll remember that for the next time.")
+                        )
+                    updateMeal(updateScore)
+                }
+            }
+        }else{
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
+            goto(Evaluation)
         }
-        furhat.gesture(Gestures.Blink)
-        lastMeal.likes += 2
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(DayPreference)
     }
 
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
         furhat.say("We'll talk about something else then.")
-        lastMeal.likes += 1
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(DayPreference)
+        userUpdates.updateLikes(lastMeal, current_user.meals, -1)
+//        goto(DayPreference)
+        goto(Evaluation)
     }
 
 }
@@ -169,153 +315,89 @@ val negativeMealEvaluation : State = state(Evaluation){
             furhat.ask("What didn't you like about the meal?"),
             furhat.ask("What didn't you like about the ${lastMeal.name}?")
         )
-
+        checkEmotion()
     }
 
-    onResponse<negativeFlavourMeal> {
-        if(it.intent.flavours !== null) {
-            furhat.say(
-                random(
-                    "Alright, I get that you find the ${lastMeal.name} ${it.intent.flavours}. I'll keep that in mind for the next time",
-                    "Too bad that ${lastMeal.name} was ${it.intent.flavours}. I'll try to remember that for your next meal."
-                )
-            )
+    onResponse<wildCardIntent>{
+        if (it.intent.textInput !== null) {
+            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
+            var max: Float = "0.0".toFloat()
+            var max_label = ""
+            for (i in 0 until 3){
+                val current = sentimentQuery.getJSONObject(i)
+                val current_score = current.get("score").toString().toFloat()
+                if (current_score >= max){
+                    max = current_score
+                    max_label = current.get("label").toString()
+                }
+            }
+            var updateScore = 0
+            when(max_label){
+                "LABEL_0" ->{
+                    updateScore = (-10*max).toInt()
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+                "LABEL_1" ->{
+                    updateScore = -5
+                    furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
+                            random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
+                    )
+                    updateMeal(updateScore)
+                    goto(DayPreference)
+                }
+                "LABEL_2" ->{
+                    updateScore = (-5*max).toInt()
+                    furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
+                            " You're saying that you didn't like the meal, but you sound kind of positive.")
+                    reentry()
+                }
+            }
         }else{
-            furhat.say("Too bad that you didn't like the ${lastMeal.name}. I'll try to remember that for your next meal.")
+            furhat.say(random("I didn't quite get that.",
+                "I'm sorry.",
+            ) + random("Could you repeat that?",
+                "What were you saying?"))
+            goto(Evaluation)
         }
-        furhat.gesture(Gestures.Blink)
-        lastMeal.likes -= 2
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(DayPreference)
     }
 
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
         furhat.say("We'll talk about something else then.")
-        lastMeal.likes -= 1
-        userUpdates.updateLikes(lastMeal, current_user.meals, lastMeal.likes)
-        goto(DayPreference)
+        updateMeal(-1)
+        goto(Evaluation)
     }
 
 }
-class positiveFlavourMeal(var flavours : flavourListPostive? = null) : Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I liked the taste", "I like the taste",  "@flavours", "I like the @flavours", "I loved the @flavours",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours","What I liked was that @flavours",
-            "It was @flavours", "It had a @flavours taste"
-        )
+
+fun checkEmotion(){
+    val emotion = getCurrentEmotion().get("emotion").toString()
+    var updateScore: Int = 0
+    when (emotion){"Neutral"-> {
+            updateScore = 0
+        }
+        "Happy", "Surprise" -> {
+            updateScore = 1
+        }
+        "Sad", "Anger", "Disgust", "Fear",
+        "Contempt",  -> {
+            updateScore = -1
+        }
+        else -> {
+        updateScore = 0
     }
+    }
+    println("updated score based on emotion: " .plus(emotion) + ", score: ".plus(updateScore))
+    updateMeal(updateScore)
 }
 
-//class positiveIngredientsAndFlavours(
-//    val ingredients : String? = null,
-//    var flavours : flavourListNegative? = null,
-//) : ComplexEnumEntity() {
-//
-//    override fun getEnum(lang: Language): List<String> {
-//        return listOf("I liked the @ingredients","I like the @ingredients", "The @ingredients were @flavours",
-//            "The @flavours of the @ingredients", "What I liked was that the @ingredients were @flavours")
-//    }
-//}
-
-class negativeFlavourMeal(var flavours : flavourListNegative? = null) : Intent() {
-    override fun getExamples(lang: Language): List<String> {
-        return listOf("I didn't like the taste", "@flavours", "I did not like the @flavours", "I found the @flavours not nice",
-            "I think it was @flavours", "I like the @flavours flavour", "It was @flavours", "What I didn't like was that @flavours",
-            "It was @flavours", "It had a @flavours taste"  )
+fun updateMeal(updateScore: Int){
+    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
+    for (i in lastMeal.ingredients){
+        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
     }
 }
-
-//class negativeIngredientsAndFlavours(
-//    val ingredients : String? = null,
-//    var flavours : flavourListNegative? = null,
-//    ) : ComplexEnumEntity() {
-//
-//    override fun getEnum(lang: Language): List<String> {
-//        return listOf("I didn't like the @ingredients", "The @ingredients were @flavours",
-//            "The @flavours of the @ingredients", "What I  didn't like was that the @ingredients were @flavours")
-//    }
-//}
-
-class flavourListPostive : ListEntity<QuantifiedFlavourPositive>()
-class flavourListNegative : ListEntity<QuantifiedFlavourNegative>()
-
-class flavour : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("sweet","sweetness", "sour","sourness", "spicy", "spicyness", "chili", "salty","bitter","bitterness", "umami")
-    }
-}
-
-class adjectivePositive : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("very", "truly", "really")
-    }
-}
-
-class adjectiveNegative : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("too", "a bit", "too much", "a lot")
-    }
-}
-
-class QuantifiedFlavourPositive(
-    val adjective: adjectivePositive? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
-
-class QuantifiedFlavourNegative(
-    val adjective: adjectiveNegative? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
-
-//
-//class compliment : EnumEntity(stemming = true, speechRecPhrases = true) {
-//    override fun getEnum(lang: Language): List<String> {
-//        return listOf("nice", "like", "sweet")
-//    }
-//}
-//class compliment(
-//    val compliment : String? = null, ) : ComplexEnumEntity() {
-//
-//    override fun getEnum(lang: Language): List<String> {
-//        return listOf("I liked the @compliment", "")
-//    }
-//}
-
-
-
-//val positiveMealEvaluation : State = state(Evaluation){
-//    onEntry {
-//        furhat.ask("What did you like about the meal?")
-//    }
-//
-//    onResponse<No> {
-//        furhat.say("That's unfortunate.")
-//    }
-//}
-//
-//val negativeMealEvaluation : State = state(Evaluation){
-//    onEntry {
-//        furhat.ask("What did you not like about the meal?")
-//    }
-//
-//    onResponse<No> {
-//        furhat.say("That's unfortunate.")
-//    }
-//}

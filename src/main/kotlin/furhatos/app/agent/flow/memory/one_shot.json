@@ -1,6 +1,20 @@
-[{
-  "user_id": 0,
-  "name": "James",
-  "diet": [""],
-  "allergies":[""]
-}]
+[
+  {
+    "user_id": 0,
+    "name": "James",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 1,
+    "name": "Jim",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 2,
+    "name": "Peter",
+    "diet": [],
+    "allergies": []
+  }
+]

@@ -124,7 +124,7 @@ val RequestAllergies : State = state(HandlePersonalInformation) {
             {furhat.say("Great!")},
             {furhat.say("Good for you!")}
         )
-        diets_known = true
+        allergies_known = true
         goto(ConfirmPersonalInformation)
     }
 

@@ -3,9 +3,14 @@ package furhatos.app.agent.flow.recipes
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.Evaluation
 import furhatos.app.agent.flow.main.Idle
-import furhatos.nlu.common.*
+import furhatos.app.agent.flow.memory.data.Meal
+import furhatos.flow.kotlin.State
+import furhatos.flow.kotlin.furhat
+import furhatos.flow.kotlin.onResponse
+import furhatos.flow.kotlin.state
+import furhatos.nlu.common.No
+import furhatos.nlu.common.Yes
 import furhatos.nlu.common.Number as NumberNLU
-import furhatos.flow.kotlin.*
 
 val BASE_URL = "https://api.spoonacular.com" // Spoonacular API url
 val API_KEY = "e9eeb0d76f024efcaf7cd32ae444c899" // Key to free account
@@ -58,7 +63,7 @@ val RandomRecommendation : State = state(Parent) {
 fun randomRecipes(input : String) = state(Parent) {
     onEntry {
         // Get responses
-        val results = call(query(input, "random", "recipes")) as List<String>
+        val results = call(query(input, "random", "recipes")) as MutableList<Meal>
 
         if (results.isEmpty()) {
             furhat.say("I could connect to my brain or did not find anything")
@@ -66,10 +71,13 @@ fun randomRecipes(input : String) = state(Parent) {
         } else {
             // Tell the response
             furhat.say("I have found some recipes!")
-            for (recipe in results) furhat.say(recipe)
+            for (recipe in results){
+                furhat.say(recipe.name)
+            }
 
             // Here the user can choose which recipe he likes
             val recipe = call(AcceptFromList) as String
+            print(recipe)
             if (recipe.isEmpty()) reentry()
             else {
                 furhat.say("You have chosen the recipe: " + recipe)

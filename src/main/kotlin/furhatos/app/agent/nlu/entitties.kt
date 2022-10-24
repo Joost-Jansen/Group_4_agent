@@ -5,6 +5,10 @@ import furhatos.app.agent.resources.getAllergies
 import furhatos.app.agent.resources.getCuisines
 import furhatos.app.agent.resources.getDiets
 import furhatos.app.agent.resources.getMealTypes
+import furhatos.nlu.ComplexEnumEntity
+import furhatos.nlu.EnumEntity
+import furhatos.nlu.ListEntity
+import furhatos.nlu.WildcardEntity
 import furhatos.nlu.*
 import furhatos.nlu.grammar.Grammar
 import furhatos.nlu.kotlin.grammar
@@ -25,9 +29,6 @@ class Cuisine : EnumEntity() {
         return getCuisines()
     }
 }
-
-class Fruit : EnumEntity()
-
 
 class ListOfAllergies : ListEntity<Allergy>()
 
@@ -105,33 +106,6 @@ val Diets =
         }
     }
 
-
-
-//        "Gluten Free",
-//        "Ketogenic",
-//        "Vegetarian",
-//        "Lacto-Vegetarian",
-//        "Ovo-Vegetarian",
-//        "Vegan",
-//        "Pescetarian",
-//        "Paleo",
-//        "Primal",
-//        "Low FODMAP",
-//        "Whole30"
-//
-
-
-
-
-
-
-//class MealType : EnumEntity() {
-//    override fun getEnum(lang: Language): List<String> {
-//        listOf("main course", "dinner", "side dish", "dessert", "appetizer",
-//        "breakfast", "brunch", "supper")
-//    }
-//}
-
 class MealT(
     val meal : String? = null
 ) : GrammarEntity() {
@@ -166,8 +140,6 @@ class Preparation : EnumEntity() {
     }
 }
 
-
-
 class FoodPreperation(
     val prep : Preparation? = null,
     val ingredient: Ingredients? = null) : ComplexEnumEntity() {
@@ -178,6 +150,7 @@ class FoodPreperation(
 }
 fun readCsv(): MutableList<String> {
     val ingredients = mutableListOf<String>()
+
     try {
         val fileName = "src\\main\\Data\\ingredients.csv"
         val br = BufferedReader(FileReader(fileName))
@@ -190,7 +163,29 @@ fun readCsv(): MutableList<String> {
     } catch (e:Exception) {
         e.printStackTrace()
     }
+
     return ingredients
+}
+
+class textEntity: WildcardEntity("textInput", wildCardIntent())
+
+class negativeWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "no @textInput",
+            "nah @textInput"
+        )
+    }
+}
+
+
+class positiveWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "yes @textInput",
+            "yeah @textInput"
+        )
+    }
 }
 //fun main(args: Array<String>) {
 //    val base_query = "https://api.spoonacular.com?apiKey=e9eeb0d76f024efcaf7cd32ae444c899"

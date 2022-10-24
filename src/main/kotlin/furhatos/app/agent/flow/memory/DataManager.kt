@@ -1,12 +1,16 @@
 //package furhatos.app.agent.flow.memory
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
+import furhatos.app.agent.flow.memory.data.*
 import furhatos.app.agent.flow.recipes.queryRecipe
-import org.jetbrains.kotlinx.dataframe.DataFrame
-import org.jetbrains.kotlinx.dataframe.api.*
-import org.jetbrains.kotlinx.dataframe.io.readJson
-import org.jetbrains.kotlinx.dataframe.io.writeJson
+import java.io.File
+import java.io.FileWriter
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.*
+
 
 /**
  *  User class with all data known from user. Contains short-term, long-term and one-shot memory of the user
@@ -24,31 +28,9 @@ data class User(
     // short term
     var time: LocalDate,
     var preferences: MutableList<String>,
-    var left_overs: MutableList<Ingredient>)
+    var left_overs: MutableList<Ingredient>)  : Comparable<User> {
+    override fun compareTo(other: User) = compareValuesBy(this, other) { it.user_id }
 
-
-data class Meal(
-    val id: Int, // id in spoonacular can request by getID
-    val name: String, // name of meal
-    var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
-    var course: String // type of meal eg. desert
-) : Comparable<Meal> {
-    override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
-}
-
-data class Ingredient(
-    val name: String,
-    var likes: Int
-) : Comparable<Ingredient> {
-    override fun compareTo(other: Ingredient) = compareValuesBy(this, other) { it.likes }
-}
-
-data class Cuisine(
-    val name: String,
-    var likes: Int
-) : Comparable<Cuisine> {
-    override fun compareTo(other: Cuisine) = compareValuesBy(this, other) { it.likes }
 }
 
 class UserUpdates {
@@ -101,6 +83,8 @@ class UserUpdates {
         return list
     }
 
+
+
 //    fun addLeftOvers(user : User, list: MutableList<Ingredients>, ) : MutableList<Ingredients> {
 //
 //    }
@@ -112,12 +96,25 @@ class UserUpdates {
  *  Can read and write data
  */
 class DataManager () {
-    var oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
-    var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
-    var dfUsers: DataFrame<Any?>? = null
+    var dfUsers: MutableList<User> = mutableListOf()
     init {
-        if (oneShot.isEmpty() === false){
-            dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
+        val inputStreamOneShot = File("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json").inputStream().bufferedReader().use { it.readText() }
+        val oneShotType = object : TypeToken<List<OneShotData>>() {}.type
+        val listOneShot = Gson().fromJson<List<OneShotData>>(inputStreamOneShot, oneShotType)
+
+        val inputStreamLongTerm = File("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json").inputStream().bufferedReader().use { it.readText() }
+        val longTermType = object : TypeToken<List<LongTermData>>() {}.type
+        val listLongTerm = Gson().fromJson<List<LongTermData>>(inputStreamLongTerm, longTermType)
+        for (oData in listOneShot) {
+            for (ldata in listLongTerm) {
+                if (oData.user_id == ldata.user_id) {
+                    var u = User(user_id = oData.user_id, name = oData.name, diet = oData.diet,
+                        allergies = oData.allergies, cuisines = ldata.cuisines, ingredients = ldata.ingredients,
+                        left_overs = mutableListOf(), meals = ldata.meals, preferences = mutableListOf(), time = LocalDate.now()
+                    )
+                    dfUsers.add(u)
+                }
+            }
         }
     }
     /**
@@ -136,11 +133,15 @@ class DataManager () {
                 time: LocalDate = LocalDate.now(),
                 left_overs: MutableList<Ingredient> = mutableListOf()
     ): User {
-        if (dfUsers !== null){
-            val id = dfUsers!!.maxBy("user_id")["user_id"].toString().toInt() + 1
-            return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+        if (dfUsers.size > 0){
+            val id = Collections.max(dfUsers).user_id + 1
+            val u = User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+            dfUsers.add(u)
+            return u
         } else{
-            return User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+            val u = User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+            dfUsers.add(u)
+            return u
         }
 
 
@@ -152,55 +153,12 @@ class DataManager () {
      *  return: User or null
      */
     fun getUserByName(username: String): User? {
-        if (this.dfUsers !== null) {
-            val dfUser = dfUsers!!.firstOrNull { it["name"] == username }
-            println(dfUser)
-            if (dfUser != null) {
-
-                val m = dfUser["meals"] as DataFrame<*>
-                val meals: MutableList<Meal> = mutableListOf()
-                m.forEach {
-                    meals.add(
-                        Meal(
-                            it["id"].toString().toInt(),
-                            it["name"].toString(),
-                            it["likes"].toString().toInt(),
-                            it["last_selected"].toString(),
-                            it["course"].toString()
-                        )
-                    )
-                }
-
-                val i = dfUser["ingredients"] as DataFrame<*>
-                val ingredients: MutableList<Ingredient> = mutableListOf()
-                i.forEach {
-                    ingredients.add(Ingredient(it["name"].toString(), it["likes"].toString().toInt()))
-                }
-
-                val c = dfUser["ingredients"] as DataFrame<*>
-                val cuisines: MutableList<Cuisine> = mutableListOf()
-                c.forEach {
-                    cuisines.add(Cuisine(it["name"].toString(), it["likes"].toString().toInt()))
-                }
-
-                return User(
-                    dfUser["user_id"].toString().toInt(),
-                    dfUser["name"].toString(),
-                    stringToList(dfUser["diet"].toString()),
-                    stringToList(dfUser["allergies"].toString()),
-                    meals,
-                    ingredients,
-                    cuisines,
-                    LocalDate.now(),
-                    mutableListOf(),
-                    mutableListOf<Ingredient>()
-                )
+        if ( this.dfUsers.size > 0) {
+            val dfUser = dfUsers.firstOrNull { it.name == username }
+                return dfUser
             } else {
                 return null
             }
-        } else {
-            return null
-        }
     }
 
     /**
@@ -216,30 +174,22 @@ class DataManager () {
      * input: User
      * return: nothing
      */
-    fun writeUser(user: User){
-        print(oneShot.head())
-        val oneShotNames = listOf("user_id", "name", "diet", "allergies")
-        val oneShotValues = listOf(user.user_id, user.name, user.diet, user.allergies)
-        val oneShotUser = dataFrameOf(oneShotNames, oneShotValues)
-        val oneShotDropped = oneShot.drop{ it["user_id"] == user.user_id}
-        val newOneShot = oneShotDropped.concat(oneShotUser).sortBy("user_id")
-        this.oneShot = newOneShot
-
-        print(newOneShot.head())
-        newOneShot.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json", prettyPrint = true)
-
-        print(longTerm.head())
-//        val meals = dataFrameOf(listOf("id", "name", "likes", "last_selected", "course"), )
-        val longTermNames = listOf("user_id","meals","ingredients","cuisines")
-        val longTermValues = listOf(user.user_id, user.meals, user.ingredients, user.cuisines)
-        val longTermUser = dataFrameOf(longTermNames, longTermValues)
-        val longTermDropped = longTerm.drop{ it["user_id"] == user.user_id}
-        val newLongTerm = longTermDropped.concat(longTermUser).sortBy("user_id")
-        this.longTerm = newLongTerm
-
-        print(newLongTerm.head())
-        newLongTerm.writeJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json", prettyPrint = true)
-        dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
+    fun writeUser(){
+        val oneShotList = mutableListOf<OneShotData>()
+        val longTermList = mutableListOf<LongTermData>()
+        for(user in dfUsers) {
+            val o = OneShotData( user_id = user.user_id, allergies = user.allergies, diet = user.diet, name = user.name)
+            oneShotList.add(o)
+            val l = LongTermData(user_id = user.user_id, meals = user.meals, ingredients = user.ingredients, cuisines = user.cuisines)
+            longTermList.add(l)
+        }
+        val gson = GsonBuilder().setPrettyPrinting().create()
+        val fo = FileWriter("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
+        gson.toJson(oneShotList, fo)
+        fo.flush()
+        val fl = FileWriter("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
+        gson.toJson(longTermList, fl)
+        fl.flush()
     }
 }
 
@@ -249,12 +199,11 @@ class DataManager () {
  */
 fun main(args: Array<String>) {
     val dm = DataManager()
-    print(dm.dfUsers?.head())
-    val user = dm.getUserByName("joost")
-    if (user != null) {
-        dm.writeUser(user)
-    }
-    print(user?.ingredients)
+    dm.writeUser()
+//    val user = dm.getUserByName("James")
+//    if (user != null) {
+//        dm.writeUser(user)
+//    }
 
 
 //    var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term2.json")

@@ -1,6 +1,7 @@
 package furhatos.app.agent.flow.main
 
-import Ingredient
+import furhatos.app.agent.flow.memory.data.Meal
+import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.recipes.Recommendation
@@ -9,7 +10,6 @@ import furhatos.app.agent.nlu.MealT
 import furhatos.app.agent.nlu.Preparation
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
-import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.Intent
 import furhatos.nlu.ListEntity
@@ -174,7 +174,7 @@ val askTime : State = state(Parent) {
     onEntry {
         val date = LocalDate.now().dayOfWeek.toString()
 
-        if(date == "SUNDAY" && date == "SATURDAY") {
+        if(date == "SUNDAY" || date == "SATURDAY") {
            furhat.ask (
                random(
                    "Since it is weekend I was wondering if you would like to make a elaborate meal?",
@@ -195,7 +195,7 @@ val askTime : State = state(Parent) {
         furhat.say("Okay")
         val date = LocalDate.now().dayOfWeek.toString()
 
-        if(date == "SUNDAY" && date == "SATURDAY") {
+        if(date == "SUNDAY" || date == "SATURDAY") {
             goto(askLong)
         } else {
             goto(askShort)
@@ -206,7 +206,7 @@ val askTime : State = state(Parent) {
         furhat.say("Okay")
         val date = LocalDate.now().dayOfWeek.toString()
 
-        if(date == "SUNDAY" && date == "SATURDAY") {
+        if(date == ("SUNDAY") || date == "SATURDAY") {
             goto(askShort)
         } else {
             goto(askLong)
@@ -259,7 +259,6 @@ val askLeftOver : State = state(Parent) {
             )
         )
     }
-
 
     onPartialResponse<Yes> {
         furhat.gesture(Gestures.Smile)
