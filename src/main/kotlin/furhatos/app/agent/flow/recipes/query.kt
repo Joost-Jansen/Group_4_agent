@@ -1,6 +1,6 @@
 package furhatos.app.agent.flow.recipes
 
-import Meal
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.state
 import furhatos.gestures.Gestures

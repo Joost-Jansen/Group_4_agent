@@ -1,6 +1,5 @@
 package furhatos.app.agent.flow
 
-import furhatos.app.agent.current_user
 import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.main.Greeting
 import furhatos.app.agent.flow.main.Idle
@@ -20,7 +19,7 @@ val Parent: State = state {
     var first_y: Int = -1
     init {
         thread {
-            var first_call = getCurrentEmotion()
+            val first_call = getCurrentEmotion()
             if(first_call.has("emotion")) {
                 while(true) {
                     Thread.sleep(500)
@@ -52,7 +51,7 @@ val Parent: State = state {
     }
 
     onUserLeave(instant = true) {
-        dataManager.writeUser(current_user)
+        dataManager.writeUser()
         when {
             users.count == 0 -> goto(Idle)
             it == users.current -> furhat.attend(users.other)

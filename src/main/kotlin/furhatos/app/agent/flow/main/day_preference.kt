@@ -1,15 +1,11 @@
 package furhatos.app.agent.flow.main
 
-import Ingredient
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.recipes.Recommendation
-import furhatos.app.agent.flow.recipes.query
 import furhatos.app.agent.nlu.Ingredients
-import furhatos.app.agent.nlu.Preparation
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
-import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.Intent
 import furhatos.nlu.ListEntity
@@ -218,26 +214,26 @@ val askLeftOver : State = state(Parent) {
         raise(it, it.secondaryIntent)
     }
 
-    onResponse<leftOvers> {
-        if(it.intent.ingreds != null) {
-            val x = it.intent.ingreds as ListEntity<Ingredients>
-            val left = x.list as ArrayList<Ingredients>
-            val converted = ArrayList<Ingredient>()
-            for(i in left) {
-                converted.add(Ingredient(i.toString(), 0))
-            }
-            val right = current_user.left_overs as ArrayList<Ingredient>
-            right.addAll(converted)
-            furhat.gesture(Gestures.Smile)
-            furhat.say(
-                random(
-                    "Nice, I will keep it in mind when finding a recipe",
-                    "Thanks, That will help narrowing the search space"
-                )
-            )
-            goto(askAppitite)
-        }
-    }
+//    onResponse<leftOvers> {
+//        if(it.intent.ingreds != null) {
+//            val x = it.intent.ingreds as ListEntity<Ingredients>
+//            val left = x.list as ArrayList<Ingredients>
+//            val converted = ArrayList<Ingredient>()
+//            for(i in left) {
+//                converted.add(Ingredient(i.toString(), 0))
+//            }
+//            val right = current_user.left_overs as ArrayList<Ingredient>
+//            right.addAll(converted)
+//            furhat.gesture(Gestures.Smile)
+//            furhat.say(
+//                random(
+//                    "Nice, I will keep it in mind when finding a recipe",
+//                    "Thanks, That will help narrowing the search space"
+//                )
+//            )
+//            goto(askAppitite)
+//        }
+//    }
 
     onResponse<Yes> {
         furhat.say(

@@ -1,8 +1,8 @@
 package furhatos.app.agent.flow.main
 
-import Meal
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.app.agent.nlu.negativeFlavourMeal
 import furhatos.app.agent.nlu.positiveFlavourMeal
 import furhatos.app.agent.userUpdates

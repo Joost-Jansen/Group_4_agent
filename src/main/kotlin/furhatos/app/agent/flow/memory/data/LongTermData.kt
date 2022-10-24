@@ -1,28 +1,33 @@
 package furhatos.app.agent.flow.memory.data
 
-import com.google.gson.annotations.Expose
-import com.google.gson.annotations.SerializedName
 
-class LongTermData {
-    @SerializedName("user_id") @Expose var user_id: Int? = null
-    @SerializedName("meals") @Expose var meals: MutableList<MealData>? = null
-    @SerializedName("ingredients") @Expose var ingredients: MutableList<IngredientsData>? = null
-    @SerializedName("cuisines") @Expose var cuisines: MutableList<CuisinesData>? = null
+data class LongTermData(
+    val user_id: Int,
+    var meals: MutableList<Meal>,
+    var ingredients: MutableList<Ingredient>,
+    var cuisines: MutableList<Cuisine>
+)
+data class Meal(
+    val id: Int, // id in spoonacular can request by getID
+    val name: String, // name of meal
+    var ingredients: MutableList<String>,
+    val course: String, // type of meal eg. desert
+    var likes: Int, // amount of likes or dislikes (when negative)
+    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
+) : Comparable<Meal> {
+    override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
 }
 
-class MealData {
-    @SerializedName("course") @Expose var course: String? = null
-    @SerializedName("id") @Expose var id: Int? = null
-    @SerializedName("ingredients") @Expose var ingredients: List<String>? = null
-    @SerializedName("last_selected") @Expose var last_selected: String? = null
-    @SerializedName("likes") @Expose var likes: Int? = null
-    @SerializedName("name") @Expose var name: String? = null
+data class Ingredient(
+    val name: String,
+    var likes: Int
+) : Comparable<Ingredient> {
+    override fun compareTo(other: Ingredient) = compareValuesBy(this, other) { it.likes }
 }
-class IngredientsData {
-    @SerializedName("likes") @Expose var likes: Int? = null
-    @SerializedName("name") @Expose var name: String? = null
-}
-class CuisinesData {
-    @SerializedName("likes") @Expose var likes: Int? = null
-    @SerializedName("name") @Expose var name: String? = null
+
+data class Cuisine(
+    val name: String,
+    var likes: Int
+) : Comparable<Cuisine> {
+    override fun compareTo(other: Cuisine) = compareValuesBy(this, other) { it.likes }
 }

@@ -23,7 +23,7 @@ val PersonIdentification : State = state(Parent) {
 
     onResponse<No> {
             furhat.say("That's alright. We'll do that another time.")
-            dataManager.writeUser(current_user)
+            dataManager.writeUser()
             goto(Idle)
     }
 
@@ -31,7 +31,7 @@ val PersonIdentification : State = state(Parent) {
     onResponse<Yes> {
         furhat.say("Great. Let's start")
         // Should ask personal information but not yet implemented therefore this:
-        dataManager.writeUser(current_user)
+        dataManager.writeUser()
         furhat.say("Now that I've identified you as ${current_user.name}. We will move on to the personal information module.")
         goto(Recommendation)
     }

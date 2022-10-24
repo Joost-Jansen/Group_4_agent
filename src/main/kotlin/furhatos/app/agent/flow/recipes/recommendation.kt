@@ -1,9 +1,9 @@
 package furhatos.app.agent.flow.recipes
 
-import Meal
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.Evaluation
 import furhatos.app.agent.flow.main.Idle
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
