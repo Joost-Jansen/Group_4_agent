@@ -17,9 +17,9 @@ var allergies_known = false
 val HandlePersonalInformation : State = state(Parent) {
     onEntry() {
         random(
-            {furhat.ask("What did I understand incorrectly?")},
-            {furhat.ask("What did I forget?")},
-            {furhat.ask("What did I get wrong?")}
+            {furhat.askFor<TellPersonalInformation>("What did I understand incorrectly?")},
+            {furhat.askFor<TellPersonalInformation>("What did I forget?")},
+            {furhat.askFor<TellPersonalInformation>("What did I get wrong?")}
         )
     }
 
@@ -84,8 +84,8 @@ val CheckPersonalInformation = state(Parent) {
 val RequestDiets : State = state(HandlePersonalInformation) {
     onEntry() {
         random(
-            {furhat.ask("Do you follow any diets?")},
-            {furhat.ask("Are you on any diets?")}
+            {furhat.askFor<TellDiets>("Do you follow any diets?")},
+            {furhat.askFor<TellDiets>("Are you on any diets?")}
         )
     }
 
@@ -114,8 +114,8 @@ val RequestDiets : State = state(HandlePersonalInformation) {
 val RequestAllergies : State = state(HandlePersonalInformation) {
     onEntry() {
         random(
-            {furhat.ask("Do you have any allergies?")},
-            {furhat.ask("Are you intolerant to anything?")}
+            {furhat.askFor<TellAllergies>("Do you have any allergies?")},
+            {furhat.askFor<TellAllergies>("Are you intolerant to anything?")}
         )
     }
 
@@ -124,7 +124,7 @@ val RequestAllergies : State = state(HandlePersonalInformation) {
             {furhat.say("Great!")},
             {furhat.say("Good for you!")}
         )
-        diets_known = true
+        allergies_known = true
         goto(ConfirmPersonalInformation)
     }
 
@@ -154,9 +154,9 @@ val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
 
         furhat.say(msg)
         random(
-            {furhat.ask("Is that correct?")},
-            {furhat.ask("Am I right?")},
-            {furhat.ask("Did I remember that correctly?")}
+            {furhat.askFor<TellPersonalInformation>("Is that correct?")},
+            {furhat.askFor<TellPersonalInformation>("Am I right?")},
+            {furhat.askFor<TellPersonalInformation>("Did I remember that correctly?")}
         )
     }
 
