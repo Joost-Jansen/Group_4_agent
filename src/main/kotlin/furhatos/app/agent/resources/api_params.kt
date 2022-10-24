@@ -46,7 +46,7 @@ fun getDiets(): List<String> {
         "Whole30")
 }
 
-fun getIntolerances(): List<String> {
+fun getAllergies(): List<String> {
     return listOf<String>(
         "Dairy",
         "Egg",
