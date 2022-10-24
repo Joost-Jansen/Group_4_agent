@@ -1,31 +1,6 @@
 [{
   "user_id": 0,
-  "meals": "   nrow\n 0    2\n",
-  "ingredients": "   nrow\n 0    2\n",
-  "cuisines": "   nrow\n 0    2\n"
-}, {
-  "user_id": 8,
-  "meals": " \n",
-  "ingredients": " \n",
-  "cuisines": " \n"
-}, {
-  "user_id": 9,
-  "meals": " \n",
-  "ingredients": " \n",
-  "cuisines": " \n"
-}, {
-  "user_id": 10,
-  "meals": " \n",
-  "ingredients": " \n",
-  "cuisines": " \n"
-}, {
-  "user_id": 11,
-  "meals": "[]",
-  "ingredients": "[]",
-  "cuisines": "[]"
-}, {
-  "user_id": 12,
-  "meals": "[]",
-  "ingredients": "[]",
-  "cuisines": "[]"
+  "meals": [],
+  "ingredients": [],
+  "cuisines": []
 }]
