@@ -12,7 +12,7 @@ import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "")
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "", "", 0)
 
 val Evaluation : State = state(Parent) {
     onEntry {

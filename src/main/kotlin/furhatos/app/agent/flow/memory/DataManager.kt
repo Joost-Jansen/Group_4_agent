@@ -23,8 +23,10 @@ data class User(
     var cuisines: MutableList<Cuisine>,
     // short term
     var time: LocalDate,
-    var preferences: MutableList<String>,
-    var left_overs: MutableList<Ingredient>)
+    var preferred_ingredients: MutableList<String>,
+    var left_overs: MutableList<Ingredient>,
+    var preferred_meal_type: String
+)
 
 
 data class Meal(
@@ -33,7 +35,9 @@ data class Meal(
     var ingredients: MutableList<String>,
     val course: String, // type of meal eg. desert
     var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
+    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
+    var link: String, // link to recipe
+    var prepTime: Int // In minutes
 ) : Comparable<Meal> {
     override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
 }
@@ -135,15 +139,16 @@ class DataManager () {
                 meals: MutableList<Meal> =  mutableListOf(),
                 favourite_ingredients: MutableList<Ingredient> = mutableListOf(),
                 cuisines: MutableList<Cuisine> = mutableListOf(),
-                preferences: MutableList<String> = mutableListOf(),
+                preferred_ingredients: MutableList<String> = mutableListOf(),
                 time: LocalDate = LocalDate.now(),
-                left_overs: MutableList<Ingredient> = mutableListOf()
+                left_overs: MutableList<Ingredient> = mutableListOf(),
+                preferred_meal_type: String = ""
     ): User {
         if (dfUsers !== null){
             val id = dfUsers!!.maxBy("user_id")["user_id"].toString().toInt() + 1
-            return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+            return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_meal_type)
         } else{
-            return User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+            return User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_meal_type)
         }
 
 
@@ -170,7 +175,9 @@ class DataManager () {
                             stringToList(it["ingredients"].toString()),
                             it["course"].toString(),
                             it["likes"].toString().toInt(),
-                            it["last_selected"].toString()
+                            it["last_selected"].toString(),
+                            it["link"].toString(),
+                            it["prepTime"].toString().toInt()
                         )
                     )
                 }
@@ -197,7 +204,8 @@ class DataManager () {
                     cuisines,
                     LocalDate.now(),
                     mutableListOf(),
-                    mutableListOf<Ingredient>()
+                    mutableListOf<Ingredient>(),
+                    ""
                 )
             } else {
                 return null

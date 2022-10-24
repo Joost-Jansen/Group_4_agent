@@ -4,12 +4,10 @@ import Ingredient
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.recipes.Recommendation
-import furhatos.app.agent.flow.recipes.query
 import furhatos.app.agent.nlu.Ingredients
-import furhatos.app.agent.nlu.Preparation
+import furhatos.app.agent.resources.getMealTypes
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
-import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.Intent
 import furhatos.nlu.ListEntity
@@ -17,34 +15,10 @@ import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 import furhatos.util.Language
 
-
-//class mainCourse(val m: Ingredients? = null, val mCourse: String? = null) : Intent() {
-//
-//    override fun getExamples(lang: Language): List<String> {
-//        return listOf(
-//            "I wanted to eat @mCourse", "I am going to eat @mCourse", "I will eat @mCourse", "We will eat @mCourse",
-//            "I am going to have @mCourse for dinner"
-//        )
-//    }
-//}
-
-//class meal() : Intent(var breakfast: niceMeal? = null) {
-//
-//    var lunch: niceMeal? = null
-//
-//    override fun getExamples(lang: Language): List<String> {
-//        return listOf(
-//            "today i had @breakfast", "this morning i had @breakfast", "for lunch i had @lunch", "I ate an @breakfast today",
-//            "I had an @lunch for lunch", "I lunched with an @lunch", "Today I had a @breakfast and @lunch",
-//            "for breakfast I ate @breakfast, and for lunch I had @lunch", "for breakfast I had @breakfast and for lunch I ate @lunch"
-//        )
-//    }
-//}
 class ListOffIngredients : ListEntity<Ingredients>()
 class MealType : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("main course", "side dish", "dessert", "appetizer", "salad", "bread", "breakfast", "soup", "beverage",
-            "sauce", "marinade", "fingerfood", "snack", "drink")
+        return getMealTypes()
     }
 }
 
@@ -93,49 +67,17 @@ val DayPreference : State = state(Parent) {
         furhat.gesture(Gestures.Smile)
     }
 
-    onNoResponse {reentry() }
-
-
     onResponse<requestMealType> {
         if (!it.intent.isEmpty) {
             val course = it.intent.m.toString()
+            current_user.preferred_meal_type = course
             furhat.gesture(Gestures.Blink)
-            furhat.say("Okay, but before I give you an ${course} recommendation I would like to have a bit more information")
+            furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
 
             goto(askLeftOver)
         }
     }
 }
-//            val mainInquire = listOf("side dish", "dessert", "appetizer", "sauce", "marinade")
-//            val lunchQ = listOf("main course", "salad", "bread", "soup", "fingerfood", "snack")
-//            if (mainInquire.contains(course)) {
-//                goto(askLeftOver)
-//            }
-//            if (lunchQ.contains(course)) {
-//                random(
-//                    furhat.ask("What is the last thing you have eaten"),
-//                    furhat.ask("What did you have for you last meal")
-//                )
-//            }
-
-//val askMain : State = state {
-//    onEntry {
-//        furhat.ask(
-//            random(
-//                "What are you planning to have for main course",
-//                "What is the main course you want to eat with it"
-//            )
-//        )
-//    }
-//    onResponse<mainCourse> {
-//        print(it.intent.mCourse)
-//        Thread.sleep(10000)
-//        if(it.intent.mCourse != null) {
-//            val result = query(it.intent.mCourse.toString(),"complexSearch", "recipes")
-//            print(result.javaClass.name)
-//        }
-//    }
-//}
 
 val askAppitite : State = state(Parent) {
     onEntry {
@@ -153,7 +95,7 @@ val askAppitite : State = state(Parent) {
         if(it.intent.craves != null) {
             val x = it.intent.craves as ListEntity<Ingredients>
             val left = x.list as ArrayList<Ingredients>
-            val prefs = current_user.preferences
+            val prefs = current_user.preferred_ingredients
             for(i in left) {
                 val c = i.toString()
 
@@ -161,7 +103,7 @@ val askAppitite : State = state(Parent) {
                     prefs.add(c)
                 }
             }
-            print(current_user.preferences)
+            print(current_user.preferred_ingredients)
         }
         furhat.gesture(Gestures.Smile)
         furhat.say(
@@ -177,8 +119,6 @@ val askAppitite : State = state(Parent) {
         furhat.gesture(Gestures.Smile)
         raise(it, it.secondaryIntent)
     }
-
-
 
     onResponse<Yes> {
         furhat.ask(

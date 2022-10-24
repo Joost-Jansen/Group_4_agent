@@ -66,7 +66,7 @@ val RepeatJoke : State = state(Parent) {
 val GetJoke : State = state(Parent) {
     onEntry {
         // Get responses
-        val result = call(query("", "jokes/random", "food")) as List<String>
+        val result = call(query( "food", "jokes/random")) as List<String>
 
         if (result.isEmpty()) {
             furhat.say("I could not connect to my brain, Im sorry!")
