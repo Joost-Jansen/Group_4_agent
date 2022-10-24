@@ -1,8 +1,10 @@
 package furhatos.app.agent.nlu
 
 
+import furhatos.app.agent.resources.*
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
+import furhatos.nlu.ListEntity
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
@@ -17,30 +19,29 @@ class Ingredients : EnumEntity() {
 
 class Cuisine : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("African", "American", "British", " Cajun", "Caribbean", "Chinese", "Eastern European", "European", "French",
-            "German", "Greek", "Indian", "Irish", "Italian", "Japanese", "Jewish", "Korean", "Latin American", "Mediterranean",
-            "Mexican", "Middle Eastern", "Nordic", "Southern", "Spanish", "Thai", "Vietnamese")
+        return getCuisines()
     }
 }
 
 class Diet : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("Gluten Free", "Ketogenic", "Vegetarian", "Lacto-Vegetarian", "Ovo-Vegetarian", "Vegan", "Pescetarian", "Paleo", "Primal",
-            "Low FODMAP", "Whole30")
+        return getDiets()
     }
 }
 
-class Intolerances : EnumEntity() {
+class ListOfDiets : ListEntity<Diet>()
+
+class Allergy : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("Diary", "Egg", "Gluten", "Grain", "Peanut", "Seafood", "Pescetarian", "Sesame", "Shellfish",
-            "Soy", "Sulfite", "Tree Nut", "Wheat")
+        return getIntolerances()
     }
 }
+
+class ListOfAllergies : ListEntity<Allergy>()
 
 class MealType : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("main course", "side dish", "dessert", "appetizer", "salad", "bread", "breakfast", "soup", "beverage",
-            "sauce", "marinade", "fingerfood", "snack", "drink")
+        return getMealTypes()
     }
 }
 
@@ -81,3 +82,4 @@ fun readCsv(): MutableList<String> {
 //    val a = options(base_query)
 //    readCsv()
 //}
+
