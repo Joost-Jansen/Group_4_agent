@@ -35,8 +35,11 @@ val Greeting : State = state(Parent) {
         if (name != null) {
             setUser(furhat, name.name.toString())
             goto(PersonIdentification)
+        } else {
+            reentry()
         }
     }
+
     onReentry {
         val name = furhat.askFor<UserIdentification>("Could you repeat that?")
         if (name != null) {
@@ -45,9 +48,7 @@ val Greeting : State = state(Parent) {
         } else {
             reentry()
         }
-
     }
-//
 
     onResponse<UserIdentification> {
 
