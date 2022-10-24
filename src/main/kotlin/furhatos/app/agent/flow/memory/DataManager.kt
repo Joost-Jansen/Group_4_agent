@@ -1,4 +1,5 @@
 //package furhatos.app.agent.flow.memory
+import furhatos.app.agent.flow.recipes.queryRecipe
 import org.jetbrains.kotlinx.dataframe.DataFrame
 import org.jetbrains.kotlinx.dataframe.api.*
 import org.jetbrains.kotlinx.dataframe.io.readJson
@@ -86,6 +87,23 @@ class UserUpdates {
         list.find { it.name == meal.name }?.likes?.plus(rating)
         return list
     }
+
+    fun addMeal(mealID : Int, list: MutableList<Meal>) : MutableList<Meal> {
+        for(m : Meal in list) {
+            if(m.id == mealID) {
+                m.likes =+ 1
+                m.last_selected = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                return list
+            }
+        }
+        val m = queryRecipe(mealID)
+        list.add(m)
+        return list
+    }
+
+//    fun addLeftOvers(user : User, list: MutableList<Ingredients>, ) : MutableList<Ingredients> {
+//
+//    }
 }
 
 /**
@@ -94,10 +112,14 @@ class UserUpdates {
  *  Can read and write data
  */
 class DataManager () {
-        var oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
-        var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
-        var dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
-
+    var oneShot =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/one_shot.json")
+    var longTerm =  DataFrame.readJson("src/main/kotlin/furhatos/app/agent/flow/memory/long_term.json")
+    var dfUsers: DataFrame<Any?>? = null
+    init {
+        if (oneShot.isEmpty() === false){
+            dfUsers = oneShot.leftJoin(longTerm){ "user_id" match "user_id"}
+        }
+    }
     /**
      * Creates new user with newID.
      * NOTE: not added to memory yet. Use writeUser to add.
@@ -114,8 +136,14 @@ class DataManager () {
                 time: LocalDate = LocalDate.now(),
                 left_overs: MutableList<Ingredient> = mutableListOf()
     ): User {
-        val id = dfUsers.maxBy("user_id")["user_id"].toString().toInt() + 1
-        return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+        if (dfUsers !== null){
+            val id = dfUsers!!.maxBy("user_id")["user_id"].toString().toInt() + 1
+            return User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+        } else{
+            return User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferences, left_overs)
+        }
+
+
     }
 
     /**
@@ -124,43 +152,53 @@ class DataManager () {
      *  return: User or null
      */
     fun getUserByName(username: String): User? {
+        if ( this.dfUsers !== null) {
+            val dfUser = dfUsers!!.firstOrNull { it["name"] == username }
+            println(dfUser)
+            if (dfUser != null) {
 
-        val dfUser = dfUsers.firstOrNull { it["name"] == username }
-        println(dfUser)
-        if (dfUser != null){
+                val m = dfUser["meals"] as DataFrame<*>
+                val meals: MutableList<Meal> = mutableListOf()
+                m.forEach {
+                    meals.add(
+                        Meal(
+                            it["id"].toString().toInt(),
+                            it["name"].toString(),
+                            it["likes"].toString().toInt(),
+                            it["last_selected"].toString(),
+                            it["course"].toString()
+                        )
+                    )
+                }
 
-            val m = dfUser["meals"] as DataFrame<*>
-            val meals: MutableList<Meal> = mutableListOf()
-            m.forEach {
-                meals.add(Meal(it["id"].toString().toInt(), it["name"].toString(), it["likes"].toString().toInt(), it["last_selected"].toString(), it["course"].toString()))
+                val i = dfUser["ingredients"] as DataFrame<*>
+                val ingredients: MutableList<Ingredient> = mutableListOf()
+                i.forEach {
+                    ingredients.add(Ingredient(it["name"].toString(), it["likes"].toString().toInt()))
+                }
+
+                val c = dfUser["ingredients"] as DataFrame<*>
+                val cuisines: MutableList<Cuisine> = mutableListOf()
+                c.forEach {
+                    cuisines.add(Cuisine(it["name"].toString(), it["likes"].toString().toInt()))
+                }
+
+                return User(
+                    dfUser["user_id"].toString().toInt(),
+                    dfUser["name"].toString(),
+                    stringToList(dfUser["diet"].toString()),
+                    stringToList(dfUser["allergies"].toString()),
+                    meals,
+                    ingredients,
+                    cuisines,
+                    LocalDate.now(),
+                    mutableListOf(),
+                    mutableListOf<Ingredient>()
+                )
+            } else {
+                return null
             }
-
-            val i = dfUser["ingredients"] as DataFrame<*>
-            val ingredients: MutableList<Ingredient> = mutableListOf()
-            i.forEach {
-                ingredients.add(Ingredient(it["name"].toString(), it["likes"].toString().toInt()))
-            }
-
-            val c = dfUser["ingredients"] as DataFrame<*>
-            val cuisines: MutableList<Cuisine> = mutableListOf()
-            c.forEach {
-                cuisines.add(Cuisine(it["name"].toString(), it["likes"].toString().toInt()))
-            }
-
-            return User(
-                dfUser["user_id"].toString().toInt(),
-                dfUser["name"].toString(),
-                stringToList(dfUser["diet"].toString()),
-                stringToList(dfUser["allergies"].toString()),
-                meals,
-                ingredients,
-                cuisines,
-                LocalDate.now(),
-                mutableListOf(),
-                mutableListOf<Ingredient>()
-            )
-        }
-        else {
+        } else {
             return null
         }
     }
@@ -211,7 +249,7 @@ class DataManager () {
  */
 fun main(args: Array<String>) {
     val dm = DataManager()
-    print(dm.dfUsers.head())
+    print(dm.dfUsers?.head())
     val user = dm.getUserByName("joost")
     if (user != null) {
         dm.writeUser(user)
