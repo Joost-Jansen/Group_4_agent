@@ -18,29 +18,32 @@ val Parent: State = state {
     var first_y: Int = -1
     init {
         thread {
-            while(true) {
-                Thread.sleep(500)
-                current_emotion = getCurrentEmotion()
-                if(current_emotion.has("emotion") && current_emotion.has("x") && current_emotion.has("y")) {
-                    if(first_x < 0) {
-                        try {
-                            first_x = (current_emotion.get("x") as String).toInt()
-                            print("x = $first_x")
-                        } catch (e: Exception) {
-                            print(e)
+            var first_call = getCurrentEmotion()
+            if(first_call.has("emotion")) {
+                while(true) {
+                    Thread.sleep(500)
+                    current_emotion = getCurrentEmotion()
+                    if(current_emotion.has("emotion") && current_emotion.has("x") && current_emotion.has("y")) {
+                        if(first_x < 0) {
+                            try {
+                                first_x = (current_emotion.get("x") as String).toInt()
+                                print("x = $first_x")
+                            } catch (e: Exception) {
+                                print(e)
+                            }
                         }
-                    }
-                    if(first_y < 0) {
-                        try {
-                            first_y = (current_emotion.get("y") as String).toInt()
-                            print("y = $first_y")
-                        } catch (e: Exception) {
-                            print(e)
+                        if(first_y < 0) {
+                            try {
+                                first_y = (current_emotion.get("y") as String).toInt()
+                                print("y = $first_y")
+                            } catch (e: Exception) {
+                                print(e)
+                            }
                         }
+                        doGesture(first_x, first_y, current_emotion, furhat)
+                    } else {
+                        break
                     }
-                    doGesture(first_x, first_y, current_emotion, furhat)
-                } else {
-                    break
                 }
             }
         }
