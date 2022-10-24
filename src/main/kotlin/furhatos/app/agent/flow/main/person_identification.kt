@@ -3,7 +3,6 @@ package furhatos.app.agent.flow.main
 import furhatos.app.agent.current_user
 import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.Parent
-import furhatos.app.agent.flow.recipes.Recommendation
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
@@ -33,6 +32,6 @@ val PersonIdentification : State = state(Parent) {
         // Should ask personal information but not yet implemented therefore this:
         dataManager.writeUser()
         furhat.say("Now that I've identified you as ${current_user.name}. We will move on to the personal information module.")
-        goto(Recommendation)
+        goto(Evaluation)
     }
 }
