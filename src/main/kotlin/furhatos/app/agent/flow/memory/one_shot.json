@@ -13,4 +13,9 @@
   "name": "Karen",
   "diet": "[]",
   "allergies": "[]"
+}, {
+  "user_id": 3,
+  "name": "Jean",
+  "diet": "[]",
+  "allergies": "[]"
 }]
