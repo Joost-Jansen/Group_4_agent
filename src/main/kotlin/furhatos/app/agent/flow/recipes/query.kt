@@ -30,7 +30,8 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                 "&number=10" +
                 "&type=${current_user.preferred_meal_type}" +
                 "&cuisine=${getPreferredCuisines()}" +
-                "&includeIngredients=${getPreferredIngredients()}"
+                "&includeIngredients=${getPreferredIngredients()}" +
+                "&maxReadyTime=${current_user.time}"
         println(query)
 
         val result = mutableListOf<Meal>()
@@ -40,7 +41,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                 val objects = get(query).jsonObject.getJSONArray("results")
                 print(objects)
 
-                for (i in 0 until 10) {
+                for (i in 0 until objects.length()) {
                     val meal = JSONObjectToMeal(objects.getJSONObject(i))
                     result += meal
                 }
@@ -79,12 +80,18 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
 }
 
 fun getPreferredCuisines(): String {
+    if(current_user.prefered_cuisine != "") {
+        return current_user.prefered_cuisine
+    }
     current_user.cuisines.sortByDescending { it.likes }
     return if (current_user.cuisines.size >= 3) {
         current_user.cuisines.take(3).joinToString { it.name }
     } else {
-        println(current_user.cuisines.first().name)
-        current_user.cuisines.first().name
+        if(!current_user.cuisines.isEmpty()) {
+            println(current_user.cuisines.first().name)
+            return current_user.cuisines.first().name
+        }
+        return ""
     }
 }
 

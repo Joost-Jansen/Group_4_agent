@@ -78,11 +78,12 @@ class leftOvers(val ingreds : ListOffIngredients? = null) : Intent() {
 
 val DayPreference : State = state(Parent) {
     onEntry {
-        furhat.ask(
+        furhat.say("")
+        furhat.say(
             random(
                 "For which course of the day would you like to get a recipe?",
-                "What course are you hungry for?",
-                "What kind of recipe are you interested in?"
+                "What course are you hungry for, perhaps breakfast?",
+                "For what meal of the day would you like to get a recipe?"
             )
         )
         furhat.gesture(Gestures.Smile)
@@ -132,7 +133,7 @@ val askAppitite : State = state(Parent) {
         furhat.say(
             random(
                 "That does sound good, lets see what we could do with that",
-                "Good idea, ${it.intent} I will take it into account when finding you a recipe",
+                "Good idea, ${it.intent.cuisin} I will take it into account when finding you a recipe",
                 "I think I have enough information to find you a suitable recipe"
             )
         )
