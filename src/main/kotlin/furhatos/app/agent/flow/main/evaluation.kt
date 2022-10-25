@@ -1,10 +1,9 @@
 package furhatos.app.agent.flow.main
 
 import furhatos.app.agent.current_user
-import furhatos.app.agent.flow.memory.data.Meal
-import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.getCurrentEmotion
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.app.agent.flow.recipes.queryHuggingFace
 import furhatos.app.agent.nlu.negativeWildCardIntent
 import furhatos.app.agent.nlu.postiveWildCardIntent
@@ -19,7 +18,7 @@ import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "", "", 0)
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, "", "", 0)
 
 val Evaluation : State = state(Parent) {
     onReentry {
@@ -39,6 +38,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onEntry {
+        current_user.last_step = "evaluation"
         val meal = userUpdates.findLastMeal(current_user.meals)
         if (meal !== null) {
             lastMeal = meal
@@ -72,7 +72,7 @@ val Evaluation : State = state(Parent) {
             )
         )
 
-        goto(negativeMealEvaluation)
+        goto(NegativeMealEvaluation)
     }
 
     onResponse<Yes> {
@@ -84,7 +84,7 @@ val Evaluation : State = state(Parent) {
                 "That's great to hear!"
             )
         )
-        goto(positiveMealEvaluation)
+        goto(PositiveMealEvaluation)
     }
 
     onResponse<postiveWildCardIntent>{
@@ -112,7 +112,7 @@ val Evaluation : State = state(Parent) {
                 }
                 "LABEL_1" ->{
                     updateScore = 5
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     furhat.say(random("Allright.","Nice!", "") +
                                    random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                                    random(" I'll keep that in mind.", " I'll remember that for the next time.")
@@ -122,7 +122,7 @@ val Evaluation : State = state(Parent) {
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     furhat.say(random("Allright.","Nice!", "") +
                             random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                             random(" I'll keep that in mind.", " I'll remember that for the next time.")
@@ -161,7 +161,7 @@ val Evaluation : State = state(Parent) {
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
@@ -169,7 +169,7 @@ val Evaluation : State = state(Parent) {
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -209,7 +209,7 @@ val Evaluation : State = state(Parent) {
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
@@ -224,7 +224,7 @@ val Evaluation : State = state(Parent) {
                             random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                             random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
             }
@@ -238,8 +238,9 @@ val Evaluation : State = state(Parent) {
         }
     }
 }
-val positiveMealEvaluation : State = state(Evaluation){
+val PositiveMealEvaluation : State = state(Evaluation){
     onEntry {
+        current_user.last_step = "positive_meal"
         furhat.ask(
             random(
                 "What did you like about the meal?",
@@ -279,7 +280,7 @@ val positiveMealEvaluation : State = state(Evaluation){
                                 ) +
                                 random(" I'll keep that in mind.", "I'll remember that for the next time.")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                 }
                 "LABEL_2" ->{
                     updateScore = (10*max).toInt()
@@ -287,7 +288,7 @@ val positiveMealEvaluation : State = state(Evaluation){
                                 random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                                 random(" I'll keep that in mind.", " I'll remember that for the next time.")
                         )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                 }
             }
         }else{
@@ -309,8 +310,9 @@ val positiveMealEvaluation : State = state(Evaluation){
 
 }
 
-val negativeMealEvaluation : State = state(Evaluation){
+val NegativeMealEvaluation : State = state(Evaluation){
     onEntry {
+        current_user.last_step = "negative_meal"
         random(
             furhat.ask("What didn't you like about the meal?"),
             furhat.ask("What didn't you like about the ${lastMeal.name}?")
@@ -338,7 +340,7 @@ val negativeMealEvaluation : State = state(Evaluation){
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
@@ -346,7 +348,7 @@ val negativeMealEvaluation : State = state(Evaluation){
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
-                    updateMeal(updateScore)
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -368,7 +370,7 @@ val negativeMealEvaluation : State = state(Evaluation){
     onResponse<DontKnow> {
         furhat.say("That's alright. I have that sometimes too.")
         furhat.say("We'll talk about something else then.")
-        updateMeal(-1)
+        userUpdates.updateMeal(-1, lastMeal, current_user)
         goto(Evaluation)
     }
 
@@ -377,27 +379,22 @@ val negativeMealEvaluation : State = state(Evaluation){
 fun checkEmotion(){
     val emotion = getCurrentEmotion().get("emotion").toString()
     var updateScore: Int = 0
-    when (emotion){"Neutral"-> {
-            updateScore = 0
-        }
+    updateScore = when (emotion){"Neutral"-> {
+        0
+    }
         "Happy", "Surprise" -> {
-            updateScore = 1
+            1
         }
         "Sad", "Anger", "Disgust", "Fear",
         "Contempt",  -> {
-            updateScore = -1
+            -1
         }
         else -> {
-        updateScore = 0
-    }
+            0
+        }
     }
     println("updated score based on emotion: " .plus(emotion) + ", score: ".plus(updateScore))
-    updateMeal(updateScore)
+    userUpdates.updateMeal(updateScore, lastMeal, current_user)
 }
 
-fun updateMeal(updateScore: Int){
-    userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
-    for (i in lastMeal.ingredients){
-        userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
-    }
-}
+

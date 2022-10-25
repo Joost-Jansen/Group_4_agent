@@ -2,8 +2,8 @@
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.memory.data.*
-import furhatos.app.agent.flow.recipes.queryRecipe
 import java.io.File
 import java.io.FileWriter
 import java.time.LocalDate
@@ -27,12 +27,12 @@ data class User(
     var cuisines: MutableList<Cuisine>,
     // short term
     var time: Int,
+    var last_step: String,
     var preferred_ingredients: MutableList<String>,
     var left_overs: MutableList<Ingredient>,
     var prefered_cuisine: String,
     var preferred_meal_type: String)  : Comparable<User> {
     override fun compareTo(other: User) = compareValuesBy(this, other) { it.user_id }
-
 }
 
 class UserUpdates {
@@ -72,18 +72,39 @@ class UserUpdates {
         return list
     }
 
-    fun addMeal(mealID : Int, list: MutableList<Meal>) : MutableList<Meal> {
-        for(m : Meal in list) {
-            if(m.id == mealID) {
-                m.likes =+ 1
-                m.last_selected = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                return list
-            }
+    fun addMeal(meal : Meal, list: MutableList<Meal>) : MutableList<Meal> {
+        if (list.find{it.name == meal.name} === null) {
+            list.add(meal)
         }
-        val m = queryRecipe(mealID)
-        list.add(m)
         return list
     }
+
+    fun addIngredient(ingredient : Ingredient, list: MutableList<Ingredient>) : MutableList<Ingredient> {
+        if (list.find{it.name == ingredient.name} === null) {
+            list.add(ingredient)
+        }
+        return list
+    }
+
+    fun addCuisine(cuisine: Cuisine, list: MutableList<Cuisine>) : MutableList<Cuisine> {
+        if (list.find{it.name == cuisine.name} === null) {
+            list.add(cuisine)
+        }
+        return list
+    }
+    fun updateMeal(updateScore: Int, meal: Meal, user: User){
+        updateLikes(meal, current_user.meals, updateScore )
+        for (i in meal.ingredients){
+            updateLikes(Ingredient(i, 0), user.ingredients, updateScore)
+        }
+
+        for (j in meal.cuisines){
+           updateLikes(Cuisine(j, 0), user.cuisines, updateScore)
+        }
+    }
+
+    fun updateMealDate(meal: Meal, time: String,  list: MutableList<Meal> ){
+        list.find { it.id == meal.id }?.last_selected = time   }
 
 
 
@@ -112,7 +133,7 @@ class DataManager () {
                 if (oData.user_id == ldata.user_id) {
                     var u = User(user_id = oData.user_id, name = oData.name, diet = oData.diet,
                         allergies = oData.allergies, cuisines = ldata.cuisines, ingredients = ldata.ingredients,
-                        left_overs = mutableListOf(), meals = ldata.meals, preferred_meal_type = "", preferred_ingredients = mutableListOf(), time = Int.MAX_VALUE, prefered_cuisine = ""
+                        left_overs = mutableListOf(), meals = ldata.meals, preferred_meal_type = "", preferred_ingredients = mutableListOf(), last_step = "greeting", time = Int.MAX_VALUE, prefered_cuisine = ""
                     )
                     dfUsers.add(u)
                 }
@@ -133,6 +154,7 @@ class DataManager () {
                 cuisines: MutableList<Cuisine> = mutableListOf(),
                 preferred_ingredients: MutableList<String> = mutableListOf(),
                 time: Int = Int.MAX_VALUE,
+                last_step: String = "greeting",
                 left_overs: MutableList<Ingredient> = mutableListOf(),
                 preferred_meal_type: String = "",
                 preferred_cuisine: String = ""
@@ -142,11 +164,11 @@ class DataManager () {
     ): User {
         if (dfUsers.size > 0){
             val id = Collections.max(dfUsers).user_id + 1
-            val u = User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_cuisine, preferred_meal_type)
+            val u = User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, last_step, preferred_ingredients, left_overs, preferred_cuisine, preferred_meal_type)
             dfUsers.add(u)
             return u
         } else{
-            val u = User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_cuisine, preferred_meal_type)
+            val u = User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, last_step, preferred_ingredients, left_overs, preferred_cuisine, preferred_meal_type)
             dfUsers.add(u)
             return u
         }

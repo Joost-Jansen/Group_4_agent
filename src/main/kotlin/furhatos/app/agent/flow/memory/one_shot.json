@@ -2,7 +2,9 @@
   {
     "user_id": 0,
     "name": "James",
-    "diet": [],
+    "diet": [
+      "Vegan"
+    ],
     "allergies": []
   },
   {
@@ -25,20 +27,30 @@
   },
   {
     "user_id": 4,
-    "name": "Karen",
+    "name": "Joy",
     "diet": [],
     "allergies": []
   },
   {
     "user_id": 5,
-    "name": "David",
+    "name": "Jose",
     "diet": [],
     "allergies": []
   },
   {
     "user_id": 6,
-    "name": "Jeffery",
+    "name": "Janice",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 7,
+    "name": "Jonas",
+    "diet": [
+      "vegan"
+    ],
+    "allergies": [
+      "peanuts"
+    ]
   }
 ]

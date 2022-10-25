@@ -17,12 +17,14 @@ val PersonIdentification : State = state(Parent) {
             However, before we can start, we need to get to know each other better.""")
     }
     onEntry {
+        current_user.last_step = "identification"
         furhat.ask("So ${current_user.name}, is it alright if I ask some questions?")
     }
 
     onResponse<No> {
             furhat.say("That's alright. We'll do that another time.")
             dataManager.writeUser()
+            current_user.last_step = "greeting"
             goto(Idle)
     }
 

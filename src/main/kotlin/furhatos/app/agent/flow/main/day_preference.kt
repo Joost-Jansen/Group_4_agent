@@ -7,10 +7,8 @@ import furhatos.app.agent.flow.recipes.Recommendation
 import furhatos.app.agent.nlu.Cuisine
 import furhatos.app.agent.nlu.Ingredients
 import furhatos.app.agent.nlu.MealT
-import furhatos.app.agent.resources.getMealTypes
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
-import furhatos.nlu.EnumEntity
 import furhatos.nlu.Intent
 import furhatos.nlu.ListEntity
 import furhatos.nlu.common.No
@@ -24,7 +22,7 @@ import kotlin.math.max
 class ListOffIngredients : ListEntity<Ingredients>()
 
 class requestMealType(val m: MealT? = null) : Intent() {
-    override fun getConfidenceThreshold(): Double? {
+    override fun getConfidenceThreshold(): Double {
         return 0.5
     }
     override fun getExamples(lang: Language): List<String> {
@@ -38,7 +36,7 @@ class requestMealType(val m: MealT? = null) : Intent() {
 }
 
 class cookingTime() : Intent() {
-    val n: Number? = Number(1)
+    val n: Number = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
             "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine", "@n"
@@ -47,7 +45,7 @@ class cookingTime() : Intent() {
 }
 
 class cookingTimeLong() : Intent() {
-    val n: Number? = Number(1)
+    val n: Number = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
             "I have @n hours", "I -only have @n hours", "@n hours", "I will cook for @n hours", "I can cook for @n hours", "I want to cook for @n hours", "Under @n hours", "Under @n minutes would be fine", "@n"
@@ -78,6 +76,7 @@ class leftOvers(val ingreds : ListOffIngredients? = null) : Intent() {
 
 val DayPreference : State = state(Parent) {
     onEntry {
+        current_user.last_step = "day_preference"
         furhat.ask(
             random(
                 "For which course of the day would you like to get a recipe?",
@@ -96,13 +95,14 @@ val DayPreference : State = state(Parent) {
             furhat.gesture(Gestures.Blink)
             furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
             print(current_user.preferred_meal_type)
-            goto(askLeftOver)
+            goto(AskLeftOver)
         }
     }
 }
 
-val askAppitite : State = state(Parent) {
+val AskAppitite : State = state(Parent) {
     onEntry {
+        current_user.last_step = "ask_appitite"
         furhat.ask(
             random(
                 "Are you hungry for a certain cuisine today?",
@@ -167,8 +167,9 @@ val askAppitite : State = state(Parent) {
     }
 }
 
-val askTime : State = state(Parent) {
+val AskTime : State = state(Parent) {
     onEntry {
+        current_user.last_step = "ask_time"
         val date = LocalDate.now().dayOfWeek.toString()
 
         if(date == "SUNDAY" || date == "SATURDAY") {
@@ -193,9 +194,9 @@ val askTime : State = state(Parent) {
         val date = LocalDate.now().dayOfWeek.toString()
 
         if(date == "SUNDAY" || date == "SATURDAY") {
-            goto(askLong)
+            goto(AskLong)
         } else {
-            goto(askShort)
+            goto(AskShort)
         }
     }
 
@@ -204,15 +205,16 @@ val askTime : State = state(Parent) {
         val date = LocalDate.now().dayOfWeek.toString()
 
         if(date == ("SUNDAY") || date == "SATURDAY") {
-            goto(askShort)
+            goto(AskShort)
         } else {
-            goto(askLong)
+            goto(AskLong)
         }
     }
 }
 
-val askShort : State = state(askTime) {
+val AskShort : State = state(AskTime) {
     onEntry {
+        current_user.last_step = "ask_short"
         furhat.ask(
             random(
                 "What is the maximum amount of minutes you would want to spend cooking?",
@@ -226,13 +228,14 @@ val askShort : State = state(askTime) {
             val timeToCook = it.intent.n.toString().toInt()
             current_user.time = timeToCook
             print(current_user.time)
-            goto(askAppitite)
+            goto(AskAppitite)
         }
     }
 }
 
-val askLong : State = state(askTime) {
+val AskLong : State = state(AskTime) {
     onEntry {
+        current_user.last_step = "ask_long"
         furhat.ask(
             random(
                 "What is the maximum amount of hours you would want to spend cooking?",
@@ -246,13 +249,14 @@ val askLong : State = state(askTime) {
             val timeToCook = it.intent.n.toString().toInt() * 60
             current_user.time = timeToCook
             print(current_user.time)
-            goto(askAppitite)
+            goto(AskAppitite)
         }
     }
 }
 
-val askLeftOver : State = state(Parent) {
+val AskLeftOver : State = state(Parent) {
     onEntry {
+        current_user.last_step = "ask_leftover"
         furhat.ask(
             random(
                 "Do you still have some left over ingredients",
@@ -285,7 +289,7 @@ val askLeftOver : State = state(Parent) {
                 )
             )
             print(current_user.left_overs)
-            goto(askTime)
+            goto(AskTime)
         }
     }
 
@@ -305,7 +309,7 @@ val askLeftOver : State = state(Parent) {
                 "You have been very effective with your groceries I see"
             )
         )
-        goto(askTime)
+        goto(AskTime)
     }
 }
 

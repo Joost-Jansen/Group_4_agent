@@ -16,6 +16,7 @@ var allergies_known = false
 
 val HandlePersonalInformation : State = state(Parent) {
     onEntry() {
+        current_user.last_step = "handle_information"
         random(
             {furhat.ask("What did I understand incorrectly?")},
             {furhat.ask("What did I forget?")},
@@ -65,6 +66,7 @@ val HandlePersonalInformation : State = state(Parent) {
 
 val PersonalInformation : State = state(HandlePersonalInformation) {
     onEntry {
+        current_user.last_step = "information"
         random(
             {goto(RequestDiets)},
             {goto(RequestAllergies)}
@@ -74,6 +76,7 @@ val PersonalInformation : State = state(HandlePersonalInformation) {
 
 val CheckPersonalInformation = state(Parent) {
     onEntry {
+        current_user.last_step = "check_information"
         when {
             !diets_known -> goto(RequestDiets)
             !allergies_known -> goto(RequestAllergies)
@@ -84,6 +87,7 @@ val CheckPersonalInformation = state(Parent) {
 
 val RequestDiets : State = state(HandlePersonalInformation) {
     onEntry() {
+        current_user.last_step = "request_diet"
         random(
             {furhat.ask("Do you follow any diets?")},
             {furhat.ask("Are you on any diets?")}
@@ -114,6 +118,7 @@ val RequestDiets : State = state(HandlePersonalInformation) {
 
 val RequestAllergies : State = state(HandlePersonalInformation) {
     onEntry() {
+        current_user.last_step = "request_allergies"
         random(
             {furhat.ask("Do you have any allergies?")},
             {furhat.ask("Are you intolerant to anything?")}
@@ -141,6 +146,7 @@ val RequestAllergies : State = state(HandlePersonalInformation) {
 
 val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
     onEntry() {
+        current_user.last_step = "confirm_information"
         var msg = "I can remember that "
 
         msg += if (getAllergiesString() == null)
