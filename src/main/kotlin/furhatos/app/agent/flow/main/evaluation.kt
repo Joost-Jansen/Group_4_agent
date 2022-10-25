@@ -38,6 +38,7 @@ val Evaluation : State = state(Parent) {
     }
 
     onEntry {
+        current_user.last_step = "evaluation"
         val meal = userUpdates.findLastMeal(current_user.meals)
         if (meal !== null) {
             lastMeal = meal
@@ -71,7 +72,7 @@ val Evaluation : State = state(Parent) {
             )
         )
 
-        goto(negativeMealEvaluation)
+        goto(NegativeMealEvaluation)
     }
 
     onResponse<Yes> {
@@ -83,7 +84,7 @@ val Evaluation : State = state(Parent) {
                 "That's great to hear!"
             )
         )
-        goto(positiveMealEvaluation)
+        goto(PositiveMealEvaluation)
     }
 
     onResponse<postiveWildCardIntent>{
@@ -237,8 +238,9 @@ val Evaluation : State = state(Parent) {
         }
     }
 }
-val positiveMealEvaluation : State = state(Evaluation){
+val PositiveMealEvaluation : State = state(Evaluation){
     onEntry {
+        current_user.last_step = "positive_meal"
         furhat.ask(
             random(
                 "What did you like about the meal?",
@@ -308,8 +310,9 @@ val positiveMealEvaluation : State = state(Evaluation){
 
 }
 
-val negativeMealEvaluation : State = state(Evaluation){
+val NegativeMealEvaluation : State = state(Evaluation){
     onEntry {
+        current_user.last_step = "negative_meal"
         random(
             furhat.ask("What didn't you like about the meal?"),
             furhat.ask("What didn't you like about the ${lastMeal.name}?")

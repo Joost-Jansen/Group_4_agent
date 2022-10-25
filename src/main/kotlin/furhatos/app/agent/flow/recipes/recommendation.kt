@@ -23,13 +23,25 @@ var recommendations: MutableList<Meal> = mutableListOf()
 // Start state containing everything except the query to the API
 val Recommendation : State = state(Parent) {
     onEntry {
-        recommendations = call(query("recipes", "search")) as MutableList<Meal>
-
-        if (recommendations.isEmpty()) {
-            furhat.say("Sorry, I could not find a recipe.")
-            goto(Idle)
-        } else {
-            furhat.ask("I have some ideas on which recipes you might like. Would you like to know?")
+        current_user.last_step = "recommendation"
+        try {
+            recommendations = call(query("recipes", "search")) as MutableList<Meal>
+            if (recommendations.isEmpty()) {
+                furhat.say("Sorry, I could not find a recipe.")
+                current_user.last_step = "greeting"
+                goto(Idle)
+            } else {
+                furhat.ask("I have some ideas on which recipes you might like. Would you like to know?")
+            }
+        } catch(e: Exception) {
+            furhat.say("I'm sorry. Something went wrong with finding a recipe.")
+            val bool = furhat.askYN("Do you want to try again?")
+            if(bool!!) {
+               reentry()
+            } else {
+                current_user.last_step = "greeting"
+                goto(Idle)
+            }
         }
     }
 
@@ -39,12 +51,14 @@ val Recommendation : State = state(Parent) {
 
     onResponse<No> {
         furhat.say("Alright, I'll be available if you need me.")
+        current_user.last_step = "greeting"
         goto(Idle)
     }
 }
 
 val GiveRecommendation = state(Parent) {
     onEntry {
+        current_user.last_step = "give_recommendation"
         if (recommendations.isNotEmpty()) {
             val recipe = recommendations.first()
             recommendations = recommendations.drop(1) as MutableList<Meal>
@@ -54,15 +68,16 @@ val GiveRecommendation = state(Parent) {
             furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
             furhat.say("The instructions are available through this link: " + recipe.link)
 
-            goto(evaluateRecommendation(recipe))
+            goto(EvaluateRecommendation(recipe))
         } else {
             furhat.say("Unfortunately, I'm out of recommended recipes.")
+            current_user.last_step = "greeting"
             goto(Idle)
         }
     }
 }
 
-fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
+fun EvaluateRecommendation(recipe: Meal) : State = state(Parent) {
     onEntry {
         val like = furhat.askYN("Do you like it?")
 
@@ -81,6 +96,7 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
                 goto(GiveRecommendation)
             } else {
                 furhat.say("Okay, I'll be here if you need me.")
+                current_user.last_step = "greeting"
                 goto(Idle)
             }
         }
@@ -90,6 +106,7 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
 val EndRecommendation : State = state(Parent) {
     onEntry {
         furhat.say("Enjoy your meal and see you next time!")
+        current_user.last_step = "greeting"
         goto(Idle)
     }
 }

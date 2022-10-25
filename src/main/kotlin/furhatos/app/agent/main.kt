@@ -12,7 +12,7 @@ import furhatos.skills.Skill
 //global variable
 val dataManager = DataManager()
 var current_user: User = User(-1, "", mutableListOf<String>(), mutableListOf<String>(),
-    mutableListOf<Meal>(), mutableListOf<Ingredient>(), mutableListOf<Cuisine>(), Int.MAX_VALUE,
+    mutableListOf<Meal>(), mutableListOf<Ingredient>(), mutableListOf<Cuisine>(), Int.MAX_VALUE, "greeting",
     mutableListOf<String>(), mutableListOf<Ingredient>(), "", "")
 val userUpdates = UserUpdates()
 

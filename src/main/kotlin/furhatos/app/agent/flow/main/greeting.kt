@@ -1,7 +1,6 @@
 package furhatos.app.agent.flow.main
 
 import User
-import com.amazonaws.event.DeliveryMode.Check
 import furhatos.app.agent.current_user
 import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.Parent
@@ -31,9 +30,9 @@ fun setUser(furhat: Furhat, name: String): User? {
 }
 
 val Greeting : State = state(Parent) {
-    init {
-    }
+
     onEntry {
+        current_user.last_step = "greeting"
         furhat.say("Hi There")
         val cur_emo = getCurrentEmotion()
         if(cur_emo.has("emotion")) {

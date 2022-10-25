@@ -53,7 +53,9 @@ val Parent: State = state {
     onUserLeave(instant = true) {
         dataManager.writeUser()
         when {
-            users.count == 0 -> goto(Idle)
+            users.count == 0 -> {
+                goto(Idle)
+            }
             it == users.current -> furhat.attend(users.other)
         }
     }
