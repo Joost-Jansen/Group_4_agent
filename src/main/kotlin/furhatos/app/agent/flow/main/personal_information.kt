@@ -51,6 +51,7 @@ val HandlePersonalInformation : State = state(Parent) {
 
     onResponse<TellDiets> {
         furhat.say("I see, you follow the ${it.intent.diets} diet")
+
         updateDiets(it.intent.diets)
         goto(CheckPersonalInformation)
     }
@@ -178,28 +179,28 @@ val EndPersonalInformation : State = state(Parent) {
 
 fun updateDiets(input: ListEntity<Diet>?) {
     input?.list?.forEach {
-        current_user.diet.add(it.toString())
+        current_user.diet.add(it.alterDiet.toString())
     }
     diets_known = true
 }
 
 fun updateAllergies(input: ListEntity<Allergy>?) {
     input?.list?.forEach {
-        current_user.allergies.add(it.toString())
+        current_user.allergies.add(it.alterAll.toString())
     }
     allergies_known = true
 }
 
 fun removeDiets(input: ListEntity<Diet>?) {
     input?.list?.forEach {
-        current_user.diet.remove(it.toString())
+        current_user.diet.remove(it.alterDiet.toString())
     }
     diets_known = true
 }
 
 fun removeAllergies(input: ListEntity<Allergy>?) {
     input?.list?.forEach {
-        current_user.allergies.remove(it.toString())
+        current_user.allergies.remove(it.alterAll.toString())
     }
     allergies_known = true
 }

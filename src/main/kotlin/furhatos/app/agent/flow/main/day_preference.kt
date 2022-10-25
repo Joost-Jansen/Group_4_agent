@@ -1,13 +1,12 @@
 package furhatos.app.agent.flow.main
 
-import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.recipes.Recommendation
+import furhatos.app.agent.nlu.Cuisine
 import furhatos.app.agent.nlu.Ingredients
 import furhatos.app.agent.nlu.MealT
-import furhatos.app.agent.nlu.Preparation
 import furhatos.app.agent.resources.getMealTypes
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
@@ -19,14 +18,10 @@ import furhatos.nlu.common.Number
 import furhatos.nlu.common.Yes
 import furhatos.util.Language
 import java.time.LocalDate
+import kotlin.math.max
 
 
 class ListOffIngredients : ListEntity<Ingredients>()
-class MealType : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return getMealTypes()
-    }
-}
 
 class requestMealType(val m: MealT? = null) : Intent() {
     override fun getConfidenceThreshold(): Double? {
@@ -46,7 +41,7 @@ class cookingTime() : Intent() {
     val n: Number? = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine"
+            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine", "@n"
         )
     }
 }
@@ -55,18 +50,18 @@ class cookingTimeLong() : Intent() {
     val n: Number? = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n hours", "I -only have @n hours", "@n hours", "I will cook for @n hours", "I can cook for @n hours", "I want to cook for @n hours", "Under @n hours", "Under @n minutes would be fine"
+            "I have @n hours", "I -only have @n hours", "@n hours", "I will cook for @n hours", "I can cook for @n hours", "I want to cook for @n hours", "Under @n hours", "Under @n minutes would be fine", "@n"
         )
     }
 }
 
-class cravings(val craves : ListOffIngredients? = null) : Intent() {
+class respondCuisine(val cuisin : Cuisine? = null) : Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I am hungry for -an apple", "I want rice", "Do you have -something with milk", "Something with milk -would -be -nice", "I was hoping to eat some milk", "I would like to have pasta",
-            "I am hungry -for -an apple and cheese", "I want rice and salt", "-Do you -have something with milk and a pepper", "Something with milk or yogurt -would -be -nice", "I was -hoping to eat -some milk with salt",
-            "I am hungry -for -an apple banana, and pear", "I want rice salt mushrooms -and pepper", "Do -you have -something with milk cheese or yogurt", "Something with milk flower -or salt -would -be -nice", "I -was -hoping -to eat some milk salt pepper",
-            "rice", "rice salt pasta", "salt and rice"
+            "I would like something @cuisin", "I would like something from @cuisin", "I want @cuisin food", "I need @cuisin", "@cuisin food", "@cuisin", "I would like to eat @cuisin", "I want to eat some @cuisin food", "I was hoping to eat something @cuisin",
+            "I am hungry for @cuisin", "I am hungry for @cuisin food", "I want @cuisin", "I want @cuisin food", "Do you have some @cuisin recipes", "Do you have some @cuisin food", "Some @cuisin food", " Something @cuisin", " Some @cuisin",
+            "I would like to have @cuisin", "I would like something from the @cuisin cuisine" , "I would like a @cuisin meal", "I want to eat some @cuisin food", "I was hoping to eat something from @cuisin",
+            "I want an @cuisin meal", "Do you have some @cuisin recipes", "Do you have some @cuisin recipes", "Some @cuisin meal", " Something from @cuisin",
         )
     }
 }
@@ -85,7 +80,7 @@ val DayPreference : State = state(Parent) {
     onEntry {
         furhat.ask(
             random(
-                "For which course would you like to get a recipe?",
+                "For which course of the day would you like to get a recipe?",
                 "What course are you hungry for?",
                 "What kind of recipe are you interested in?"
             )
@@ -94,12 +89,13 @@ val DayPreference : State = state(Parent) {
     }
 
     onResponse<requestMealType> {
+        print(current_user.preferred_meal_type)
         if (!it.intent.isEmpty) {
-            val course = it.intent.m.toString()
+            val course = it.intent.m!!.meal.toString()
             current_user.preferred_meal_type = course
             furhat.gesture(Gestures.Blink)
             furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
-
+            print(current_user.preferred_meal_type)
             goto(askLeftOver)
         }
     }
@@ -109,32 +105,34 @@ val askAppitite : State = state(Parent) {
     onEntry {
         furhat.ask(
             random(
-                "At last I would like to know if you already had some cravings for some specific ingredients?",
-                "Are there some ingredients you would like to see in the meal?",
-                "Did you perhaps have your mind on some ingredients?"
+                "Are you hungry for a certain cuisine today?",
+                "At last I wanted to know if there maybe was a cuisine are you hungry for?",
+                "Did you have some food in mind from a certain region or cuisine?"
             )
         )
-        furhat.gesture(Gestures.Roll(duration = 0.7))
+        furhat.gesture(Gestures.Smile)
     }
 
-    onResponse<cravings> {
-        if(it.intent.craves != null) {
-            val x = it.intent.craves as ListEntity<Ingredients>
-            val left = x.list as ArrayList<Ingredients>
-            val prefs = current_user.preferred_ingredients
-            for(i in left) {
-                val c = i.toString()
-
-                if (!prefs.contains(c)) {
-                    prefs.add(c)
+    onResponse<respondCuisine> {
+        print(current_user.prefered_cuisine)
+        var cuisine: String? = null
+        if(it.intent.cuisin != null) {
+            cuisine = it.intent.cuisin!!.cuis.toString()
+            current_user.prefered_cuisine = cuisine
+        }
+        if(cuisine != null) {
+            for(kitchen in current_user.cuisines) {
+                if (kitchen.name == cuisine) {
+                    kitchen.likes = max(10, kitchen.likes + 1)
                 }
             }
-            print(current_user.preferred_ingredients)
         }
+        print(current_user.prefered_cuisine)
         furhat.gesture(Gestures.Smile)
         furhat.say(
             random(
                 "That does sound good, lets see what we could do with that",
+                "Good idea, ${it.intent} I will take it into account when finding you a recipe",
                 "I think I have enough information to find you a suitable recipe"
             )
         )
@@ -150,7 +148,7 @@ val askAppitite : State = state(Parent) {
         furhat.ask(
             random(
                 "Please tell me and I will take it into account",
-                "Okay, what is it that you crave"
+                "Okay, what cuisine did you have in mind?"
             )
         )
         goto(Recommendation)
@@ -160,7 +158,8 @@ val askAppitite : State = state(Parent) {
         furhat.say(
             random(
                 "No problem, I will find something you like",
-                "In that case I will go find you something"
+                "In that case I will go find you something",
+                "I see that you are keeping your options open, that makes it more interesting for me"
             )
         )
         furhat.gesture(Gestures.BrowRaise(strength = 0.3))
@@ -182,7 +181,7 @@ val askTime : State = state(Parent) {
         } else {
             furhat.ask(
                 random(
-                    "Since it is a weekday would you prefer easy to make meal?",
+                    "Since it is a weekday would you prefer a meal that is easy to make?",
                     "Would you prefer a meal that you can quickly prepare?"
                 )
             )
@@ -222,9 +221,11 @@ val askShort : State = state(askTime) {
         )
     }
     onResponse<cookingTime> {
+        print(current_user.time)
         if(it.intent.n != null) {
-            val x = it.intent.n
-            print(x.toString().toInt())
+            val timeToCook = it.intent.n.toString().toInt()
+            current_user.time = timeToCook
+            print(current_user.time)
             goto(askAppitite)
         }
     }
@@ -240,9 +241,11 @@ val askLong : State = state(askTime) {
         )
     }
     onResponse<cookingTimeLong> {
+        print(current_user.time)
         if(it.intent.n != null) {
-            val x = it.intent.n
-            print(x.toString().toInt() * 60)
+            val timeToCook = it.intent.n.toString().toInt() * 60
+            current_user.time = timeToCook
+            print(current_user.time)
             goto(askAppitite)
         }
     }
@@ -264,6 +267,7 @@ val askLeftOver : State = state(Parent) {
     }
 
     onResponse<leftOvers> {
+        print(current_user.left_overs)
         if(it.intent.ingreds != null) {
             val x = it.intent.ingreds as ListEntity<Ingredients>
             val left = x.list as ArrayList<Ingredients>
@@ -280,6 +284,7 @@ val askLeftOver : State = state(Parent) {
                     "Thanks, That will help narrowing the search space"
                 )
             )
+            print(current_user.left_overs)
             goto(askTime)
         }
     }

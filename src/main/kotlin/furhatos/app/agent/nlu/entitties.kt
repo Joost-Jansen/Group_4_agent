@@ -1,10 +1,6 @@
 package furhatos.app.agent.nlu
 
 
-import furhatos.app.agent.resources.getAllergies
-import furhatos.app.agent.resources.getCuisines
-import furhatos.app.agent.resources.getDiets
-import furhatos.app.agent.resources.getMealTypes
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.ListEntity
@@ -24,11 +20,72 @@ class Ingredients : EnumEntity() {
     }
 }
 
-class Cuisine : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return getCuisines()
+class Cuisine(
+    val cuis : String? = null
+) : GrammarEntity() {
+
+    override fun getGrammar(lang : Language) : Grammar {
+        return when (lang.main) {
+            "en" -> kuisine
+            else -> throw InterpreterException("Language $lang not supported for ${javaClass.name}")
+        }
     }
 }
+
+val kuisine =
+    grammar {
+        rule(public = true) {
+            ruleref("aller")
+        }
+        rule("aller") {
+            +"African" tag {"African"}
+            +("North african" / "North africa" / "Africa") tag {"African"}
+            +"American" tag {"American"}
+            +("United states" / "North america") tag {"American"}
+            +"British" tag {"British"}
+            +("English" / "Scottish" / "England" / "Scotland") tag {"British"}
+            +"Cajun" tag {"Cajun"}
+            +"Caribbean" tag {"Caribbean"}
+            +"Chinese" tag {"Chinese"}
+            +("Asian" / "Cina") tag {"Chinese"}
+            +"Eastern European" tag {"Eastern European"}
+            +("Polish" / "Poland" / "Romanian" / "Hungarian") tag {"Eastern European"}
+            +"European" tag {"European"}
+            +"French" tag {"French"}
+            +("France") tag {"French"}
+            +"German" tag {"German"}
+            +("Germany") tag {"German"}
+            +"Greek" tag {"Greek"}
+            +("Greece" / "Turkish" / "Turkey") tag {"Greek"}
+            +"Indian" tag {"Indian"}
+            +("India") tag {"Indian"}
+            +"Irish" tag {"Irish"}
+            +("Ireland" / "North Ireland") tag {"Irish"}
+            +"Italian" tag {"Italian"}
+            +("Italy") tag {"Italian"}
+            +"Jewish" tag {"Jewish"}
+            +("Kosher") tag {"Jewish"}
+            +"Korean" tag {"Korean"}
+            +("Korea") tag {"Korean"}
+            +"Latin American" tag {"Latin American"}
+            +("Columbian" / "Columbia" / "Argentinian" / "Argentinian") tag {"Latin American"}
+            +"Mediterranean" tag {"Mediterranean"}
+            +"Mexican" tag {"Mexican"}
+            +("Tex-mex" / "Mexico") tag {"Mexican"}
+            +"Middle Eastern" tag {"Middle Eastern"}
+            +"Nordic" tag {"Nordic"}
+            +("Scandinavian" / "Swedish") tag {"Nordic"}
+            +"Southern" tag {"Southern"}
+            +("Surinam" / "Suriname") tag {"Southern"}
+            +"Spanish" tag {"Spanish"}
+            +("Spain") tag {"Spanish"}
+            +"Thai" tag {"Thai"}
+            +("Thailand") tag {"Thai"}
+            +"Vietnamese" tag {"Vietnamese"}
+            +("Vietnam") tag {"Vietnamese"}
+
+        }
+    }
 
 class ListOfAllergies : ListEntity<Allergy>()
 
@@ -38,7 +95,7 @@ class ListOfDiets : ListEntity<Diet>()
 
 
 class Allergy(
-    val all : String? = null
+    val alterAll : String? = null
 ) : GrammarEntity() {
 
     override fun getGrammar(lang : Language) : Grammar {
@@ -72,7 +129,7 @@ val allergies =
     }
 
 class Diet(
-    val all : String? = null
+    val alterDiet : String? = null
 ) : GrammarEntity() {
 
     override fun getGrammar(lang : Language) : Grammar {
@@ -134,20 +191,8 @@ val mealType =
         }
     }
 
-class Preparation : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("boiled", "steamed", "baked", "fried", "grilled")
-    }
-}
 
-class FoodPreperation(
-    val prep : Preparation? = null,
-    val ingredient: Ingredients? = null) : ComplexEnumEntity() {
 
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@prep @ingredient", "@ingredient")
-    }
-}
 fun readCsv(): MutableList<String> {
     val ingredients = mutableListOf<String>()
 
