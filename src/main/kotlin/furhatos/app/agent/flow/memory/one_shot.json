@@ -40,5 +40,15 @@
     "name": "Janice",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 7,
+    "name": "Jonas",
+    "diet": [
+      "vegan"
+    ],
+    "allergies": [
+      "peanuts"
+    ]
   }
 ]

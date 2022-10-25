@@ -1,6 +1,5 @@
 package furhatos.app.agent.flow.main
 
-import furhatos.app.agent.current_user
 import furhatos.app.agent.dataManager
 import furhatos.flow.kotlin.*
 
@@ -18,6 +17,7 @@ val Idle: State = state {
     }
 
     onEntry {
+        dataManager.writeUser()
         furhat.attendNobody()
     }
 

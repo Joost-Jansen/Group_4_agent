@@ -3,6 +3,8 @@ package furhatos.app.agent.flow.recipes
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.Idle
+import furhatos.app.agent.flow.memory.data.Cuisine
+import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.app.agent.userUpdates
 import furhatos.flow.kotlin.State
@@ -11,6 +13,7 @@ import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
+import java.time.LocalDate
 
 val BASE_URL = "https://api.spoonacular.com" // Spoonacular API url
 val API_KEY = "e9eeb0d76f024efcaf7cd32ae444c899" // Key to free account
@@ -65,9 +68,13 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
 
         if (like!! && like) {
             furhat.say("Awesome!")
+            recipe.last_selected = LocalDate.now().toString()
+            recipe.likes += 2
+            addRecipeToUser(recipe)
             goto(EndRecommendation)
         } else {
             val another = furhat.askYN("Too bad, would you like another recipe?")
+            addRecipeToUser(recipe)
             userUpdates.updateMeal(-2, recipe, current_user)
             if (another!! && another) {
                 furhat.say("Okay, let me see.")
@@ -84,5 +91,15 @@ val EndRecommendation : State = state(Parent) {
     onEntry {
         furhat.say("Enjoy your meal and see you next time!")
         goto(Idle)
+    }
+}
+
+fun addRecipeToUser(recipe: Meal){
+    current_user.meals = userUpdates.addMeal(recipe, current_user.meals)
+    for (i in recipe.ingredients){
+        current_user.ingredients = userUpdates.addIngredient(Ingredient(i, 0), current_user.ingredients)
+    }
+    for (j in recipe.cuisines){
+        current_user.cuisines = userUpdates.addCuisine(Cuisine(j, 0), current_user.cuisines)
     }
 }

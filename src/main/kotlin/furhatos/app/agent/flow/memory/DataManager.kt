@@ -4,7 +4,6 @@ import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.memory.data.*
-import furhatos.app.agent.flow.recipes.queryRecipe
 import java.io.File
 import java.io.FileWriter
 import java.time.LocalDate
@@ -72,16 +71,24 @@ class UserUpdates {
         return list
     }
 
-    fun addMeal(mealID : Int, list: MutableList<Meal>) : MutableList<Meal> {
-        for(m : Meal in list) {
-            if(m.id == mealID) {
-                m.likes =+ 1
-                m.last_selected = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                return list
-            }
+    fun addMeal(meal : Meal, list: MutableList<Meal>) : MutableList<Meal> {
+        if (list.find{it.name == meal.name} === null) {
+            list.add(meal)
         }
-        val m = queryRecipe(mealID)
-        list.add(m)
+        return list
+    }
+
+    fun addIngredient(ingredient : Ingredient, list: MutableList<Ingredient>) : MutableList<Ingredient> {
+        if (list.find{it.name == ingredient.name} === null) {
+            list.add(ingredient)
+        }
+        return list
+    }
+
+    fun addCuisine(cuisine: Cuisine, list: MutableList<Cuisine>) : MutableList<Cuisine> {
+        if (list.find{it.name == cuisine.name} === null) {
+            list.add(cuisine)
+        }
         return list
     }
     fun updateMeal(updateScore: Int, meal: Meal, user: User){
@@ -94,6 +101,9 @@ class UserUpdates {
            updateLikes(Cuisine(j, 0), user.cuisines, updateScore)
         }
     }
+
+    fun updateMealDate(meal: Meal, time: String,  list: MutableList<Meal> ){
+        list.find { it.id == meal.id }?.last_selected = time   }
 
 
 

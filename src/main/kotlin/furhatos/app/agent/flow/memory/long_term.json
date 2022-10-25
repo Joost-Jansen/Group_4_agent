@@ -80,5 +80,35 @@
     "meals": [],
     "ingredients": [],
     "cuisines": []
+  },
+  {
+    "user_id": 7,
+    "meals": [
+      {
+        "id": 663853,
+        "name": "Tropical Breakfast Quinoa",
+        "ingredients": [
+          "cooked quinoa",
+          "light coconut milk",
+          "pineapple",
+          "cinnamon",
+          "maple syrup",
+          "coconut",
+          "pecans",
+          "strawberries",
+          "balsamic vinegar"
+        ],
+        "cuisines": [
+          ""
+        ],
+        "course": "morning meal",
+        "likes": 0,
+        "last_selected": "2022-10-25",
+        "link": "https://www.foodista.com/recipe/JLYYQCYC/tropical-breakfast-quinoa",
+        "prepTime": 45
+      }
+    ],
+    "ingredients": [],
+    "cuisines": []
   }
 ]
