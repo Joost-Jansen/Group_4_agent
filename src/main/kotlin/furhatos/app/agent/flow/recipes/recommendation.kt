@@ -1,5 +1,6 @@
 package furhatos.app.agent.flow.recipes
 
+import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.Idle
 import furhatos.app.agent.flow.memory.data.Meal
@@ -42,7 +43,13 @@ val GiveRecommendation = state(Parent) {
     onEntry {
         if (recommendations.isNotEmpty()) {
             val recipe = recommendations.first()
-            recommendations = recommendations.drop(1) as MutableList<Meal>
+            print(recipe.javaClass.name)
+            if(recommendations.size >= 2) {
+                recommendations = recommendations.drop(1) as MutableList<Meal>
+            } else {
+                recommendations = mutableListOf<Meal>()
+            }
+
 
             // Propose recipe and explain
             furhat.say("I think you might like "+ recipe.name)
@@ -68,7 +75,19 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
             val another = furhat.askYN("Too bad, would you like another recipe?")
 
             if (another!! && another) {
-                furhat.say("Okay, let me see.")
+                if (recommendations.isEmpty()) {
+                    val genericRecommendation = furhat.askYN("Your demands are too specific, would you like a more generic ${current_user.preferred_meal_type}")
+                    if(genericRecommendation!! && genericRecommendation) {
+                        furhat.say("Okay")
+                        print(recommendations)
+                        recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
+                        print(recommendations)
+                        goto(GiveRecommendation)
+                    } else {
+                        furhat.say("Okay, I'll be here if you need me.")
+                        goto(Idle)
+                    }
+                }
             } else {
                 furhat.say("Okay, I'll be here if you need me.")
                 goto(Idle)

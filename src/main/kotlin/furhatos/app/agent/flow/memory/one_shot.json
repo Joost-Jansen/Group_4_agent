@@ -28,5 +28,17 @@
     "name": "Karen",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 5,
+    "name": "David",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 6,
+    "name": "Jeffery",
+    "diet": [],
+    "allergies": []
   }
 ]

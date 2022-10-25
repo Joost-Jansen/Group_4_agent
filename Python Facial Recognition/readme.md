@@ -11,6 +11,7 @@ pip install flask
 pip install opencv-contrib-python
 
 pip install dlib
+https://www.geeksforgeeks.org/how-to-install-dlib-library-for-python-in-windows-10/
 
 run by:
 

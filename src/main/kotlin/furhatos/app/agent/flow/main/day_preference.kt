@@ -78,11 +78,10 @@ class leftOvers(val ingreds : ListOffIngredients? = null) : Intent() {
 
 val DayPreference : State = state(Parent) {
     onEntry {
-        furhat.say("")
-        furhat.say(
+        furhat.ask(
             random(
                 "For which course of the day would you like to get a recipe?",
-                "What course are you hungry for, perhaps breakfast?",
+                "What kind of course are you hungry for?",
                 "For what meal of the day would you like to get a recipe?"
             )
         )
