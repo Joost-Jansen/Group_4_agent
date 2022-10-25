@@ -1,11 +1,11 @@
 package furhatos.app.agent
-import Cuisine
 import DataManager
-import Ingredient
-import Meal
 import User
 import UserUpdates
 import furhatos.app.agent.flow.Init
+import furhatos.app.agent.flow.memory.data.Cuisine
+import furhatos.app.agent.flow.memory.data.Ingredient
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.flow.kotlin.Flow
 import furhatos.skills.Skill
 import java.time.LocalDate

@@ -1,6 +1,71 @@
-[{
-  "user_id": 0,
-  "meals": [{"course" : "desert", "id" : 73420, "ingredients" : ["Apple", "      Peach", "      Strudel"], "last_selected" : "2018-12-10", "likes" : 1, "link" : "google.com", "name" : "Apple Or Peach Strudel", "prepTime" : 45}],
-  "ingredients": [{"likes" : 3, "name" : "pasta"}, {"likes" : 1, "name" : "garlic"}, {"likes" : -1, "name" : "scallions"}],
-  "cuisines": [{"likes" : 3, "name" : "pasta"}, {"likes" : 1, "name" : "garlic"}, {"likes" : -1, "name" : "scallions"}]
-}]
+[
+  {
+    "user_id": 0,
+    "meals": [
+      {
+        "id": 73420,
+        "name": "Apple Or Peach Strudel",
+        "ingredients": [
+          "Apple",
+          "Peach",
+          "Strudel"
+        ],
+        "course": "desert",
+        "likes": 1,
+        "last_selected": "2018-12-10"
+      },
+      {
+        "id": 716429,
+        "name": "Pasta with Garlic, Scallions, Cauliflower \u0026 Breadcrumbs",
+        "ingredients": [
+          "pasta",
+          "garlic",
+          "scallions"
+        ],
+        "course": "desert",
+        "likes": 3,
+        "last_selected": "2018-12-12"
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "pasta",
+        "likes": 3
+      },
+      {
+        "name": "garlic",
+        "likes": 1
+      },
+      {
+        "name": "scallions",
+        "likes": -1
+      }
+    ],
+    "cuisines": [
+      {
+        "name": "pasta",
+        "likes": 3
+      },
+      {
+        "name": "garlic",
+        "likes": 1
+      },
+      {
+        "name": "scallions",
+        "likes": -1
+      }
+    ]
+  },
+  {
+    "user_id": 1,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 2,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  }
+]

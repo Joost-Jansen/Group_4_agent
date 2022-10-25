@@ -1,7 +1,7 @@
 package furhatos.app.agent.flow.recipes
 
-import Meal
 import furhatos.app.agent.current_user
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.state
 import furhatos.gestures.Gestures
@@ -144,13 +144,40 @@ fun queryRecipe(recipe_id: Int): Meal {
     val meal = Meal(recipe_id, name, ingredients, dishType, likes, lastSelected, link, prepTime)
     return meal
 }
+
+/**
+ * Input string
+ * Returns: JSONArray with
+ * label_0: NEGATIVE
+ * label_1: NEUTRAL
+ * label_2: POSTIVE
+ */
+fun queryHuggingFace(text: String): JSONArray {
+    val API_URL = "https://api-inference.huggingface.co/models/cardiffnlp/twitter-roberta-base-sentiment"
+    val headers = mapOf("Authorization" to "Bearer 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")
+    val output = mapOf("inputs" to  text)
+    val query = get(API_URL, headers, json=output).jsonArray.getJSONArray(0)
+//    print(query)
+    return query
+    // Get the title of the dish from the response
+//    val objects = get(query).jsonObject.getJSONArray("recipes")
+//    val response = requests.post(API_URL, headers=headers, json=payload)
+//    return response.json()
+
+}
+
 //val id: Int, // id in spoonacular can request by getID
 //val name: String, // name of meal
 //var likes: Int, // amount of likes or dislikes (when negative)
 //var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 //var course: String // type of meal eg. desert
 fun main(args: Array<String>) {
-    queryRecipe(716429)
+    val sentimentQuery = queryHuggingFace("I hate you")
+    val negative = sentimentQuery.getJSONObject(0).get("score").toString().toFloat()
+    val neutral = sentimentQuery.getJSONObject(1).get("score").toString().toFloat()
+    val positive = sentimentQuery.getJSONObject(2).get("score").toString().toFloat()
+
+//    queryRecipe(716429)
 //    getMeal("tedt")
 //    val dm = DataManager()
 //    print(dm.dfUsers.head())

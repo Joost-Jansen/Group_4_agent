@@ -65,7 +65,7 @@ fun getAllergies(): List<String> {
 
 fun getMealTypes(): List<String> {
     return listOf<String>(
-        "main course",
+        "main course: dinner",
         "side dish",
         "dessert",
         "appetizer",

@@ -8,9 +8,14 @@ import furhatos.app.agent.resources.getMealTypes
 import furhatos.nlu.ComplexEnumEntity
 import furhatos.nlu.EnumEntity
 import furhatos.nlu.ListEntity
+import furhatos.nlu.WildcardEntity
+import furhatos.nlu.*
+import furhatos.nlu.grammar.Grammar
+import furhatos.nlu.kotlin.grammar
 import furhatos.util.Language
 import java.io.BufferedReader
 import java.io.FileReader
+import java.lang.Exception
 
 
 class Ingredients : EnumEntity() {
@@ -25,27 +30,109 @@ class Cuisine : EnumEntity() {
     }
 }
 
-class Diet : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return getDiets()
-    }
-}
+class ListOfAllergies : ListEntity<Allergy>()
+
+
 
 class ListOfDiets : ListEntity<Diet>()
 
-class Allergy : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return getAllergies()
+
+class Allergy(
+    val all : String? = null
+) : GrammarEntity() {
+
+    override fun getGrammar(lang : Language) : Grammar {
+        return when (lang.main) {
+            "en" -> allergies
+            else -> throw InterpreterException("Language $lang not supported for ${javaClass.name}")
+        }
     }
 }
 
-class ListOfAllergies : ListEntity<Allergy>()
+val allergies =
+    grammar {
+        rule(public = true) {
+            ruleref("aller")
+        }
+        rule("aller") {
+            +("lactose intolerant" / "milk") tag {"diary"}
+            +"diary" tag {"diary"}
+            +("egg" / "eggs") tag {"egg"}
+            +"celiac disease" tag {"gluten"}
+            +("peanut" / "peanuts") tag {"peanut"}
+            +"seafood" tag {"seafood"}
+            +("fish" / "shrimp"  / "mussels") tag {"seafood"}
+            +"Shellfish" tag {"Shellfish"}
+            +"Soy" tag {"Soy"}
+            +"Sulfite" tag {"Sulfite"}
+            +"Tree nut" tag {"Tree nut"}
+            +("nut" / "nuts") tag {"Tree nut"}
+            +"Wheat" tag {"Wheat"}
+        }
+    }
 
-class MealType : EnumEntity() {
-    override fun getEnum(lang: Language): List<String> {
-        return getMealTypes()
+class Diet(
+    val all : String? = null
+) : GrammarEntity() {
+
+    override fun getGrammar(lang : Language) : Grammar {
+        return when (lang.main) {
+            "en" -> Diets
+            else -> throw InterpreterException("Language $lang not supported for ${javaClass.name}")
+        }
     }
 }
+
+val Diets =
+    grammar {
+        rule(public = true) {
+            ruleref("aller")
+        }
+        rule("aller") {
+            +("Gluten Free") tag {"Gluten Free"}
+            +"Ketogenic" tag {"Ketogenic"}
+            +("high fat"  / "low carb" / "low carbohydrates") tag {"Ketogenic"}
+            +"Vegetarian" tag {"Vegetarian"}
+            +"Lacto-Vegetarian" tag {"Lacto-Vegetarian"}
+            +"Ovo-Vegetarian" tag {"Ovo-Vegetarian"}
+            +"Vegan" tag {"Vegan"}
+            +"Pescetarian" tag {"Pescetarian"}
+            +"Paleo" tag {"Paleo"}
+            +"Liver king" tag {"Paleo"}
+            +"Primal" tag {"Primal"}
+            +"Low FODMAP" tag {"Low FODMAP"}
+            +"Whole30" tag {"Whole30"}
+            +"whole thrifty" tag {"Whole30"}
+        }
+    }
+
+class MealT(
+    val meal : String? = null
+) : GrammarEntity() {
+
+    override fun getGrammar(lang : Language) : Grammar {
+        return when (lang.main) {
+            "en" -> mealType
+            else -> throw InterpreterException("Language $lang not supported for ${javaClass.name}")
+        }
+    }
+}
+
+val mealType =
+    grammar {
+        rule(public = true) {
+            ruleref("meal")
+        }
+        rule("meal") {
+            +("supper" / "dinner") tag {"main course"}
+            +"main course" tag {"main course"}
+            +"side dish" tag {"side dish"}
+            +("dessert" / "desert") tag {"dessert"}
+            +"appetizer" tag {"appetizer"}
+            +"breakfast" tag {"breakfast"}
+            +("lunch" / "brunch") tag {"breakfast"}
+        }
+    }
 
 class Preparation : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
@@ -79,55 +166,30 @@ fun readCsv(): MutableList<String> {
 
     return ingredients
 }
+
+class textEntity: WildcardEntity("textInput", wildCardIntent())
+
+class negativeWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "no @textInput",
+            "nah @textInput"
+        )
+    }
+}
+
+
+class positiveWildCardEntity(val textInput : String? = null) : ComplexEnumEntity() {
+    override fun getEnum(lang: Language): List<String> {
+        return listOf(
+            "yes @textInput",
+            "yeah @textInput"
+        )
+    }
+}
 //fun main(args: Array<String>) {
 //    val base_query = "https://api.spoonacular.com?apiKey=e9eeb0d76f024efcaf7cd32ae444c899"
 //    val a = options(base_query)
 //    readCsv()
 //}
 
-class flavourListPostive : ListEntity<QuantifiedFlavourPositive>()
-class flavourListNegative : ListEntity<QuantifiedFlavourNegative>()
-
-class flavour : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("sweet","sweetness", "sour","sourness", "spicy", "spicyness", "chili", "salty","bitter","bitterness", "umami")
-    }
-}
-
-class adjectivePositive : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("very", "truly", "really")
-    }
-}
-
-class adjectiveNegative : EnumEntity(stemming = true, speechRecPhrases = true) {
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("too", "a bit", "too much", "a lot")
-    }
-}
-
-class QuantifiedFlavourPositive(
-    val adjective: adjectivePositive? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
-
-class QuantifiedFlavourNegative(
-    val adjective: adjectiveNegative? = null,
-    val flavour : flavour? = null) : ComplexEnumEntity() {
-
-    override fun getEnum(lang: Language): List<String> {
-        return listOf("@adjective @flavour", "@flavour", "@flavour and @flavour", "@adjective @flavour and @adjective @flavour", "@adjective @flavour and @flavour", "@flavour and @adjective @flavour")
-    }
-
-    override fun toText(): String {
-        return generate("$adjective $flavour")
-    }
-}
