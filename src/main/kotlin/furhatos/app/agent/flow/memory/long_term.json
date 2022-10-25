@@ -43,20 +43,7 @@
         "likes": -1
       }
     ],
-    "cuisines": [
-      {
-        "name": "pasta",
-        "likes": 3
-      },
-      {
-        "name": "garlic",
-        "likes": 1
-      },
-      {
-        "name": "scallions",
-        "likes": -1
-      }
-    ]
+    "cuisines": []
   },
   {
     "user_id": 1,
@@ -78,6 +65,18 @@
   },
   {
     "user_id": 4,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 5,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 6,
     "meals": [],
     "ingredients": [],
     "cuisines": []

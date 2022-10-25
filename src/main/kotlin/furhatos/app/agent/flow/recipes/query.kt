@@ -79,12 +79,17 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
 }
 
 fun getPreferredCuisines(): String {
-    current_user.cuisines.sortByDescending { it.likes }
-    return if (current_user.cuisines.size >= 3) {
-        current_user.cuisines.take(3).joinToString { it.name }
-    } else {
-        println(current_user.cuisines.first().name)
-        current_user.cuisines.first().name
+    if (current_user.cuisines !== null && !current_user.cuisines.isEmpty()){
+        current_user.cuisines.sortByDescending { it.likes }
+        return if (current_user.cuisines.size >= 3) {
+            current_user.cuisines.take(3).joinToString { it.name }
+        } else {
+            println(current_user.cuisines.first().name)
+            current_user.cuisines.first().name
+        }
+    }
+    else{
+        return ""
     }
 }
 
@@ -133,7 +138,7 @@ fun queryRecipe(recipe_id: Int): Meal {
     val ingredients = mutableListOf<String>()
     for ( i in recipe.getJSONArray("extendedIngredients")){
         val json : JSONObject = i as JSONObject
-        ingredients.add(json.get("nameClean").toString())
+        ingredients.add(json.get("name").toString())
     }
     val dishTypes = recipe.get("dishTypes") as JSONArray
     val dishType = dishTypes.get(0).toString()

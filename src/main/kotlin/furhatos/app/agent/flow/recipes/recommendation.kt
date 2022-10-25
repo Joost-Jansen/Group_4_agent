@@ -1,8 +1,10 @@
 package furhatos.app.agent.flow.recipes
 
+import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.Idle
 import furhatos.app.agent.flow.memory.data.Meal
+import furhatos.app.agent.userUpdates
 import furhatos.flow.kotlin.State
 import furhatos.flow.kotlin.furhat
 import furhatos.flow.kotlin.onResponse
@@ -45,7 +47,7 @@ val GiveRecommendation = state(Parent) {
             recommendations = recommendations.drop(1) as MutableList<Meal>
 
             // Propose recipe and explain
-            furhat.say("I think you might like "+ recipe.name)
+            furhat.say("I think you might like " + recipe.name)
             furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
             furhat.say("The instructions are available through this link: " + recipe.link)
 
@@ -66,9 +68,10 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
             goto(EndRecommendation)
         } else {
             val another = furhat.askYN("Too bad, would you like another recipe?")
-
+            userUpdates.updateMeal(-2, recipe, current_user)
             if (another!! && another) {
                 furhat.say("Okay, let me see.")
+                goto(GiveRecommendation)
             } else {
                 furhat.say("Okay, I'll be here if you need me.")
                 goto(Idle)
@@ -79,7 +82,7 @@ fun evaluateRecommendation(recipe: Meal) : State = state(Parent) {
 
 val EndRecommendation : State = state(Parent) {
     onEntry {
-        furhat.say("Enjoy your meal!")
+        furhat.say("Enjoy your meal and see you next time!")
         goto(Idle)
     }
 }

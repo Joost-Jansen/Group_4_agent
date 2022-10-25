@@ -2,6 +2,7 @@
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.memory.data.*
 import furhatos.app.agent.flow.recipes.queryRecipe
 import java.io.File
@@ -82,6 +83,16 @@ class UserUpdates {
         val m = queryRecipe(mealID)
         list.add(m)
         return list
+    }
+    fun updateMeal(updateScore: Int, meal: Meal, user: User){
+        updateLikes(meal, current_user.meals, updateScore )
+        for (i in meal.ingredients){
+            updateLikes(Ingredient(i, 0), user.ingredients, updateScore)
+        }
+
+        for (j in meal.cuisines){
+           updateLikes(Cuisine(j, 0), user.cuisines, updateScore)
+        }
     }
 
 
