@@ -16,5 +16,17 @@
     "name": "Peter",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 3,
+    "name": "Jeff",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 4,
+    "name": "Joy",
+    "diet": [],
+    "allergies": []
   }
 ]

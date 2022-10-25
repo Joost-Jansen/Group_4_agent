@@ -60,8 +60,8 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                     val meal = JSONObjectToMeal(objects.getJSONObject(0))
                     result += meal
                 }
+                println(result)
             }
-
             else -> {
                 print("Query type not defined")
             }
@@ -128,6 +128,7 @@ fun JSONObjectToMeal(recipe: JSONObject): Meal {
 fun queryRecipe(recipe_id: Int): Meal {
     val query = "$BASE_URL/recipes/$recipe_id/information?apiKey=${API_KEY}&includeNutrion=false"
     val recipe = get(query).jsonObject
+    println(recipe)
     val name = recipe.get("title") as String
     val ingredients = mutableListOf<String>()
     for ( i in recipe.getJSONArray("extendedIngredients")){
@@ -140,9 +141,14 @@ fun queryRecipe(recipe_id: Int): Meal {
     val lastSelected = LocalDate.now().toString()
     val link = recipe.getString("sourceUrl")
     val prepTime = recipe.getInt("readyInMinutes")
-
-    val meal = Meal(recipe_id, name, ingredients, dishType, likes, lastSelected, link, prepTime)
+    val cuisines = stringToList(recipe.getJSONArray("cuisines").toString())
+    println(cuisines)
+    val meal = Meal(recipe_id, name, ingredients, cuisines,  dishType, likes, lastSelected, link, prepTime)
     return meal
+}
+
+fun stringToList(str: String): MutableList<String>{
+    return str.replace("\"", "").drop(1).dropLast(1).split(",").toMutableList()
 }
 
 /**
@@ -172,12 +178,24 @@ fun queryHuggingFace(text: String): JSONArray {
 //var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 //var course: String // type of meal eg. desert
 fun main(args: Array<String>) {
-    val sentimentQuery = queryHuggingFace("I hate you")
-    val negative = sentimentQuery.getJSONObject(0).get("score").toString().toFloat()
-    val neutral = sentimentQuery.getJSONObject(1).get("score").toString().toFloat()
-    val positive = sentimentQuery.getJSONObject(2).get("score").toString().toFloat()
+//    val sentimentQuery = queryHuggingFace("I hate you")
+//    val negative = sentimentQuery.getJSONObject(0).get("score").toString().toFloat()
+//    val neutral = sentimentQuery.getJSONObject(1).get("score").toString().toFloat()
+//    val positive = sentimentQuery.getJSONObject(2).get("score").toString().toFloat()
+//    current_user.cuisines = mutableListOf(Cuisine("European", 0))
+//    query("recipes", "search")
+//    queryRecipe(639606)
 
-//    queryRecipe(716429)
+//    var query = "$BASE_URL/recipes/search?" +
+//            "apiKey=${API_KEY}" +
+//            "&diet=${current_user.diet.joinToString(",")}" +
+//            "&intolerances=${current_user.allergies.joinToString(",")}" +
+//            "&number=10" +
+//            "&type=${current_user.preferred_meal_type}" +
+//            "&cuisine=Greek"
+//    println(query)
+//    val resp = get(query).jsonObject.getJSONArray("results")
+//    println(resp)
 //    getMeal("tedt")
 //    val dm = DataManager()
 //    print(dm.dfUsers.head())

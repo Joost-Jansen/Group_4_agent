@@ -1,10 +1,11 @@
 package furhatos.app.agent.flow.main
 
 import furhatos.app.agent.current_user
-import furhatos.app.agent.flow.memory.data.Meal
-import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.getCurrentEmotion
+import furhatos.app.agent.flow.memory.data.Cuisine
+import furhatos.app.agent.flow.memory.data.Ingredient
+import furhatos.app.agent.flow.memory.data.Meal
 import furhatos.app.agent.flow.recipes.queryHuggingFace
 import furhatos.app.agent.nlu.negativeWildCardIntent
 import furhatos.app.agent.nlu.postiveWildCardIntent
@@ -19,7 +20,7 @@ import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() ,"", -1, "", "", 0)
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, "", "", 0)
 
 val Evaluation : State = state(Parent) {
     onReentry {
@@ -399,5 +400,9 @@ fun updateMeal(updateScore: Int){
     userUpdates.updateLikes(lastMeal, current_user.meals, updateScore )
     for (i in lastMeal.ingredients){
         userUpdates.updateLikes(Ingredient(i, 0), current_user.ingredients, updateScore)
+    }
+
+    for (j in lastMeal.cuisines){
+        userUpdates.updateLikes(Cuisine(j, 0), current_user.cuisines, updateScore)
     }
 }

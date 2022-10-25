@@ -11,6 +11,7 @@ data class Meal(
     val id: Int, // id in spoonacular can request by getID
     val name: String, // name of meal
     var ingredients: MutableList<String>,
+    var cuisines: MutableList<String>,
     val course: String, // type of meal eg. desert
     var likes: Int, // amount of likes or dislikes (when negative)
     var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing

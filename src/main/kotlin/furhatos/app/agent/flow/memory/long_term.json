@@ -12,7 +12,8 @@
         ],
         "course": "desert",
         "likes": 1,
-        "last_selected": "2018-12-10"
+        "last_selected": "2018-12-10",
+        "prepTime": 0
       },
       {
         "id": 716429,
@@ -24,7 +25,8 @@
         ],
         "course": "desert",
         "likes": 3,
-        "last_selected": "2018-12-12"
+        "last_selected": "2018-12-12",
+        "prepTime": 0
       }
     ],
     "ingredients": [
@@ -64,6 +66,18 @@
   },
   {
     "user_id": 2,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 3,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 4,
     "meals": [],
     "ingredients": [],
     "cuisines": []
