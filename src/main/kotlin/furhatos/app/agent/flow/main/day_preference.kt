@@ -8,6 +8,7 @@ import furhatos.app.agent.flow.recipes.Recommendation
 import furhatos.app.agent.nlu.Ingredients
 import furhatos.app.agent.nlu.MealT
 import furhatos.app.agent.nlu.Preparation
+import furhatos.app.agent.resources.getMealTypes
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
 import furhatos.nlu.EnumEntity
@@ -23,8 +24,7 @@ import java.time.LocalDate
 class ListOffIngredients : ListEntity<Ingredients>()
 class MealType : EnumEntity() {
     override fun getEnum(lang: Language): List<String> {
-        return listOf("main course", "side dish", "dessert", "appetizer", "salad", "bread", "breakfast", "soup", "beverage",
-            "sauce", "marinade", "fingerfood", "snack", "drink")
+        return getMealTypes()
     }
 }
 
@@ -90,17 +90,15 @@ val DayPreference : State = state(Parent) {
                 "What kind of recipe are you interested in?"
             )
         )
+        furhat.gesture(Gestures.Smile)
     }
-
-    onNoResponse {reentry() }
 
     onResponse<requestMealType> {
         if (!it.intent.isEmpty) {
-            val course = it.intent.m
-            if(course != null) {
-                current_user.courseType = course.toString()
-            }
-            furhat.say("Okay, but before I give you an ${course} recommendation I would like to have a bit more information")
+            val course = it.intent.m.toString()
+            current_user.preferred_meal_type = course
+            furhat.gesture(Gestures.Blink)
+            furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
 
             goto(askLeftOver)
         }
@@ -123,7 +121,7 @@ val askAppitite : State = state(Parent) {
         if(it.intent.craves != null) {
             val x = it.intent.craves as ListEntity<Ingredients>
             val left = x.list as ArrayList<Ingredients>
-            val prefs = current_user.preferences
+            val prefs = current_user.preferred_ingredients
             for(i in left) {
                 val c = i.toString()
 
@@ -131,6 +129,7 @@ val askAppitite : State = state(Parent) {
                     prefs.add(c)
                 }
             }
+            print(current_user.preferred_ingredients)
         }
         furhat.gesture(Gestures.Smile)
         furhat.say(

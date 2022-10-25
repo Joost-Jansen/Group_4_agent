@@ -6,7 +6,6 @@ import furhatos.app.agent.flow.memory.data.*
 import furhatos.app.agent.flow.recipes.queryRecipe
 import java.io.File
 import java.io.FileWriter
-import java.io.StringBufferInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -28,9 +27,9 @@ data class User(
     var cuisines: MutableList<Cuisine>,
     // short term
     var time: Int,
-    var courseType: String,
-    var preferences: MutableList<String>,
-    var left_overs: MutableList<Ingredient>)  : Comparable<User> {
+    var preferred_ingredients: MutableList<String>,
+    var left_overs: MutableList<Ingredient>,
+    var preferred_meal_type: String)  : Comparable<User> {
     override fun compareTo(other: User) = compareValuesBy(this, other) { it.user_id }
 
 }
@@ -112,7 +111,7 @@ class DataManager () {
                 if (oData.user_id == ldata.user_id) {
                     var u = User(user_id = oData.user_id, name = oData.name, diet = oData.diet,
                         allergies = oData.allergies, cuisines = ldata.cuisines, ingredients = ldata.ingredients,
-                        left_overs = mutableListOf(), meals = ldata.meals, preferences = mutableListOf(), time = Int.MAX_VALUE, courseType = ""
+                        left_overs = mutableListOf(), meals = ldata.meals, preferred_meal_type = "", preferred_ingredients = mutableListOf(), time = Int.MAX_VALUE
                     )
                     dfUsers.add(u)
                 }
@@ -131,18 +130,21 @@ class DataManager () {
                 meals: MutableList<Meal> =  mutableListOf(),
                 favourite_ingredients: MutableList<Ingredient> = mutableListOf(),
                 cuisines: MutableList<Cuisine> = mutableListOf(),
-                preferences: MutableList<String> = mutableListOf(),
+                preferred_ingredients: MutableList<String> = mutableListOf(),
                 time: Int = Int.MAX_VALUE,
-                courseType: String = "",
-                left_overs: MutableList<Ingredient> = mutableListOf()
+                left_overs: MutableList<Ingredient> = mutableListOf(),
+                preferred_meal_type: String = ""
+
+
+
     ): User {
         if (dfUsers.size > 0){
             val id = Collections.max(dfUsers).user_id + 1
-            val u = User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, courseType, preferences, left_overs)
+            val u = User(id, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_meal_type)
             dfUsers.add(u)
             return u
         } else{
-            val u = User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, courseType, preferences, left_overs)
+            val u = User(0, name, diet, allergies, meals, favourite_ingredients, cuisines,  time, preferred_ingredients, left_overs, preferred_meal_type)
             dfUsers.add(u)
             return u
         }

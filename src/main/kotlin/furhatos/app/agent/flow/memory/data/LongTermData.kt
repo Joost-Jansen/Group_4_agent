@@ -13,8 +13,10 @@ data class Meal(
     var ingredients: MutableList<String>,
     val course: String, // type of meal eg. desert
     var likes: Int, // amount of likes or dislikes (when negative)
-    var last_selected: String // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
-) : Comparable<Meal> {
+    var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
+    var link: String,
+    var prepTime: Int
+    ) : Comparable<Meal> {
     override fun compareTo(other: Meal) = compareValuesBy(this, other) { it.likes }
 }
 

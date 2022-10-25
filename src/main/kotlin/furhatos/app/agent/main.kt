@@ -13,7 +13,8 @@ import java.time.LocalDate
 //global variable
 val dataManager = DataManager()
 var current_user: User = User(-1, "", mutableListOf<String>(), mutableListOf<String>(),
-    mutableListOf<Meal>(), mutableListOf<Ingredient>(), mutableListOf<Cuisine>(), Int.MAX_VALUE, "", mutableListOf<String>(), mutableListOf<Ingredient>())
+    mutableListOf<Meal>(), mutableListOf<Ingredient>(), mutableListOf<Cuisine>(), Int.MAX_VALUE,
+    mutableListOf<String>(), mutableListOf<Ingredient>(), "")
 val userUpdates = UserUpdates()
 
 class AgentSkill : Skill() {
