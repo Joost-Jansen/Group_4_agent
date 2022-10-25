@@ -40,7 +40,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                 val objects = get(query).jsonObject.getJSONArray("results")
                 print(objects)
 
-                for (i in 0 until objects.length()-1) {
+                for (i in 0 until objects.length()) {
                     val meal = JSONObjectToMeal(objects.getJSONObject(i))
                     result += meal
                 }
@@ -56,7 +56,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                 val q = "$BASE_URL/$query_field/$query_type?" + "apiKey=${API_KEY}" +"&titleMatch=${question}&number=10&type=${current_user.preferred_meal_type}"
                 println(q)
                 val objects = get(q).jsonObject.getJSONArray("results")
-                if(objects.length() != 0) {
+                for (i in 0 until objects.length()) {
                     val meal = JSONObjectToMeal(objects.getJSONObject(0))
                     result += meal
                 }
