@@ -125,6 +125,7 @@ val allergies =
             +"Tree nut" tag {"Tree nut"}
             +("nut" / "nuts") tag {"Tree nut"}
             +"Wheat" tag {"Wheat"}
+            +"Gluten" tag {"Gluten"}
         }
     }
 

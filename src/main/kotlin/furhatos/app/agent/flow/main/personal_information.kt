@@ -167,6 +167,14 @@ val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
         )
     }
 
+    onReentry {
+        random(
+            {furhat.ask("Is that correct?")},
+            {furhat.ask("Am I right?")},
+            {furhat.ask("Did I remember that correctly?")}
+        )
+    }
+
     onResponse<Yes> {
         furhat.say("Awesome! Let's move on")
         goto(EndPersonalInformation)

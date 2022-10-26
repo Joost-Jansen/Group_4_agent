@@ -47,7 +47,7 @@ val Greeting : State = state(Parent) {
         if (name != null) {
             val user = setUser(furhat, name.name.toString())
             if (user != null) {
-                goto(CheckPersonalInformation)
+                goto(Evaluation)
             } else {
                 goto(PersonIdentification)
             }
@@ -61,7 +61,7 @@ val Greeting : State = state(Parent) {
         if (name != null) {
             val user = setUser(furhat, name.name.toString())
             if (user != null) {
-                goto(CheckPersonalInformation)
+                goto(Evaluation)
             } else {
                 goto(PersonIdentification)
             }

@@ -33,7 +33,6 @@ val PersonIdentification : State = state(Parent) {
         furhat.say("Great. Let's start")
         // Should ask personal information but not yet implemented therefore this:
         dataManager.writeUser()
-        furhat.say("Now that I've identified you as ${current_user.name}. We will move on to the personal information module.")
         goto(PersonalInformation)
     }
 }

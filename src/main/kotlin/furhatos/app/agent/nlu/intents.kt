@@ -12,15 +12,11 @@ open class TellPersonalInformation : Intent(), TextGenerator {
 
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            listOf(
                 "I am following a @diets diet and I am allergic to @allergies",
                 "I am allergic to @allergies and I am following a @diets diet",
                 "I am on the @diets diet and my allergies are @allergies",
                 "My allergies are @allergies and I am on the @diets diet"
-            ),
-            getDietExamples(),
-            getAllergyExamples()
-        ).flatten()
+        )
     }
 
     override fun toText(lang : Language) : String {
@@ -126,7 +122,7 @@ class wildCardIntent(): Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf(
             "@textInput"
-        );
+        )
     }
 
 }
@@ -137,7 +133,7 @@ class negativeWildCardIntent(): Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf(
             "@textInput",
-        );
+        )
     }
 
 }
@@ -149,7 +145,7 @@ class postiveWildCardIntent(): Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf(
             "@textInput",
-        );
+        )
     }
 }
 
