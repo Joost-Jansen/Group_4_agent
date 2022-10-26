@@ -48,7 +48,6 @@
         "course": "morning meal",
         "likes": 0,
         "last_selected": "-999999999-01-01",
-        "link": "https://www.foodista.com/recipe/N6ZLMBFK/scrambled-tofu-with-rocket",
         "prepTime": 45
       },
       {
@@ -68,7 +67,6 @@
         "course": "morning meal",
         "likes": 2,
         "last_selected": "2022-10-26",
-        "link": "https://spoonacular.com/site-1595072981456",
         "prepTime": 10
       }
     ],
@@ -212,7 +210,6 @@
         "course": "morning meal",
         "likes": 0,
         "last_selected": "2022-10-25",
-        "link": "https://www.foodista.com/recipe/JLYYQCYC/tropical-breakfast-quinoa",
         "prepTime": 45
       }
     ],
@@ -242,5 +239,96 @@
     "meals": [],
     "ingredients": [],
     "cuisines": []
+  },
+  {
+    "user_id": 12,
+    "meals": [
+      {
+        "id": 715497,
+        "name": "Berry Banana Breakfast Smoothie",
+        "ingredients": [
+          "banana",
+          "graham cracker crumbs",
+          "soy milk",
+          "strawberries",
+          "vanilla yogurt"
+        ],
+        "cuisines": [
+          ""
+        ],
+        "course": "morning meal",
+        "likes": 0,
+        "last_selected": "-999999999-01-01",
+        "prepTime": 5,
+        "summary": "If you have around \u003cb\u003e5 minutes\u003c/b\u003e to spend in the kitchen, Berry Banana Breakfast Smoothie might be a tremendous \u003cb\u003elacto ovo vegetarian\u003c/b\u003e recipe to try. This recipe makes 1 servings with \u003cb\u003e501 calories\u003c/b\u003e, \u003cb\u003e21g of protein\u003c/b\u003e, and \u003cb\u003e11g of fat\u003c/b\u003e each. For \u003cb\u003e$2"
+      },
+      {
+        "id": 663845,
+        "name": "TROPICAL BANANA GREEN SMOOTHIE",
+        "ingredients": [
+          "pineapple",
+          "coconut water",
+          "blueberries",
+          "protein powder",
+          "spinach"
+        ],
+        "cuisines": [
+          ""
+        ],
+        "course": "morning meal",
+        "likes": 0,
+        "last_selected": "-999999999-01-01",
+        "prepTime": 45,
+        "summary": "Need a \u003cb\u003egluten free, dairy free, and fodmap friendly breakfast\u003c/b\u003e? TROPICAL BANANA GREEN SMOOTHIE could be an excellent recipe to try. One serving contains \u003cb\u003e101 calories\u003c/b\u003e, \u003cb\u003e4g of protein\u003c/b\u003e, and \u003cb\u003e1g of fat\u003c/b\u003e. This recipe serves 1"
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "banana",
+        "likes": 0
+      },
+      {
+        "name": "graham cracker crumbs",
+        "likes": 0
+      },
+      {
+        "name": "soy milk",
+        "likes": 0
+      },
+      {
+        "name": "strawberries",
+        "likes": 0
+      },
+      {
+        "name": "vanilla yogurt",
+        "likes": 0
+      },
+      {
+        "name": "pineapple",
+        "likes": 0
+      },
+      {
+        "name": "coconut water",
+        "likes": 0
+      },
+      {
+        "name": "blueberries",
+        "likes": 0
+      },
+      {
+        "name": "protein powder",
+        "likes": 0
+      },
+      {
+        "name": "spinach",
+        "likes": 0
+      }
+    ],
+    "cuisines": [
+      {
+        "name": "",
+        "likes": 0
+      }
+    ]
   }
 ]

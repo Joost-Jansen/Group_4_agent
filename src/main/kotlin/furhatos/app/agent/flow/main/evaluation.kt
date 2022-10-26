@@ -25,7 +25,7 @@ var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String
 val Evaluation : State = state(Parent) {
     onReentry {
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal !== null && meal.last_selected !== LocalDate.MIN.toString()) {
+        if (meal != null && meal.last_selected != LocalDate.MIN.toString()) {
             lastMeal = meal
             furhat.ask(
                 random(
@@ -42,7 +42,7 @@ val Evaluation : State = state(Parent) {
     onEntry {
         current_user.last_step = "evaluation"
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal !== null && meal.last_selected !== LocalDate.MIN.toString()) {
+        if (meal != null && meal.last_selected != LocalDate.MIN.toString()) {
             lastMeal = meal
             furhat.ask(
                 random(
