@@ -2,6 +2,7 @@ package furhatos.app.agent.flow.recipes
 
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
+import furhatos.app.agent.flow.main.DayPreference
 import furhatos.app.agent.flow.main.Idle
 import furhatos.app.agent.flow.memory.data.Cuisine
 import furhatos.app.agent.flow.memory.data.Ingredient
@@ -27,11 +28,20 @@ val Recommendation : State = state(Parent) {
         try {
             recommendations = call(query("recipes", "search")) as MutableList<Meal>
             if (recommendations.isEmpty()) {
-                furhat.say("Sorry, I could not find a recipe.")
-                current_user.last_step = "greeting"
-                goto(Idle)
+                furhat.say("Sorry, I could not find a recipe. Let's go over your preferences again. " +
+                        "It might help if you are a little bit less specific.")
+                goto(DayPreference)
             } else {
-                furhat.ask("I have some ideas on which recipes you might like. Would you like to know?")
+                random(
+                    {furhat.say("I have some ideas on which recipes you might like.")},
+                    {furhat.say("I found some recipes for you.")},
+                    {furhat.say("I have some recipes that match your preferences.")}
+                )
+                random(
+                    {furhat.ask("Would you like to know?")},
+                    {furhat.ask("Should I tell?")},
+                    {furhat.ask("Are you curious?")}
+                )
             }
         } catch(e: Exception) {
             furhat.say("I'm sorry. Something went wrong with finding a recipe.")
@@ -62,17 +72,21 @@ val GiveRecommendation = state(Parent) {
         if (recommendations.isNotEmpty()) {
             val recipe = recommendations.first()
             print(recipe.javaClass.name)
-            if(recommendations.size >= 2) {
-                recommendations = recommendations.drop(1) as MutableList<Meal>
+            recommendations = if (recommendations.size >= 2) {
+                recommendations.drop(1) as MutableList<Meal>
             } else {
-                recommendations = mutableListOf<Meal>()
+                mutableListOf()
             }
 
-
-            // Propose recipe and explain
+            // Propose recipe
             furhat.say("I think you might like " + recipe.name)
-            furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
-            furhat.say("The instructions are available through this link: " + recipe.link)
+
+            // Provide additional information
+            val moreInfo = furhat.askYN("Would you like some more information?")
+            if (moreInfo!! && moreInfo) {
+                furhat.say(recipe.summary)
+                furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
+            }
 
             goto(EvaluateRecommendation(recipe))
         } else {
@@ -85,46 +99,55 @@ val GiveRecommendation = state(Parent) {
 
 fun EvaluateRecommendation(recipe: Meal) : State = state(Parent) {
     onEntry {
-        val like = furhat.askYN("Do you like it?")
+        random(
+            {furhat.ask("Do you like it?")},
+            {furhat.ask("Are you excited about this recipe?")},
+            {furhat.ask("Will you enjoy this meal?")}
+        )
+    }
 
-        if (like!! && like) {
-            furhat.say("Awesome!")
-            recipe.last_selected = LocalDate.now().toString()
-            recipe.likes += 2
-            addRecipeToUser(recipe)
-            goto(EndRecommendation)
-        } else {
-            val another = furhat.askYN("Too bad, would you like another recipe?")
-            addRecipeToUser(recipe)
-            userUpdates.updateMeal(-2, recipe, current_user)
-            if (another!! && another) {
-                if (recommendations.isEmpty()) {
-                    val genericRecommendation = furhat.askYN("Your demands are too specific, would you like a more generic ${current_user.preferred_meal_type}")
-                    if(genericRecommendation!! && genericRecommendation) {
-                        furhat.say("Okay")
-                        print(recommendations)
-                        recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
-                        print(recommendations)
-                        goto(GiveRecommendation)
-                    } else {
-                        furhat.say("Okay, I'll be here if you need me.")
-                        goto(Idle)
-                    }
-                } else {
+    onResponse<Yes> {
+        furhat.say("Awesome!")
+        recipe.last_selected = LocalDate.now().toString()
+        recipe.likes += 2
+        addRecipeToUser(recipe)
+        goto(EndRecommendation)
+    }
+
+    onResponse<No> {
+        val another = furhat.askYN("Too bad, would you like another recipe?")
+        addRecipeToUser(recipe)
+        userUpdates.updateMeal(-2, recipe, current_user)
+        if (another!! && another) {
+            if (recommendations.isEmpty()) {
+                val genericRecommendation = furhat.askYN("Your demands are too specific, would you like a more generic ${current_user.preferred_meal_type}")
+                if(genericRecommendation!! && genericRecommendation) {
+                    furhat.say("Okay")
+                    print(recommendations)
+                    recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
+                    print(recommendations)
                     goto(GiveRecommendation)
+                } else {
+                    furhat.say("Okay, I'll be here if you need me.")
+                    goto(Idle)
                 }
             } else {
-                furhat.say("Okay, I'll be here if you need me.")
-                current_user.last_step = "greeting"
-                goto(Idle)
+                goto(GiveRecommendation)
             }
+        } else {
+            furhat.say("Okay, I'll be here if you need me.")
+            current_user.last_step = "greeting"
+            goto(Idle)
         }
     }
 }
 
 val EndRecommendation : State = state(Parent) {
     onEntry {
-        furhat.say("Enjoy your meal and see you next time!")
+        random(
+            {furhat.say("Enjoy your meal and see you next time!")},
+            {furhat.say("Bon appetite! See you soon.")}
+        )
         current_user.last_step = "greeting"
         goto(Idle)
     }

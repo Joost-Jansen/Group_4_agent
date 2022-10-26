@@ -18,7 +18,7 @@ import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, "", "", 0)
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, "", 0, "")
 
 val Evaluation : State = state(Parent) {
     onReentry {
@@ -52,6 +52,7 @@ val Evaluation : State = state(Parent) {
             println("checking emotion")
             checkEmotion()
         } else {
+            furhat.say("I have not yet recommended you a meal. Let me find one for you!")
             goto(DayPreference)
         }
     }
