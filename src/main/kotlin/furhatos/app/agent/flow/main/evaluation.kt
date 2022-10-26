@@ -20,7 +20,7 @@ import furhatos.nlu.common.Yes
 import java.time.LocalDate
 
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, LocalDate.MIN.toString()o, 0, "")
+var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, LocalDate.MIN.toString(), 0, "")
 
 val Evaluation : State = state(Parent) {
     onReentry {
