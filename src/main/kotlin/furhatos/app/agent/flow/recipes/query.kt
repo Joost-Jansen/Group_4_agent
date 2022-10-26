@@ -23,7 +23,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
             +Gestures.GazeAway
         }
 
-        var query = "$BASE_URL/$query_field/$query_type?" +
+        val query = "$BASE_URL/$query_field/$query_type?" +
                 "apiKey=${API_KEY}" +
                 "&diet=${current_user.diet.joinToString(",")}" +
                 "&intolerances=${current_user.allergies.joinToString(",")}" +
@@ -120,40 +120,33 @@ fun getPreferredIngredients(): String {
     return res
 }
 
-fun getMeal(t: String) {
-    val q = "${BASE_URL}/food/detect?apiKey=${API_KEY}&cheese"
-
-    URLEncoder.encode("I like tomatoes")
-    val x = post(q, data="i like tom")
-    print(x.text)
-    print(x.raw)
-}
-
 fun JSONObjectToMeal(recipe: JSONObject): Meal {
     val recipeId = recipe.getInt("id")
     return queryRecipe(recipeId)
 }
 
 fun queryRecipe(recipe_id: Int): Meal {
-    val query = "$BASE_URL/recipes/$recipe_id/information?apiKey=${API_KEY}&includeNutrion=false"
+    val query = "$BASE_URL/recipes/$recipe_id/information?apiKey=${API_KEY}&includeNutrition=false"
     val recipe = get(query).jsonObject
     println(recipe)
     val name = recipe.get("title") as String
     val ingredients = mutableListOf<String>()
-    for ( i in recipe.getJSONArray("extendedIngredients")){
-        val json : JSONObject = i as JSONObject
+    for (i in recipe.getJSONArray("extendedIngredients")) {
+        val json: JSONObject = i as JSONObject
         ingredients.add(json.get("name").toString())
     }
     val dishTypes = recipe.get("dishTypes") as JSONArray
     val dishType = dishTypes.get(0).toString()
     val likes = 0
     val lastSelected = LocalDate.MIN.toString()
-    val link = recipe.getString("sourceUrl")
     val prepTime = recipe.getInt("readyInMinutes")
     val cuisines = stringToList(recipe.getJSONArray("cuisines").toString())
-    println(cuisines)
-    val meal = Meal(recipe_id, name, ingredients, cuisines,  dishType, likes, lastSelected, link, prepTime)
-    return meal
+    var summary = recipe.getString("summary").split(".")
+    if (summary.size >= 3) {
+        summary = summary.take(3)
+    }
+
+    return Meal(recipe_id, name, ingredients, cuisines, dishType, likes, lastSelected, prepTime, summary.joinToString("." ))
 }
 
 fun stringToList(str: String): MutableList<String>{

@@ -3,10 +3,7 @@ package furhatos.app.agent.flow.main
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.nlu.*
-import furhatos.flow.kotlin.State
-import furhatos.flow.kotlin.furhat
-import furhatos.flow.kotlin.onResponse
-import furhatos.flow.kotlin.state
+import furhatos.flow.kotlin.*
 import furhatos.nlu.ListEntity
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
@@ -114,6 +111,10 @@ val RequestDiets : State = state(HandlePersonalInformation) {
         }
         goto(CheckPersonalInformation)
     }
+
+    onPartialResponse<Yes> {
+        raise(it, it.secondaryIntent)
+    }
 }
 
 val RequestAllergies : State = state(HandlePersonalInformation) {
@@ -142,6 +143,10 @@ val RequestAllergies : State = state(HandlePersonalInformation) {
         }
         goto(CheckPersonalInformation)
     }
+
+    onPartialResponse<Yes> {
+        raise(it, it.secondaryIntent)
+    }
 }
 
 val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
@@ -160,6 +165,14 @@ val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
             "and " + getDietsString()
 
         furhat.say(msg)
+        random(
+            {furhat.ask("Is that correct?")},
+            {furhat.ask("Am I right?")},
+            {furhat.ask("Did I remember that correctly?")}
+        )
+    }
+
+    onReentry {
         random(
             {furhat.ask("Is that correct?")},
             {furhat.ask("Am I right?")},
