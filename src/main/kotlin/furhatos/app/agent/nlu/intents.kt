@@ -115,7 +115,13 @@ class WrongPerson(
         return listOf("Sorry, I am not @name", "my name is not @name", "you are talking to the wrong person", "you have the wrong person", "You have the wrong name", "this is not @name", "you have me mistaken by someone else")
     }
 }
+class Goodbye(
 
+): Intent() {
+    override fun getExamples(lang: Language): List<String> {
+        return listOf("Goodbye", "I am leaving", "Bye", "See you tomorrow")
+    }
+}
 class wildCardIntent(): Intent() {
 
     var textInput: textEntity? = null

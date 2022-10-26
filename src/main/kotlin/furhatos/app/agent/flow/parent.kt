@@ -1,8 +1,10 @@
 package furhatos.app.agent.flow
 
+import furhatos.app.agent.current_user
 import furhatos.app.agent.dataManager
 import furhatos.app.agent.flow.main.Greeting
 import furhatos.app.agent.flow.main.Idle
+import furhatos.app.agent.nlu.Goodbye
 import furhatos.app.agent.nlu.WrongPerson
 import furhatos.flow.kotlin.*
 import furhatos.gestures.Gestures
@@ -63,6 +65,18 @@ val Parent: State = state {
         furhat.say("sorry, I must have misunderstood.")
         goto(Greeting)
     }
+    onResponse<Goodbye> {
+        furhat.say(
+            random(
+                "Goodbye ${current_user.name}",
+                "Hope to see you soon!",
+                "Bye ${current_user.name}"
+            )
+        )
+        current_user.last_step = "greeting"
+        goto(Idle)
+    }
+
     onUserEnter(instant = true) {
         furhat.glance(it)
     }

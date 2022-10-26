@@ -343,23 +343,27 @@ fun getSentiment(input: String): Pair<Float,String> {
 }
 
 fun checkEmotion(){
-    val emotion = getCurrentEmotion().get("emotion").toString()
-    val updateScore = when (emotion){"Neutral"-> {
-        0
+    val emotion = getCurrentEmotion()
+    if (emotion.has("emotion")) {
+        val updateScore = when (emotion.get("emotion").toString()){
+            "Neutral"-> {
+                0
+            }
+            "Happy", "Surprise" -> {
+                1
+            }
+            "Sad", "Anger", "Disgust", "Fear",
+            "Contempt",  -> {
+                -1
+            }
+            else -> {
+                0
+            }
+        }
+        println("updated score based on emotion: " .plus(emotion) + ", score: ".plus(updateScore))
+        userUpdates.updateMeal(updateScore, lastMeal, current_user)
     }
-        "Happy", "Surprise" -> {
-            1
-        }
-        "Sad", "Anger", "Disgust", "Fear",
-        "Contempt",  -> {
-            -1
-        }
-        else -> {
-            0
-        }
-    }
-    println("updated score based on emotion: " .plus(emotion) + ", score: ".plus(updateScore))
-    userUpdates.updateMeal(updateScore, lastMeal, current_user)
+
 }
 
 

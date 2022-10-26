@@ -84,5 +84,15 @@
     "name": "Jessica",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 13,
+    "name": "Bill",
+    "diet": [
+      "Vegetarian"
+    ],
+    "allergies": [
+      "diary"
+    ]
   }
 ]
