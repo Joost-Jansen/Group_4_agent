@@ -10,6 +10,7 @@ import khttp.post
 import org.json.JSONArray
 import org.json.JSONObject
 import java.net.URLEncoder
+import java.time.LocalDate
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -146,7 +147,7 @@ fun queryRecipe(recipe_id: Int): Meal {
     val dishTypes = recipe.get("dishTypes") as JSONArray
     val dishType = dishTypes.get(0).toString()
     val likes = 0
-    val lastSelected = ""
+    val lastSelected = LocalDate.MIN.toString()
     val link = recipe.getString("sourceUrl")
     val prepTime = recipe.getInt("readyInMinutes")
     val cuisines = stringToList(recipe.getJSONArray("cuisines").toString())

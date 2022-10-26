@@ -14,7 +14,7 @@ val PersonIdentification : State = state(Parent) {
     init {
         furhat.say("""I'm Spoonie. I am a food recommender system who would like to help you achieve your goals. 
             Whether it would be improving your diet, learning new cooking skills or exploring new recipes. I'm there for you. 
-            However, before we can start, we need to get to know each other better.""")
+            However, before we can start, we need to get to know each other a little better.""")
     }
     onEntry {
         current_user.last_step = "identification"
@@ -33,7 +33,6 @@ val PersonIdentification : State = state(Parent) {
         furhat.say("Great. Let's start")
         // Should ask personal information but not yet implemented therefore this:
         dataManager.writeUser()
-        furhat.say("Now that I've identified you as ${current_user.name}. We will move on to the personal information module.")
         goto(PersonalInformation)
     }
 }

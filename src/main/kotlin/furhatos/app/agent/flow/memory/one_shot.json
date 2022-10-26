@@ -52,5 +52,31 @@
     "allergies": [
       "peanuts"
     ]
+  },
+  {
+    "user_id": 8,
+    "name": "Rick",
+    "diet": [
+      "Vegan"
+    ],
+    "allergies": []
+  },
+  {
+    "user_id": 9,
+    "name": "Eric",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 10,
+    "name": "Sonia",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 11,
+    "name": "Jean",
+    "diet": [],
+    "allergies": []
   }
 ]

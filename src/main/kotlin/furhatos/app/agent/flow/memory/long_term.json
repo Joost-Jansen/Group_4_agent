@@ -27,6 +27,49 @@
         "likes": 3,
         "last_selected": "2018-12-12",
         "prepTime": 0
+      },
+      {
+        "id": 659604,
+        "name": "Scrambled tofu with rocket",
+        "ingredients": [
+          "tofu",
+          "coconut oil",
+          "cumin seeds",
+          "onion",
+          "tomato",
+          "turmeric",
+          "red chilli",
+          "rocket",
+          "salt and pepper"
+        ],
+        "cuisines": [
+          ""
+        ],
+        "course": "morning meal",
+        "likes": 0,
+        "last_selected": "-999999999-01-01",
+        "link": "https://www.foodista.com/recipe/N6ZLMBFK/scrambled-tofu-with-rocket",
+        "prepTime": 45
+      },
+      {
+        "id": 1497523,
+        "name": "Peanut Butter Banana Smoothie",
+        "ingredients": [
+          "bananas",
+          "peanut butter",
+          "dates",
+          "cocoa powder",
+          "ice",
+          "water"
+        ],
+        "cuisines": [
+          ""
+        ],
+        "course": "morning meal",
+        "likes": 2,
+        "last_selected": "2022-10-26",
+        "link": "https://spoonacular.com/site-1595072981456",
+        "prepTime": 10
       }
     ],
     "ingredients": [
@@ -41,9 +84,74 @@
       {
         "name": "scallions",
         "likes": -1
+      },
+      {
+        "name": "tofu",
+        "likes": 0
+      },
+      {
+        "name": "coconut oil",
+        "likes": 0
+      },
+      {
+        "name": "cumin seeds",
+        "likes": 0
+      },
+      {
+        "name": "onion",
+        "likes": 0
+      },
+      {
+        "name": "tomato",
+        "likes": 0
+      },
+      {
+        "name": "turmeric",
+        "likes": 0
+      },
+      {
+        "name": "red chilli",
+        "likes": 0
+      },
+      {
+        "name": "rocket",
+        "likes": 0
+      },
+      {
+        "name": "salt and pepper",
+        "likes": 0
+      },
+      {
+        "name": "bananas",
+        "likes": 0
+      },
+      {
+        "name": "peanut butter",
+        "likes": 0
+      },
+      {
+        "name": "dates",
+        "likes": 0
+      },
+      {
+        "name": "cocoa powder",
+        "likes": 0
+      },
+      {
+        "name": "ice",
+        "likes": 0
+      },
+      {
+        "name": "water",
+        "likes": 0
       }
     ],
-    "cuisines": []
+    "cuisines": [
+      {
+        "name": "",
+        "likes": 0
+      }
+    ]
   },
   {
     "user_id": 1,
@@ -108,6 +216,30 @@
         "prepTime": 45
       }
     ],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 8,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 9,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 10,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 11,
+    "meals": [],
     "ingredients": [],
     "cuisines": []
   }

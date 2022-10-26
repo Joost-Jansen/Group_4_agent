@@ -179,7 +179,7 @@ val ConfirmPersonalInformation : State = state(HandlePersonalInformation) {
 
 val EndPersonalInformation : State = state(Parent) {
     onEntry() {
-        goto(DayPreference)
+        goto(Evaluation)
     }
 }
 

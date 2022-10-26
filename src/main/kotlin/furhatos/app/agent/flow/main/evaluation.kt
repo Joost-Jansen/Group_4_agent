@@ -17,13 +17,14 @@ import furhatos.gestures.Gestures
 import furhatos.nlu.common.DontKnow
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
+import java.time.LocalDate
 
-var lastMeal: Meal = Meal(-1, "", mutableListOf<String>() , mutableListOf<String>(), "",-1, "", "", 0)
+var lastMeal: Meal = Meal(-1, "", mutableListOf() , mutableListOf(), "",-1, "", "", 0)
 
 val Evaluation : State = state(Parent) {
     onReentry {
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal !== null) {
+        if (meal !== null && meal.last_selected !== LocalDate.MIN.toString()) {
             lastMeal = meal
             furhat.ask(
                 random(
@@ -40,7 +41,7 @@ val Evaluation : State = state(Parent) {
     onEntry {
         current_user.last_step = "evaluation"
         val meal = userUpdates.findLastMeal(current_user.meals)
-        if (meal !== null) {
+        if (meal !== null && meal.last_selected !== LocalDate.MIN.toString()) {
             lastMeal = meal
             furhat.ask(
                 random(
@@ -90,30 +91,19 @@ val Evaluation : State = state(Parent) {
     onResponse<postiveWildCardIntent>{
         checkEmotion()
         if (it.intent.textInput !== null) {
-            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
-            var max: Float = "0.0".toFloat()
-            var max_label = ""
-            for (i in 0 until 3){
-                val current = sentimentQuery.getJSONObject(i)
-                val current_score = current.get("score").toString().toFloat()
-                if (current_score >= max){
-                    max = current_score
-                    max_label = current.get("label").toString()
-                }
-            }
-            var updateScore = 0
-            when(max_label){
-                "LABEL_0" ->{ 0
-//                    furhat.say("You were negative but you liked the meal.So Score is positive: $updateScore")
+            val p = getSentiment(it.intent.textInput.toString())
+            val max = p.first
+            when(p.second){
+                "LABEL_0" ->{
+
                     furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
                             " You're saying that you liked the meal, but you sound kind of negative.")
-//                    furhat.ask("Could you maybe specify?")
                     reentry()
                 }
                 "LABEL_1" ->{
-                    updateScore = 5
+                    val updateScore = 5
                     userUpdates.updateMeal(updateScore, lastMeal, current_user)
-                    furhat.say(random("Allright.","Nice!", "") +
+                    furhat.say(random("Alright.","Nice!", "") +
                                    random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                                    random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
@@ -121,9 +111,9 @@ val Evaluation : State = state(Parent) {
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
-                    updateScore = (10*max).toInt()
+                    val updateScore = (10*max).toInt()
                     userUpdates.updateMeal(updateScore, lastMeal, current_user)
-                    furhat.say(random("Allright.","Nice!", "") +
+                    furhat.say(random("Alright.","Nice!", "") +
                             random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                             random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
@@ -143,21 +133,11 @@ val Evaluation : State = state(Parent) {
     onResponse<negativeWildCardIntent>{
         checkEmotion()
         if (it.intent.textInput !== null) {
-            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
-            var max: Float = "0.0".toFloat()
-            var max_label = ""
-            for (i in 0 until 3){
-                val current = sentimentQuery.getJSONObject(i)
-                val current_score = current.get("score").toString().toFloat()
-                if (current_score >= max){
-                    max = current_score
-                    max_label = current.get("label").toString()
-                }
-            }
-            var updateScore = 0
-            when(max_label){
+            val p = getSentiment(it.intent.textInput.toString())
+            val max = p.first
+            when(p.second){
                 "LABEL_0" ->{
-                    updateScore = (-10*max).toInt()
+                    val updateScore = (-10*max).toInt()
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
@@ -165,7 +145,7 @@ val Evaluation : State = state(Parent) {
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
-                    updateScore = -3
+                    val updateScore = -3
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
@@ -191,21 +171,11 @@ val Evaluation : State = state(Parent) {
     onResponse<wildCardIntent> (priority = false){
         checkEmotion()
         if (it.intent.textInput !== null) {
-            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
-            var max: Float = "0.0".toFloat()
-            var max_label = ""
-            for (i in 0 until 3){
-                val current = sentimentQuery.getJSONObject(i)
-                val current_score = current.get("score").toString().toFloat()
-                if (current_score >= max){
-                    max = current_score
-                    max_label = current.get("label").toString()
-                }
-            }
-            var updateScore = 0
-            when(max_label){
+            val p = getSentiment(it.intent.textInput.toString())
+            val max = p.first
+            when(p.second){
                 "LABEL_0" ->{
-                    updateScore = (-10*max).toInt()
+                    val updateScore = (-10*max).toInt()
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
@@ -219,8 +189,8 @@ val Evaluation : State = state(Parent) {
                     reentry()
                 }
                 "LABEL_2" ->{
-                    updateScore = (10*max).toInt()
-                    furhat.say(random("Allright.","Nice!", "") +
+                    val updateScore = (10*max).toInt()
+                    furhat.say(random("Alright.","Nice!", "") +
                             random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                             random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
@@ -252,28 +222,18 @@ val PositiveMealEvaluation : State = state(Evaluation){
 
     onResponse<wildCardIntent>{
         if (it.intent.textInput !== null) {
-            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
-            var max: Float = "0.0".toFloat()
-            var max_label = ""
-            for (i in 0 until 3){
-                val current = sentimentQuery.getJSONObject(i)
-                val current_score = current.get("score").toString().toFloat()
-                if (current_score >= max){
-                    max = current_score
-                    max_label = current.get("label").toString()
-                }
-            }
-            var updateScore = 0
-            when(max_label){
+            val p = getSentiment(it.intent.textInput.toString())
+            val max = p.first
+            when(p.second){
                 "LABEL_0" ->{
                     furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
                             " You're saying that you didn't like the meal, but you sound kind of positive.")
                     reentry()
                 }
                 "LABEL_1" -> {
-                    updateScore = 5
+                    val updateScore = 5
                     furhat.say(
-                        random("Allright.", "Nice!", "") +
+                        random("Alright.", "Nice!", "") +
                                 random(
                                     " Great to hear that you liked the recipe.",
                                     " It's wonderful to hear you enjoy the recipe."
@@ -283,8 +243,8 @@ val PositiveMealEvaluation : State = state(Evaluation){
                     userUpdates.updateMeal(updateScore, lastMeal, current_user)
                 }
                 "LABEL_2" ->{
-                    updateScore = (10*max).toInt()
-                        furhat.say(random("Allright.","Nice!", "") +
+                    val updateScore = (10*max).toInt()
+                        furhat.say(random("Alright.","Nice!", "") +
                                 random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                                 random(" I'll keep that in mind.", " I'll remember that for the next time.")
                         )
@@ -322,21 +282,11 @@ val NegativeMealEvaluation : State = state(Evaluation){
 
     onResponse<wildCardIntent>{
         if (it.intent.textInput !== null) {
-            val sentimentQuery = queryHuggingFace(it.intent.textInput.toString())
-            var max: Float = "0.0".toFloat()
-            var max_label = ""
-            for (i in 0 until 3){
-                val current = sentimentQuery.getJSONObject(i)
-                val current_score = current.get("score").toString().toFloat()
-                if (current_score >= max){
-                    max = current_score
-                    max_label = current.get("label").toString()
-                }
-            }
-            var updateScore = 0
-            when(max_label){
+            val p = getSentiment(it.intent.textInput.toString())
+            val max = p.first
+            when(p.second){
                 "LABEL_0" ->{
-                    updateScore = (-10*max).toInt()
+                    val updateScore = (-10*max).toInt()
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
@@ -344,7 +294,7 @@ val NegativeMealEvaluation : State = state(Evaluation){
                     goto(DayPreference)
                 }
                 "LABEL_1" ->{
-                    updateScore = -5
+                    val updateScore = -5
                     furhat.say(random("Too bad that you didn't like the ${lastMeal.name}.", "It's so unfortunate you didn't like the ${lastMeal.name}.") +
                             random(" I'll try to remember that for your next meal.", " I'll keep that in mind for your next recommendation")
                     )
@@ -352,7 +302,6 @@ val NegativeMealEvaluation : State = state(Evaluation){
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
-                    updateScore = (-5*max).toInt()
                     furhat.say(random("Wait.", "I didn't quite get that.", "Perhaps I misunderstood.") +
                             " You're saying that you didn't like the meal, but you sound kind of positive.")
                     reentry()
@@ -376,10 +325,24 @@ val NegativeMealEvaluation : State = state(Evaluation){
 
 }
 
+fun getSentiment(input: String): Pair<Float,String> {
+    val sentimentQuery = queryHuggingFace(input)
+    var max: Float = "0.0".toFloat()
+    var maxLabel = ""
+    for (i in 0 until 3){
+        val current = sentimentQuery.getJSONObject(i)
+        val currentScore = current.get("score").toString().toFloat()
+        if (currentScore >= max){
+            max = currentScore
+            maxLabel = current.get("label").toString()
+        }
+    }
+    return Pair(max, maxLabel)
+}
+
 fun checkEmotion(){
     val emotion = getCurrentEmotion().get("emotion").toString()
-    var updateScore: Int = 0
-    updateScore = when (emotion){"Neutral"-> {
+    val updateScore = when (emotion){"Neutral"-> {
         0
     }
         "Happy", "Surprise" -> {
