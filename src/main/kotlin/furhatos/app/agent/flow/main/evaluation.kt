@@ -109,7 +109,6 @@ val Evaluation : State = state(Parent) {
                                    random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                                    random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
-
                     goto(DayPreference)
                 }
                 "LABEL_2" ->{
@@ -192,11 +191,11 @@ val Evaluation : State = state(Parent) {
                 }
                 "LABEL_2" ->{
                     val updateScore = (10*max).toInt()
+                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     furhat.say(random("Alright.","Nice!", "") +
                             random(" Great to hear that you liked the recipe.", " It's wonderful to hear you enjoy the recipe.") +
                             random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
-                    userUpdates.updateMeal(updateScore, lastMeal, current_user)
                     goto(DayPreference)
                 }
             }
@@ -240,9 +239,10 @@ val PositiveMealEvaluation : State = state(Evaluation){
                                     " Great to hear that you liked the recipe.",
                                     " It's wonderful to hear you enjoy the recipe."
                                 ) +
-                                random(" I'll keep that in mind.", "I'll remember that for the next time.")
+                                random(" I'll keep that in mind.", " I'll remember that for the next time.")
                     )
                     userUpdates.updateMeal(updateScore, lastMeal, current_user)
+                    goto(DayPreference)
                 }
                 "LABEL_2" ->{
                     val updateScore = (10*max).toInt()
@@ -251,6 +251,7 @@ val PositiveMealEvaluation : State = state(Evaluation){
                                 random(" I'll keep that in mind.", " I'll remember that for the next time.")
                         )
                     userUpdates.updateMeal(updateScore, lastMeal, current_user)
+                    goto(DayPreference)
                 }
             }
         }else{

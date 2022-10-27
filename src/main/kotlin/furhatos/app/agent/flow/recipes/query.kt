@@ -54,7 +54,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
             "complexSearch" -> {
                 //search recipe based on title
                 val question = user_input.replace("+", " plus ").replace(" ", "+")
-                val q = "$BASE_URL/$query_field/$query_type?" + "apiKey=${API_KEY}" +"&titleMatch=${question}&number=10&type=${current_user.preferred_meal_type}"
+                val q = "$BASE_URL/$query_field/$query_type?" + "apiKey=${API_KEY}" +"&turhatitleMatch=${question}&number=10&type=${current_user.preferred_meal_type}"
                 println(q)
                 val objects = get(q).jsonObject.getJSONArray("results")
                 for (i in 0 until objects.length()) {

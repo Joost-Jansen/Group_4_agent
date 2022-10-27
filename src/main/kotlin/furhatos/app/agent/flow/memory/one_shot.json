@@ -94,5 +94,23 @@
     "allergies": [
       "diary"
     ]
+  },
+  {
+    "user_id": 14,
+    "name": "Marcus",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 15,
+    "name": "Nicholas",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 16,
+    "name": "Barry",
+    "diet": [],
+    "allergies": []
   }
 ]

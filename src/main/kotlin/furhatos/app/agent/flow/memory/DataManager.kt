@@ -97,7 +97,6 @@ class UserUpdates {
         for (i in meal.ingredients){
             updateLikes(Ingredient(i, 0), user.ingredients, updateScore)
         }
-
         for (j in meal.cuisines){
            updateLikes(Cuisine(j, 0), user.cuisines, updateScore)
         }
