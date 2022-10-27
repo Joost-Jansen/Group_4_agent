@@ -43,7 +43,7 @@ val kuisine =
             +"American" tag {"American"}
             +("United states" / "North america") tag {"American"}
             +"British" tag {"British"}
-            +("English" / "Scottish" / "England" / "Scotland") tag {"British"}
+            +("English" / "Scottish" / "England" / "Scotland" / "Dutch") tag {"British"}
             +"Cajun" tag {"Cajun"}
             +"Caribbean" tag {"Caribbean"}
             +"Chinese" tag {"Chinese"}

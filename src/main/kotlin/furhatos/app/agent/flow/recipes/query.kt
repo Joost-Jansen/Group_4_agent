@@ -9,6 +9,7 @@ import khttp.get
 import khttp.post
 import org.json.JSONArray
 import org.json.JSONObject
+import java.lang.Math.random
 import java.net.URLEncoder
 import java.time.LocalDate
 import kotlin.math.min
@@ -23,7 +24,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
             +Gestures.GazeAway
         }
 
-        val query = "$BASE_URL/$query_field/$query_type?" +
+        val query = "$BASE_URL/$query_field/complexSearch?" +
                 "apiKey=${API_KEY}" +
                 "&diet=${current_user.diet.joinToString(",")}" +
                 "&intolerances=${current_user.allergies.joinToString(",")}" +
@@ -84,9 +85,14 @@ fun getPreferredCuisines(): String {
         return current_user.prefered_cuisine
     }
     if (current_user.cuisines !== null && !current_user.cuisines.isEmpty()){
+
         current_user.cuisines.sortByDescending { it.likes }
         return if (current_user.cuisines.size >= 3) {
-            current_user.cuisines.take(3).joinToString { it.name }
+            val index  = Random.nextInt(4)
+            print("index")
+            println(index)
+            current_user.cuisines.take(3)[index].toString()
+//                .joinToString { it.name }
         } else {
             println(current_user.cuisines.first().name)
             current_user.cuisines.first().name
@@ -180,6 +186,7 @@ fun queryHuggingFace(text: String): JSONArray {
 //var last_selected: String, // last time this meal was selected. Needs to be parsed with LocalDate (cannot do it beforehand. Makes difficulties with readinf and writing
 //var course: String // type of meal eg. desert
 fun main(args: Array<String>) {
+
 //    val sentimentQuery = queryHuggingFace("I hate you")
 //    val negative = sentimentQuery.getJSONObject(0).get("score").toString().toFloat()
 //    val neutral = sentimentQuery.getJSONObject(1).get("score").toString().toFloat()

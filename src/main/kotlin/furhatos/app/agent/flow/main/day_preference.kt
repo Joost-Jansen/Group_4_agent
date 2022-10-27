@@ -35,16 +35,27 @@ class requestMealType(val m: MealT? = null) : Intent() {
     }
 }
 
-class cookingTime() : Intent() {
+class cookingTimeMin() : Intent() {
     val n: Number = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine", "@n"
+            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine"
         )
     }
 }
 
-class cookingTimeLong() : Intent() {
+class cookingTimeComb() : Intent() {
+    val minut: Number = Number(1)
+    val hour: Number = Number(1)
+    override fun getExamples(lang: Language): List<String> {
+        return listOf(
+            "I have @hour hour and @minut minutes", "I -only have @hour and @minut minut", "I need @hour and @minut minutes", "I can cook for @hour and @minut minutes", "I will cook for @hour and @minut minutes",
+            "I can only cook for @hour and @minut minutes", "Under @hour and @minut minutes", "Under @hour and @minut minutes would be fine", "@hour and @minut"
+        )
+    }
+}
+
+class cookingTimeHour() : Intent() {
     val n: Number = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
@@ -67,8 +78,8 @@ class respondCuisine(val cuisin : Cuisine? = null) : Intent() {
 class leftOvers(val ingreds : ListOffIngredients? = null) : Intent() {
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I still have rice", "In my fridge I have milk", "rice", "I have rice and milk", "rice and milk", " i do have rice, milk, chicken and bananas",
-            "I have cheese milk bananas", "I have some milk left over"
+            "I still have rice", "In my fridge I have milk", "rice", "I have rice and milk", "rice and milk", " i do have rice milk chicken and bananas",
+            "I have cheese milk bananas", "I have some milk left over", "@ingreds", "I own @ingreds", ""
         )
     }
 }
@@ -76,6 +87,9 @@ class leftOvers(val ingreds : ListOffIngredients? = null) : Intent() {
 
 val DayPreference : State = state(Parent) {
     onEntry {
+        if(current_user.last_step == "recommendation") {
+            goto(AskLeftOver)
+        }
         current_user.last_step = "day_preference"
         furhat.ask(
             random(
@@ -93,10 +107,20 @@ val DayPreference : State = state(Parent) {
             val course = it.intent.m!!.meal.toString()
             current_user.preferred_meal_type = course
             furhat.gesture(Gestures.Blink)
-            furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
+            if(it.intent.m.toString() == "lunch") {
+                furhat.say("Okay, but before I give you a lunch recommendation I would like to have a bit more information")
+            } else {
+                furhat.say("Okay, but before I give you a $course recommendation I would like to have a bit more information")
+            }
             print(current_user.preferred_meal_type)
             goto(AskLeftOver)
         }
+    }
+}
+
+val reAdjusting : State = state(Parent) {
+    onEntry {
+
     }
 }
 
@@ -106,7 +130,7 @@ val AskAppitite : State = state(Parent) {
         furhat.ask(
             random(
                 "Are you hungry for a certain cuisine today?",
-                "At last I wanted to know if there maybe was a cuisine are you hungry for?",
+                "At last I wanted to know if there maybe was a cuisine you are hungry for?",
                 "Did you have some food in mind from a certain region or cuisine?"
             )
         )
@@ -217,15 +241,35 @@ val AskShort : State = state(AskTime) {
         current_user.last_step = "ask_short"
         furhat.ask(
             random(
-                "What is the maximum amount of minutes you would want to spend cooking?",
-                "How many minutes can you spare for making a meal"
+                "What is the maximum amount of time you would want to spend cooking?",
+                "How many hours do you have to make the meal?"
             )
         )
     }
-    onResponse<cookingTime> {
+    onResponse<cookingTimeMin> {
         print(current_user.time)
         if(it.intent.n != null) {
             val timeToCook = it.intent.n.toString().toInt()
+            current_user.time = timeToCook
+            print(current_user.time)
+            goto(AskAppitite)
+        }
+    }
+
+    onResponse<cookingTimeHour> {
+        print(current_user.time)
+        if(it.intent.n != null) {
+            val timeToCook = it.intent.n.toString().toInt() * 60
+            current_user.time = timeToCook
+            print(current_user.time)
+            goto(AskAppitite)
+        }
+    }
+
+    onResponse<cookingTimeComb> {
+        print(current_user.time)
+        if(it.intent.minut != null && it.intent.hour != null) {
+            val timeToCook = it.intent.hour.toString().toInt() * 60 + it.intent.minut.toString().toInt()
             current_user.time = timeToCook
             print(current_user.time)
             goto(AskAppitite)
@@ -243,10 +287,31 @@ val AskLong : State = state(AskTime) {
             )
         )
     }
-    onResponse<cookingTimeLong> {
+    onResponse<cookingTimeMin> {
+        print(current_user.time)
+        if(it.intent.n != null) {
+            val timeToCook = it.intent.n.toString().toInt()
+
+            current_user.time = timeToCook
+            print(current_user.time)
+            goto(AskAppitite)
+        }
+    }
+
+    onResponse<cookingTimeHour> {
         print(current_user.time)
         if(it.intent.n != null) {
             val timeToCook = it.intent.n.toString().toInt() * 60
+            current_user.time = timeToCook
+            print(current_user.time)
+            goto(AskAppitite)
+        }
+    }
+
+    onResponse<cookingTimeComb> {
+        print(current_user.time)
+        if(it.intent.minut != null && it.intent.hour != null) {
+            val timeToCook = it.intent.hour.toString().toInt() * 60 + it.intent.minut.toString().toInt()
             current_user.time = timeToCook
             print(current_user.time)
             goto(AskAppitite)

@@ -244,9 +244,172 @@
   },
   {
     "user_id": 1,
-    "meals": [],
-    "ingredients": [],
-    "cuisines": []
+    "meals": [
+      {
+        "id": 655698,
+        "name": "Pepperoni Pizza Muffins",
+        "ingredients": [
+          "all purpose flour",
+          "baking mix",
+          "baking soda",
+          "salt",
+          "basil",
+          "oregano",
+          "garlic powder",
+          "egg",
+          "milk",
+          "cooking oil",
+          "granulated sugar",
+          "canned diced tomatoes",
+          "cheese",
+          "pepperoni"
+        ],
+        "cuisines": [
+          "Mediterranean",
+          "Italian",
+          "European"
+        ],
+        "course": "morning meal",
+        "likes": 2,
+        "last_selected": "2022-10-27",
+        "prepTime": 45,
+        "summary": "Pepperoni Pizza Muffins might be just the \u003cb\u003eMediterranean\u003c/b\u003e recipe you are searching for. This recipe serves 6 and costs 59 cents per serving. This breakfast has \u003cb\u003e270 calories\u003c/b\u003e, \u003cb\u003e11g of protein\u003c/b\u003e, and \u003cb\u003e15g of fat\u003c/b\u003e per serving"
+      },
+      {
+        "id": 1697783,
+        "name": "Tiramisu Overnight Oats",
+        "ingredients": [
+          "old fashioned rolled oats",
+          "chia seeds",
+          "honey",
+          "vanilla extract",
+          "milk",
+          "strong coffee",
+          "greek yogurt",
+          "mascarpone cheese",
+          "cocoa powder",
+          "chocolate \u0026 extra cocoa powder"
+        ],
+        "cuisines": [
+          "Mediterranean",
+          "Italian",
+          "European"
+        ],
+        "course": "morning meal",
+        "likes": 2,
+        "last_selected": "2022-10-27",
+        "prepTime": 5,
+        "summary": "Tiramisu Overnight Oats could be just the \u003cb\u003egluten free and lacto ovo vegetarian\u003c/b\u003e recipe you\u0027ve been looking for. For \u003cb\u003e$2.41 per serving\u003c/b\u003e, this recipe \u003cb\u003ecovers 1%\u003c/b\u003e of your daily requirements of vitamins and minerals"
+      }
+    ],
+    "ingredients": [
+      {
+        "name": "all purpose flour",
+        "likes": 0
+      },
+      {
+        "name": "baking mix",
+        "likes": 0
+      },
+      {
+        "name": "baking soda",
+        "likes": 0
+      },
+      {
+        "name": "salt",
+        "likes": 0
+      },
+      {
+        "name": "basil",
+        "likes": 0
+      },
+      {
+        "name": "oregano",
+        "likes": 0
+      },
+      {
+        "name": "garlic powder",
+        "likes": 0
+      },
+      {
+        "name": "egg",
+        "likes": 0
+      },
+      {
+        "name": "milk",
+        "likes": 0
+      },
+      {
+        "name": "cooking oil",
+        "likes": 0
+      },
+      {
+        "name": "granulated sugar",
+        "likes": 0
+      },
+      {
+        "name": "canned diced tomatoes",
+        "likes": 0
+      },
+      {
+        "name": "cheese",
+        "likes": 0
+      },
+      {
+        "name": "pepperoni",
+        "likes": 0
+      },
+      {
+        "name": "old fashioned rolled oats",
+        "likes": 0
+      },
+      {
+        "name": "chia seeds",
+        "likes": 0
+      },
+      {
+        "name": "honey",
+        "likes": 0
+      },
+      {
+        "name": "vanilla extract",
+        "likes": 0
+      },
+      {
+        "name": "strong coffee",
+        "likes": 0
+      },
+      {
+        "name": "greek yogurt",
+        "likes": 0
+      },
+      {
+        "name": "mascarpone cheese",
+        "likes": 0
+      },
+      {
+        "name": "cocoa powder",
+        "likes": 0
+      },
+      {
+        "name": "chocolate \u0026 extra cocoa powder",
+        "likes": 0
+      }
+    ],
+    "cuisines": [
+      {
+        "name": "Mediterranean",
+        "likes": 0
+      },
+      {
+        "name": "Italian",
+        "likes": 0
+      },
+      {
+        "name": "European",
+        "likes": 0
+      }
+    ]
   },
   {
     "user_id": 2,
@@ -533,6 +696,12 @@
   },
   {
     "user_id": 16,
+    "meals": [],
+    "ingredients": [],
+    "cuisines": []
+  },
+  {
+    "user_id": 17,
     "meals": [],
     "ingredients": [],
     "cuisines": []

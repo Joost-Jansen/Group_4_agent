@@ -112,5 +112,11 @@
     "name": "Barry",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 17,
+    "name": "Jimmy",
+    "diet": [],
+    "allergies": []
   }
 ]
