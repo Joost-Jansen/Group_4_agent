@@ -3,7 +3,6 @@ package furhatos.app.agent.flow.recipes
 import furhatos.app.agent.current_user
 import furhatos.app.agent.flow.Parent
 import furhatos.app.agent.flow.main.DayPreference
-import furhatos.app.agent.flow.main.Idle
 import furhatos.app.agent.flow.memory.data.Cuisine
 import furhatos.app.agent.flow.memory.data.Ingredient
 import furhatos.app.agent.flow.memory.data.Meal
@@ -50,8 +49,8 @@ val Recommendation : State = state(Parent) {
             if(bool!!) {
                reentry()
             } else {
-                current_user.last_step = "greeting"
-                goto(Idle)
+                // current_user.last_step = "greeting", moved to foodjoke
+                goto(FoodJoke)
             }
         }
     }
@@ -61,9 +60,9 @@ val Recommendation : State = state(Parent) {
     }
 
     onResponse<No> {
-        furhat.say("Alright, I'll be available if you need me.")
-        current_user.last_step = "greeting"
-        goto(Idle)
+        furhat.say("Alright.")
+        // current_user.last_step = "greeting", moved to foodjoke
+        goto(FoodJoke)
     }
 }
 
@@ -93,8 +92,8 @@ val GiveRecommendation = state(Parent) {
             goto(EvaluateRecommendation(recipe))
         } else {
             furhat.say("Unfortunately, I'm out of recommended recipes.")
-            current_user.last_step = "greeting"
-            goto(Idle)
+            // current_user.last_step = "greeting", moved to foodjoke
+            goto(FoodJoke)
         }
     }
 }
@@ -130,16 +129,16 @@ fun EvaluateRecommendation(recipe: Meal) : State = state(Parent) {
                     print(recommendations)
                     goto(GiveRecommendation)
                 } else {
-                    furhat.say("Okay, I'll be here if you need me.")
-                    goto(Idle)
+                    furhat.say("Okay")
+                    goto(FoodJoke)
                 }
             } else {
                 goto(GiveRecommendation)
             }
         } else {
-            furhat.say("Okay, I'll be here if you need me.")
-            current_user.last_step = "greeting"
-            goto(Idle)
+            furhat.say("Okay. No problem")
+            // current_user.last_step = "greeting", moved to FoodJoke
+            goto(FoodJoke)
         }
     }
 }
@@ -147,11 +146,11 @@ fun EvaluateRecommendation(recipe: Meal) : State = state(Parent) {
 val EndRecommendation : State = state(Parent) {
     onEntry {
         random(
-            {furhat.say("Enjoy your meal and see you next time!")},
-            {furhat.say("Bon appetite! See you soon.")}
+            {furhat.say("Enjoy your meal!")},
+            {furhat.say("Bon appetite!")}
         )
-        current_user.last_step = "greeting"
-        goto(Idle)
+        // current_user.last_step = "greeting", moved this to FoodJoke.
+        goto(FoodJoke)
     }
 }
 

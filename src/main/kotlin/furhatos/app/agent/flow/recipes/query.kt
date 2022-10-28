@@ -50,7 +50,7 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
             "jokes/random"-> {
                 // Get the title of the dish from the response
                 val joke_query = "$BASE_URL/$query_field/$query_type?apiKey=${API_KEY}"
-                terminate(get(joke_query).jsonObject.getString("text"))
+                terminate(listOf<String>(get(joke_query).jsonObject.getString("text")))
             }
             "complexSearch" -> {
                 //search recipe based on title
