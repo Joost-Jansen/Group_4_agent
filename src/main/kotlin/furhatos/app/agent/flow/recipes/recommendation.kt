@@ -13,7 +13,6 @@ import furhatos.flow.kotlin.onResponse
 import furhatos.flow.kotlin.state
 import furhatos.nlu.common.No
 import furhatos.nlu.common.Yes
-import furhatos.skills.Skill
 import java.time.LocalDate
 
 val BASE_URL = "https://api.spoonacular.com" // Spoonacular API url
@@ -84,7 +83,7 @@ val GiveRecommendation = state(Parent) {
             // Provide additional information
             val moreInfo = furhat.askYN("Would you like some more information?")
             if (moreInfo!! && moreInfo) {
-                val string = recipe.summary.replace(Regex("[(<b>)(<\\\\/b>]"), "")
+                val string = recipe.summary.replace(Regex("(<b>)|(</b>)|(<a.*?>)|(</a>)"), "")
                 furhat.say(string)
                 furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
             }
