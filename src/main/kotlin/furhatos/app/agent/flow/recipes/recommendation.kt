@@ -17,7 +17,9 @@ import furhatos.skills.Skill
 import java.time.LocalDate
 
 val BASE_URL = "https://api.spoonacular.com" // Spoonacular API url
-val API_KEY = "e9eeb0d76f024efcaf7cd32ae444c899" // Key to free account
+val API_KEY = "9194c2c9ed884032b824fbbde7714ab2" // Key to free account
+//e9eeb0d76f024efcaf7cd32ae444c899
+//9194c2c9ed884032b824fbbde7714ab2
 val TIMEOUT = 5000 // 5 seconds
 var recommendations: MutableList<Meal> = mutableListOf()
 
