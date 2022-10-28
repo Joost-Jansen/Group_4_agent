@@ -25,11 +25,10 @@ val Recommendation : State = state(Parent) {
     onEntry {
         current_user.last_step = "recommendation"
         try {
-            recommendations = call(query("recipes", "search")) as MutableList<Meal>
+            recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
             if (recommendations.isEmpty()) {
-                furhat.say("Sorry, I could not find a recipe. Let's go over your preferences again. " +
-                        "It might help if you are a little bit less specific.")
-                goto(DayPreference)
+                print("Specific")
+                goto(toSpecific)
             } else {
                 random(
                     {furhat.say("I have some ideas on which recipes you might like.")},
@@ -86,6 +85,8 @@ val GiveRecommendation = state(Parent) {
                 val string = recipe.summary.replace(Regex("(<b>)|(</b>)|(<a.*?>)|(</a>)"), "")
                 furhat.say(string)
                 furhat.say("It takes " + recipe.prepTime + " minutes to cook.")
+            } else {
+                goto(EvaluateRecommendation(recipe))
             }
 
             goto(EvaluateRecommendation(recipe))
@@ -120,25 +121,66 @@ fun EvaluateRecommendation(recipe: Meal) : State = state(Parent) {
         userUpdates.updateMeal(-2, recipe, current_user)
         if (another!! && another) {
             if (recommendations.isEmpty()) {
-                val genericRecommendation = furhat.askYN("Your demands are too specific, would you like a more generic ${current_user.preferred_meal_type}")
-                if(genericRecommendation!! && genericRecommendation) {
-                    furhat.say("Okay")
-                    print(recommendations)
-                    recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
-                    print(recommendations)
-                    goto(GiveRecommendation)
-                } else {
-                    furhat.say("Okay")
-                    goto(FoodJoke)
-                }
+                goto(toSpecific)
             } else {
                 goto(GiveRecommendation)
             }
         } else {
-            furhat.say("Okay. No problem")
-            // current_user.last_step = "greeting", moved to FoodJoke
+            furhat.say("Okay")
             goto(FoodJoke)
         }
+    }
+}
+
+val toSpecific : State = state(Parent) {
+    onEntry {
+        current_user.last_step = "toSpecific"
+        furhat.say("Sorry I could not comply with all requirements.")
+        current_user.left_overs.clear()
+        recommendations = call(query("recipes", "complexSearch")) as MutableList<Meal>
+        if (!recommendations.isEmpty()) {
+            furhat.say("I did find some recipes but was not able to fit in all you left overs.")
+            random(
+                {furhat.ask("Would you like to know?")},
+                {furhat.ask("Should I tell?")},
+                {furhat.ask("Are you curious?")}
+            )
+        } else {
+            recommendations = call(query("recipes", "complexSearch", "cuis")) as MutableList<Meal>
+            if (!recommendations.isEmpty()) {
+                furhat.say("There are no recipes that use your left overs, that are ${current_user.prefered_cuisine}")
+                furhat.say("I did find some recipes that fit your diet and time constraints.")
+
+                random(
+                    { furhat.ask("Would you like to know?") },
+                    { furhat.ask("Should I tell?") },
+                    { furhat.ask("Are you curious?") }
+                )
+            }
+        }
+
+        furhat.say("I was not able to find a ${current_user.preferred_meal_type} that met your diet and time constraints.")
+        val newEval = furhat.askYN(random(
+            "Do you want to change your preferences?",
+            "Is it possible to change your demands?"
+            )
+        )
+        if (newEval!! && newEval) {
+            goto(DayPreference)
+        } else {
+            furhat.say("Okay")
+            goto(FoodJoke)
+        }
+
+    }
+
+    onResponse<Yes> {
+        goto(GiveRecommendation)
+    }
+
+    onResponse<No> {
+        furhat.say("Okay")
+        goto(FoodJoke)
     }
 }
 

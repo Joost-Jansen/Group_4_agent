@@ -188,7 +188,7 @@ val mealType =
             +("dessert" / "desert") tag {"dessert"}
             +"appetizer" tag {"appetizer"}
             +"breakfast" tag {"breakfast"}
-            +("lunch" / "brunch") tag {"breakfast"}
+            +("lunch" / "brunch") tag {"breakfast|salad|soup|"}
         }
     }
 

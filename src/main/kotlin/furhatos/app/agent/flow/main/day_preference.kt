@@ -39,18 +39,7 @@ class cookingTimeMin() : Intent() {
     val n: Number = Number(1)
     override fun getExamples(lang: Language): List<String> {
         return listOf(
-            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine"
-        )
-    }
-}
-
-class cookingTimeComb() : Intent() {
-    val minut: Number = Number(1)
-    val hour: Number = Number(1)
-    override fun getExamples(lang: Language): List<String> {
-        return listOf(
-            "I have @hour hour and @minut minutes", "I -only have @hour and @minut minut", "I need @hour and @minut minutes", "I can cook for @hour and @minut minutes", "I will cook for @hour and @minut minutes",
-            "I can only cook for @hour and @minut minutes", "Under @hour and @minut minutes", "Under @hour and @minut minutes would be fine", "@hour and @minut"
+            "I have @n minutes", "I -only have @n minutes", "I need @n", "I can cook for @n minutes", "I will cook for @n minutes", "I can only cook for @n minutes", "Under @n minutes", "Under @n minutes would be fine", "@n"
         )
     }
 }
@@ -90,6 +79,9 @@ val DayPreference : State = state(Parent) {
         if(current_user.last_step == "recommendation") {
             goto(AskLeftOver)
         }
+        if(current_user.last_step == "toSpecific") {
+            goto(AskTime)
+        }
         current_user.last_step = "day_preference"
         furhat.ask(
             random(
@@ -118,11 +110,6 @@ val DayPreference : State = state(Parent) {
     }
 }
 
-val reAdjusting : State = state(Parent) {
-    onEntry {
-
-    }
-}
 
 val AskAppitite : State = state(Parent) {
     onEntry {
@@ -130,7 +117,7 @@ val AskAppitite : State = state(Parent) {
         furhat.ask(
             random(
                 "Are you hungry for a certain cuisine today?",
-                "At last I wanted to know if there maybe was a cuisine you are hungry for?",
+                "At last I wanted to know if there maybe was a cuisine you were hungry for?",
                 "Did you have some food in mind from a certain region or cuisine?"
             )
         )
@@ -241,8 +228,8 @@ val AskShort : State = state(AskTime) {
         current_user.last_step = "ask_short"
         furhat.ask(
             random(
-                "What is the maximum amount of time you would want to spend cooking?",
-                "How many hours do you have to make the meal?"
+                "What is the maximum amount of minutes you would want to spend cooking?",
+                "How many minutes do you have spare to make a meal?"
             )
         )
     }
@@ -256,24 +243,9 @@ val AskShort : State = state(AskTime) {
         }
     }
 
-    onResponse<cookingTimeHour> {
-        print(current_user.time)
-        if(it.intent.n != null) {
-            val timeToCook = it.intent.n.toString().toInt() * 60
-            current_user.time = timeToCook
-            print(current_user.time)
-            goto(AskAppitite)
-        }
-    }
-
-    onResponse<cookingTimeComb> {
-        print(current_user.time)
-        if(it.intent.minut != null && it.intent.hour != null) {
-            val timeToCook = it.intent.hour.toString().toInt() * 60 + it.intent.minut.toString().toInt()
-            current_user.time = timeToCook
-            print(current_user.time)
-            goto(AskAppitite)
-        }
+    onResponse<No> {
+        furhat.say("Okay, nice to hear you have all the time")
+        goto(AskAppitite)
     }
 }
 
@@ -287,16 +259,6 @@ val AskLong : State = state(AskTime) {
             )
         )
     }
-    onResponse<cookingTimeMin> {
-        print(current_user.time)
-        if(it.intent.n != null) {
-            val timeToCook = it.intent.n.toString().toInt()
-
-            current_user.time = timeToCook
-            print(current_user.time)
-            goto(AskAppitite)
-        }
-    }
 
     onResponse<cookingTimeHour> {
         print(current_user.time)
@@ -308,15 +270,12 @@ val AskLong : State = state(AskTime) {
         }
     }
 
-    onResponse<cookingTimeComb> {
-        print(current_user.time)
-        if(it.intent.minut != null && it.intent.hour != null) {
-            val timeToCook = it.intent.hour.toString().toInt() * 60 + it.intent.minut.toString().toInt()
-            current_user.time = timeToCook
-            print(current_user.time)
-            goto(AskAppitite)
-        }
+    onResponse<No> {
+        furhat.say("Okay, nice to hear you have all the time")
+        goto(AskAppitite)
     }
+
+
 }
 
 val AskLeftOver : State = state(Parent) {

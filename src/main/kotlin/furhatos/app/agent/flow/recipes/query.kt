@@ -16,28 +16,37 @@ import kotlin.math.min
 import kotlin.random.Random
 
 // Query to the API
+
 fun query(query_field: String, query_type: String, user_input: String = "") = state {
     onEntry {
         // While waiting for API
-        furhat.say(async = true) {
-            +"Let's see"
-            +Gestures.GazeAway
+        if(current_user.last_step != "toSpecific") {
+            furhat.say(async = true) {
+                +"Let's see"
+                +Gestures.GazeAway
+            }
         }
 
-        val query = "$BASE_URL/$query_field/complexSearch?" +
+
+        var cuisines = ""
+        if(user_input == "") {
+            cuisines = getPreferredCuisines()
+        }
+
+        val query = "$BASE_URL/$query_field/$query_type?" +
                 "apiKey=${API_KEY}" +
                 "&diet=${current_user.diet.joinToString(",")}" +
                 "&intolerances=${current_user.allergies.joinToString(",")}" +
                 "&number=10" +
                 "&type=${current_user.preferred_meal_type}" +
-                "&cuisine=${getPreferredCuisines()}" +
+                "&cuisine=${cuisines}" +
                 "&includeIngredients=${getPreferredIngredients()}" +
                 "&maxReadyTime=${current_user.time}"
         println(query)
 
         val result = mutableListOf<Meal>()
         when (query_type) {
-            "search" -> {
+            "complexSearch" -> {
                 // Get the title of the dish from the response
                 val objects = get(query).jsonObject.getJSONArray("results")
                 print(objects)
@@ -51,18 +60,6 @@ fun query(query_field: String, query_type: String, user_input: String = "") = st
                 // Get the title of the dish from the response
                 val joke_query = "$BASE_URL/$query_field/$query_type?apiKey=${API_KEY}"
                 terminate(listOf<String>(get(joke_query).jsonObject.getString("text")))
-            }
-            "complexSearch" -> {
-                //search recipe based on title
-                val question = user_input.replace("+", " plus ").replace(" ", "+")
-                val q = "$BASE_URL/$query_field/$query_type?" + "apiKey=${API_KEY}" +"&turhatitleMatch=${question}&number=10&type=${current_user.preferred_meal_type}"
-                println(q)
-                val objects = get(q).jsonObject.getJSONArray("results")
-                for (i in 0 until objects.length()) {
-                    val meal = JSONObjectToMeal(objects.getJSONObject(0))
-                    result += meal
-                }
-                println(result)
             }
             else -> {
                 print("Query type not defined")
