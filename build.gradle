@@ -45,8 +45,8 @@ repositories {
 
 dependencies {
     implementation 'org.jetbrains.kotlinx:dataframe:0.8.1'
-    compile 'com.furhatrobotics.furhatos:furhat-commons:2.4.0'
-    compile 'khttp:khttp:0.1.0'
+    implementation 'com.furhatrobotics.furhatos:furhat-commons:2.4.0'
+    implementation 'khttp:khttp:0.1.0'
 }
 
 jar {
