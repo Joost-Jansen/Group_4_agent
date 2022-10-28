@@ -118,5 +118,25 @@
     "name": "Jimmy",
     "diet": [],
     "allergies": []
+  },
+  {
+    "user_id": 18,
+    "name": "Jeffrey",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 19,
+    "name": "Jeremy",
+    "diet": [],
+    "allergies": []
+  },
+  {
+    "user_id": 20,
+    "name": "Jeffery",
+    "diet": [],
+    "allergies": [
+      "peanut"
+    ]
   }
 ]
