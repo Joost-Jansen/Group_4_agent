@@ -6,19 +6,19 @@ import scipy.stats as stats
 import warnings
 warnings.filterwarnings("ignore")
 
+plt.rc('font', size=17)
+plt.clf()
+
 def shapiro_test(group1, group2):
     shapiro1 = stats.shapiro(group1)
-    if (shapiro1.pvalue < 0.05): 
-        #print("G1:", shapiro1.pvalue)
-        return False
-
     shapiro2 = stats.shapiro(group2)
-    if (shapiro2.pvalue < 0.05): 
-        #print("G2:", shapiro2.pvalue)
-        return False
+
+    if (shapiro1.pvalue < 0.05 or shapiro2.pvalue < 0.05): 
+        #print("G1:", shapiro1.pvalue)
+        return False, shapiro1.pvalue, shapiro2.pvalue
 
     # If all values are significant
-    return True
+    return True, shapiro1.pvalue, shapiro2.pvalue
 
 def f_test(x, y):
     x = np.array(x)
@@ -60,22 +60,31 @@ headers = [str(column) for column in df][2:]
 # For each measurement we are gonna measure significance
 for i, header in enumerate(headers):
     # Groups for natural
-    g1 = df[header][df['group'] == 'blank']
+    g1 = df[header][df['group'] == 'no-memory']
     g2 = df[header][df['group'] == 'memory']
 
+    print("----", header, i, "----")
+    test, p1, p2 = shapiro_test(g1, g2)
     # Check if both are normally distributed
-    if shapiro_test(g1, g2):
+    if test:
+        print(" + Shapiro Test:", round(p1,4), round(p2,4))
         # Do f test to check for significance in difference in variance
         statistic, p_value = f_test(g1, g2)
         if (p_value > 0.05):
+            print(" + F-Test:", round(p_value,4))
             # If value above use the T-test
             statistic, p_value = stats.ttest_ind(g1, g2, equal_var=True)
+            print(" = T-Test p_value:", round(p_value,4))
         else:
+            print(" - F-Test:", round(p_value,4))
             # If value above use the Weltch T-test
             statistic, p_value = stats.ttest_ind(g1, g2, equal_var=False)
+            print(" = Weltch p_value:", round(p_value,4))
     else:
+        print(" - Shapiro Test:", round(p1,4), round(p2,4))
         # If not do Wilcoxon rank test
         statistic, p_value = stats.wilcoxon(g1, g2)
+        print(" = Wilcoxon p_value:", round(p_value,4))
 
     # Concatenate results for boxplot
     g1.reset_index(drop=True, inplace=True)
@@ -85,9 +94,8 @@ for i, header in enumerate(headers):
     # Safe plot
     plt.figure()
     frame.boxplot()
-    plt.title(header)
-    plt.savefig('./analysis/' + str(i) + "-" + header + '.png')
+    plt.savefig('./analysis/' + str(i) + "-" + header + '.png', bbox_inches='tight')
 
     # Reject null hypothesis or not
-    print("- REJECT:" if p_value < 0.05 else "+ ACCEPT:", i, header, p_value)
+    print(" - REJECT" if p_value < 0.05 else " + ACCEPT")
 

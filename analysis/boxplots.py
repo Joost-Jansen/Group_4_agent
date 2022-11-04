@@ -15,7 +15,7 @@ for column in ['conscious', 'lively', 'responsive', 'nice', 'sensible', 'calm_b'
 
 # Dataframes of memory and no memory group
 df_mem = df.loc[df['group'] == "memory"]
-df_non = df.loc[df['group'] == "blank"]
+df_non = df.loc[df['group'] == "no-memory"]
 
 # Get headers we want to check for
 headers = [str(column) for column in df][2:]
