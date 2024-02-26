@@ -1,4 +1,4 @@
-# README for Spoonie: A Food Recommendation Agent
+# Spoonie: A Food Recommendation Agent
 
 ## Overview
 
