@@ -2,7 +2,7 @@
 
 ## Overview
 
-Spoonie is a conversational agent designed to provide personalized food recommendations. Developed at Delft University of Technology, this project explores the impact of long-term and one-shot memory modules on the user experience in recipe recommendation systems. By engaging in conversations, Spoonie learns user preferences to suggest meals, improving its recommendations over multiple encounters.
+Spoonie is a conversational agent designed to provide personalized food recommendations. Developed at Delft University of Technology, this project explores the impact of long-term and one-shot memory modules on the user experience in recipe recommendation systems. By engaging in conversations, Spoonie learns user preferences to suggest meals, improving its recommendations over multiple encounters. Full details are provided in the following [paper](spoonie_paper.pdf).
 
 ## Features
 
